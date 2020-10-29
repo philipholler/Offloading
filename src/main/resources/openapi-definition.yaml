@@ -21,17 +21,27 @@ components:
 paths:
   /jobs:
     get:
-      description: Returns funky stuff
+      description: Returns a job file
       operationId: jobsGet
+      "parameters": [
+        {
+          "in": "query",
+          "name": "name",
+          "description": "Job object that needs to be added to the store",
+          "required": true,
+          "schema": {
+            "$ref": '#/components/schemas/job'
+          }
+        }
+      ]
       responses:
         '200':
           description: List of funky stuff
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/job'
+                type: string
+                format: binary
     post:
       summary: Create a job
       operationId: jobsPost
