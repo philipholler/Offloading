@@ -43,25 +43,21 @@ paths:
                 type: string
                 format: binary
     post:
-      summary: Create a job
-      operationId: jobsPost
-      "parameters": [
-        {
-          "in": "query",
-          "name": "query",
-          "description": "Job object that needs to be added to the store",
-          "required": true,
-          "schema": {
-            "$ref": '#/components/schemas/job'
-          }
-        }
-      ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                file:
+                  type: string
+                  format: binary
       responses:
-        '201':
-          description: Created job
-        default:
-          description: unexpected error
+        '200':
+          description: unimplemented
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/job'
+                type: int

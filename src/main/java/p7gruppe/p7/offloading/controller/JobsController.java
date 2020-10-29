@@ -6,15 +6,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartResolver;
 import p7gruppe.p7.offloading.api.JobsApi;
 import p7gruppe.p7.offloading.model.Job;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Paths;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Controller
 public class JobsController implements JobsApi {
@@ -38,8 +39,13 @@ public class JobsController implements JobsApi {
     }
 
     @Override
-    public ResponseEntity<Integer> jobsPost(@Valid Resource body) {
-        System.out.println(body.getDescription());
+    public ResponseEntity<Integer> jobsPost(String name, @Valid MultipartFile file) {
+        File f = new File(jobsPath.concat(File.separator).concat(name));
+        try {
+            file.transferTo(f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }
