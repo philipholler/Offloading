@@ -38,14 +38,5 @@ public class JobsController implements JobsApi {
         return null;
     }
 
-    @Override
-    public ResponseEntity<Integer> jobsPost(String name, @Valid MultipartFile file) {
-        File f = new File(jobsPath.concat(File.separator).concat(name));
-        try {
-            file.transferTo(f);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+
 }
