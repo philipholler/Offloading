@@ -23,7 +23,7 @@ components:
       description: See https://developers.getbase.com/docs/rest/articles/oauth2/requests
       flows:
         password:
-          tokenUrl: http://localhost:9000
+          tokenUrl: http://localhost:9000/oauth/token
           scopes: {}
 
 # Step 2 - apply security globally...
