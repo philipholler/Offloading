@@ -4,7 +4,7 @@ info:
   version: "1.0.0"
   title: "Offloading"
 servers:
-  - url: http://192.168.87.171:8080
+  - url: http://localhost:8080
 
 components:
   schemas:
@@ -17,6 +17,18 @@ components:
           type: integer
           format: i64
           default: 0
+  securitySchemes:
+    oAuth2Password:
+      type: oauth2
+      description: See https://developers.getbase.com/docs/rest/articles/oauth2/requests
+      flows:
+        password:
+          tokenUrl: http://localhost:9000
+          scopes: {}
+
+# Step 2 - apply security globally...
+security:
+  - oAuthNoScope: []
 
 paths:
   /jobs:
@@ -42,4 +54,22 @@ paths:
               schema:
                 type: string
                 format: binary
-
+    post:
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: unimplemented
+          content:
+            application/json:
+              schema:
+                type: integer

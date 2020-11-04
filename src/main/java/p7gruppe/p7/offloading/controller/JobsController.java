@@ -5,17 +5,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartResolver;
 import p7gruppe.p7.offloading.api.JobsApi;
-import p7gruppe.p7.offloading.database.DataManager;
 import p7gruppe.p7.offloading.model.Job;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.nio.file.Paths;
-import java.sql.SQLException;
+import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -24,22 +24,32 @@ public class JobsController implements JobsApi {
 
     static final String jobsPath = System.getProperty("user.dir") + File.separator + "data";
 
+
+
     @Override
     public ResponseEntity<Resource> jobsGet(@NotNull @Valid Job name) {
         File file = new File(jobsPath + name.getName());
         try {
-            System.out.println(DataManager.getFirstDbname());
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
             return ResponseEntity.ok()
                     .headers(new HttpHeaders())
                     .contentLength(file.length())
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(resource);
-        } catch (FileNotFoundException | SQLException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-
+    @Override
+    public ResponseEntity<Integer> jobsPost(String name, @Valid MultipartFile file) {
+        File f = new File(jobsPath.concat(File.separator).concat(name));
+        try {
+            file.transferTo(f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
