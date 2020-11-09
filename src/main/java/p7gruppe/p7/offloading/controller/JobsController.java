@@ -58,7 +58,7 @@ public class JobsController implements JobsApi {
         directory = new File(directoryString + "\\" + file.getOriginalFilename());
         try {
             file.transferTo(directory);
-            DataManager.insertJobInDB(file.getName(),directory.getAbsolutePath());
+            DataManager.insertJobInDB(file.getOriginalFilename(),directory.getAbsolutePath());
         } catch (IllegalStateException | IOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
         }
