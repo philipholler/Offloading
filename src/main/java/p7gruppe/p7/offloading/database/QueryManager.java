@@ -6,4 +6,9 @@ public class QueryManager {
     public static String selectAllFromTable(){
         return "SELECT * FROM \"Clients\"";
     }
+
+
+    public static String insertJob(String jobName, String jobPath){
+        return "INSERT INTO \"Job\" (jobname, \"Jobpath\") VALUES ('"+jobName+"', '"+jobPath+"')";
+    }
 }

@@ -15,4 +15,9 @@ public class DataManager {
         return "";
 
     }
+
+
+    public static void insertJobInDB(String jobName, String jobPath){
+        ConnectionManager.updateSql(QueryManager.insertJob(jobName,jobPath));
+    }
 }
