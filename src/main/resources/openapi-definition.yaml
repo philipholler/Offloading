@@ -17,28 +17,28 @@ components:
           type: integer
           format: i64
           default: 0
+  securitySchemes:
+    oAuth2Password:
+      type: oauth2
+      description: See https://developers.getbase.com/docs/rest/articles/oauth2/requests
+      flows:
+        password:
+          tokenUrl: http://localhost:9000/oauth/token
+          scopes: {}
+
+# Step 2 - apply security globally...
+security:
+  - oAuthNoScope: []
 
 paths:
   /jobs:
     get:
-      description: Returns funky stuff
+      description: Returns a job file
       operationId: jobsGet
-      responses:
-        '200':
-          description: List of funky stuff
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/job'
-    post:
-      summary: Create a job
-      operationId: jobsPost
       "parameters": [
         {
           "in": "query",
-          "name": "query",
+          "name": "name",
           "description": "Job object that needs to be added to the store",
           "required": true,
           "schema": {
@@ -47,11 +47,29 @@ paths:
         }
       ]
       responses:
-        '201':
-          description: Created job
-        default:
-          description: unexpected error
+        '200':
+          description: List of funky stuff
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/job'
+                type: string
+                format: binary
+    post:
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: unimplemented
+          content:
+            application/json:
+              schema:
+                type: integer
