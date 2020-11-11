@@ -17,6 +17,13 @@ components:
           type: integer
           format: i64
           default: 0
+
+    userCredentials:
+      type: object
+      properties:
+        username:
+          type: string
+
   securitySchemes:
     oAuth2Password:
       type: oauth2
@@ -73,3 +80,22 @@ paths:
             application/json:
               schema:
                 type: integer
+
+  /users:
+    post:
+      description: Creates a user
+      operationId: CreateUser
+      responses:
+        '200':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userCredentials'
+      requestBody:
+        description: Create new user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userCredentials'
