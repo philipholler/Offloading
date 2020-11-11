@@ -44,6 +44,8 @@ paths:
                 type: string
                 format: binary
     post:
+      description: Uploads a job to be computed
+      operationId: createJob
       requestBody:
         content:
           multipart/form-data:
@@ -57,7 +59,7 @@ paths:
                   format: binary
       responses:
         '200':
-          description: unimplemented
+          description: Computed job
           content:
             application/json:
               schema:
@@ -82,6 +84,60 @@ paths:
         schema:
           type: integer
           format: int64
+
+    get:
+      description: Gets the result of a job
+      operationId: getJobResult
+      responses:
+        '200':
+          description: Result for job
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '202':
+          description: Job not processed yet
+      parameters:
+      - name: jobId
+        in: path
+        description: Job to query result for
+        required: true
+        schema:
+          type: integer
+          format: int64
+
+    post:
+      description: Post the result of the job
+      operationId: postJobResult
+      responses:
+        '200':
+          description: Result posted
+      parameters:
+      - name: jobId
+        in: path
+        description: Job to post result to
+        required: true
+        schema:
+          type: integer
+          format: int64
+
+
+  /jobs/{jobId}/quit:
+    post:
+      description: Quits specified job
+      operationId: quitJob
+      responses:
+        '200':
+          description: Job quit
+      parameters:
+       - name: jobId
+         in: path
+         description: Job to quit
+         required: true
+         schema:
+           type: integer
+           format: int64
 
   /users:
     post:

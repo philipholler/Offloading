@@ -1,4 +1,4 @@
-package p7gruppe.p7.offloading.controller;
+package p7gruppe.p7.offloading.api;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +29,6 @@ public class JobsController implements JobsApi {
     static final String rootPath ="/home/mads/ServerJobs/";
 
 
-    @Override
     public ResponseEntity<Resource> jobsGet(@NotNull @Valid Job name) {
         File file = new File(jobsPath + name.getName());
         try {
@@ -49,7 +48,7 @@ public class JobsController implements JobsApi {
    private final String baseFileDestination = "C:/Programming/Offloading/data";
 
     @PostMapping(value = "/addFile")
-    public ResponseEntity<?> addFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> createJob(@RequestParam("file") MultipartFile file) {
         String directoryString = baseFileDestination + "\\" + file.getOriginalFilename();
         File directory = new File(directoryString);
         if (!directory.exists()) {
