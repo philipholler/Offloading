@@ -43,6 +43,14 @@ paths:
               schema:
                 type: string
                 format: binary
+
+      parameters:
+      - name: username
+        in: query
+        description: Username to verify request
+        required: true
+        schema:
+          type: string
     post:
       description: Uploads a job to be computed
       operationId: createJob
@@ -57,9 +65,19 @@ paths:
                 file:
                   type: string
                   format: binary
+          application/json:
+            schema:
+                $ref: '#/components/schemas/UserCredentials'
+      parameters:
+      - name: username
+        in: query
+        description: Username to verify request
+        required: true
+        schema:
+          type: string
       responses:
         '200':
-          description: Computed job
+          description: Created job
           content:
             application/json:
               schema:
@@ -106,6 +124,12 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: username
+        in: query
+        description: Username to verify request
+        required: true
+        schema:
+          type: string
 
     post:
       description: Post the result of the job
@@ -122,6 +146,13 @@ paths:
           type: integer
           format: int64
 
+      - name: username
+        in: query
+        description: Username to verify request
+        required: true
+        schema:
+          type: string
+
 
   /jobs/{jobId}/quit:
     post:
@@ -131,13 +162,20 @@ paths:
         '200':
           description: Job quit
       parameters:
-       - name: jobId
-         in: path
-         description: Job to quit
-         required: true
-         schema:
-           type: integer
-           format: int64
+      - name: jobId
+        in: path
+        description: Job to quit
+        required: true
+        schema:
+          type: integer
+          format: int64
+
+      - name: username
+        in: query
+        description: Username to verify request
+        required: true
+        schema:
+          type: string
 
   /users:
     post:
@@ -150,6 +188,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserCredentials'
+        '400':
+          description: Username already taken
       requestBody:
         description: Create new user
         required: true
