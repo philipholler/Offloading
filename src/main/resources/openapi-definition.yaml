@@ -68,11 +68,10 @@ paths:
           content:
             multipart/form-data:
               schema:
-                type: object
-                properties:
-                  jobZipFile:
-                    type: string
-                    format: binary
+                title: fileID
+                type: string
+                format: binary
+
         '202':
           description: Could not find job
       parameters:
@@ -114,24 +113,20 @@ paths:
       operationId: deleteJob
       responses:
         '200':
-          description: Job Deleted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Job'
+          description: Job deleted
       parameters:
-      - name: jobId
-        in: path
-        description: Job to be deleted
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: username
-        required: true
-        in: query
-        schema:
-          $ref: '#/components/schemas/UserCredentials'
+        - name: jobId
+          in: path
+          description: Job to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: username
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
 
     get:
       description: Gets the job files
@@ -142,26 +137,24 @@ paths:
           content:
             multipart/form-data:
               schema:
-                type: object
-                properties:
-                  jobZipFile:
-                    type: string
-                    format: binary
+                title: fileID
+                type: string
+                format: binary
         '202':
           description: Could not find job
       parameters:
-      - name: username
-        required: true
-        in: query
-        schema:
-          $ref: '#/components/schemas/UserCredentials'
-      - name: jobId
-        in: path
-        description: Job to query result for
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: username
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
+        - name: jobId
+          in: path
+          description: Job to query result for
+          required: true
+          schema:
+            type: integer
+            format: int64
 
 
   /jobs/{jobId}/quit:
@@ -172,24 +165,24 @@ paths:
         '200':
           description: Job quit
       parameters:
-       - name: jobId
-         in: path
-         description: Job to quit
-         required: true
-         schema:
-           type: integer
-           format: int64
-       - name: deviceID
-         required: true
-         in: query
-         schema:
-           type: integer
-           format: int64
-       - name: username
-         required: true
-         in: query
-         schema:
-           $ref: '#/components/schemas/UserCredentials'
+        - name: jobId
+          in: path
+          description: Job to quit
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: deviceID
+          required: true
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: username
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
 
   /users:
     post:
@@ -222,24 +215,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserCredentials'
       parameters:
-      - name: username
-        in: path
-        description: Username of user to filter jobs by
-        required: true
-        schema:
-          $ref: '#/components/schemas/UserCredentials'
+        - name: username
+          in: path
+          description: Username of user to filter jobs by
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
 
   /users/{username}/jobs:
     get:
       description: Returns all jobs assigned to current user
       operationId: getJobsForUser
       parameters:
-      - name: username
-        in: path
-        description: Username of user to filter jobs by
-        required: true
-        schema:
-          $ref: '#/components/schemas/UserCredentials'
+        - name: username
+          in: path
+          description: Username of user to filter jobs by
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
       responses:
         '200':
           description: List of jobs for selected user
