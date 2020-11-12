@@ -12,7 +12,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Override
+    /*@Override
     protected void configure(HttpSecurity http) throws Exception{
         http
                 .formLogin().disable()
@@ -20,7 +20,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic()
                 .and()
                 .authorizeRequests().anyRequest().authenticated();
-    }
+    }*/
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

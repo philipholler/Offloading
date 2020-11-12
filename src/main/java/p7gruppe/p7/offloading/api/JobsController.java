@@ -12,56 +12,48 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartResolver;
 import p7gruppe.p7.offloading.api.JobsApi;
 import p7gruppe.p7.offloading.database.DataManager;
+import p7gruppe.p7.offloading.model.InlineResponse200;
 import p7gruppe.p7.offloading.model.Job;
+import p7gruppe.p7.offloading.model.UserCredentials;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.*;
-import java.nio.file.Paths;
-import java.util.Optional;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 @Controller
 public class JobsController implements JobsApi {
-
     static final String jobsPath = System.getProperty("user.dir") + File.separator + "data";
-    static final String rootPath ="/home/mads/ServerJobs/";
 
-
-    public ResponseEntity<Resource> jobsGet(@NotNull @Valid Job name) {
-        File file = new File(jobsPath + name.getName());
-        try {
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-            return ResponseEntity.ok()
-                    .headers(new HttpHeaders())
-                    .contentLength(file.length())
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public ResponseEntity<Job> deleteJob(Long jobId, @NotNull @Valid UserCredentials username) {
         return null;
     }
 
-
-   private final String baseFileDestination = "C:/Programming/Offloading/data";
-
-    @PostMapping(value = "/addFile")
-    public ResponseEntity<?> createJob(@RequestParam("file") MultipartFile file) {
-        String directoryString = baseFileDestination + "\\" + file.getOriginalFilename();
-        File directory = new File(directoryString);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        directory = new File(directoryString + "\\" + file.getOriginalFilename());
-        try {
-            file.transferTo(directory);
-            DataManager.insertJobInDB(file.getOriginalFilename(),directory.getAbsolutePath());
-        } catch (IllegalStateException | IOException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
-        }
-        return ResponseEntity.ok("File added");
+    @Override
+    public ResponseEntity<InlineResponse200> getJobFile(@NotNull @Valid UserCredentials username, Long jobId) {
+        return null;
     }
 
+    @Override
+    public ResponseEntity<InlineResponse200> getJobResult(Long jobId, @NotNull @Valid UserCredentials username) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Integer> postJob(@NotNull @Valid UserCredentials username, @Valid MultipartFile file) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Void> postJobResult(Long jobId, @NotNull @Valid UserCredentials username) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Void> quitJob(Long jobId, @NotNull @Valid Long deviceID, @NotNull @Valid UserCredentials username) {
+        return null;
+    }
 }
