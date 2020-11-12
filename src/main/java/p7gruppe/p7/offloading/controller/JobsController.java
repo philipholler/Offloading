@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartResolver;
 import p7gruppe.p7.offloading.api.JobsApi;
 import p7gruppe.p7.offloading.database.DataManager;
+import p7gruppe.p7.offloading.exceptions.FileExistsException;
+import p7gruppe.p7.offloading.managers.DirectoryManager;
 import p7gruppe.p7.offloading.model.Job;
 
 import javax.validation.Valid;
@@ -21,17 +23,16 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-
 @Controller
 public class JobsController implements JobsApi {
 
     static final String jobsPath = System.getProperty("user.dir") + File.separator + "data";
-    static final String rootPath ="/home/mads/ServerJobs/";
+    static final String rootPath ="C:/Programming/Offloading/data";
 
 
     @Override
     public ResponseEntity<Resource> jobsGet(@NotNull @Valid Job name) {
-        File file = new File(jobsPath + name.getName());
+        File file = new File(rootPath + name.getName());
         try {
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
             return ResponseEntity.ok()
@@ -46,21 +47,18 @@ public class JobsController implements JobsApi {
     }
 
 
-   private final String baseFileDestination = "C:/Programming/Offloading/data";
+    @PostMapping(value = "/addFile/{username}")
+    public ResponseEntity<?> addFile(@RequestParam("file") MultipartFile file, String deviceName, @PathVariable("username") String username) {
 
-    @PostMapping(value = "/addFile")
-    public ResponseEntity<?> addFile(@RequestParam("file") MultipartFile file) {
-        String directoryString = baseFileDestination + "\\" + file.getOriginalFilename();
-        File directory = new File(directoryString);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        directory = new File(directoryString + "\\" + file.getOriginalFilename());
+
         try {
+            File directory = DirectoryManager.generateDirectoryTree(file.getOriginalFilename());
             file.transferTo(directory);
             DataManager.insertJobInDB(file.getOriginalFilename(),directory.getAbsolutePath());
-        } catch (IllegalStateException | IOException e) {
+        } catch (IllegalStateException | IOException  e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+        } catch (FileExistsException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File Already Exists");
         }
         return ResponseEntity.ok("File added");
     }

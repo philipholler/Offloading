@@ -2,14 +2,18 @@ package p7gruppe.p7.offloading.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DataManager {
     static ResultSet resultSet;
 
     public static void insertJobInDB(String jobName, String jobPath) {
-        ConnectionManager.updateSql(QueryManager.insertJob(jobName, jobPath));
+        Date date= new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        ConnectionManager.updateSql(QueryManager.insertJob(jobName, jobPath,ts));
     }
 
     public static List getCurrentJobs(String userName) throws SQLException {

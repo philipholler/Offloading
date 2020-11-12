@@ -1,5 +1,7 @@
 package p7gruppe.p7.offloading.database;
 
+import java.sql.Timestamp;
+
 public class QueryManager {
     public static String connectionString = "jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password";
 
@@ -8,8 +10,8 @@ public class QueryManager {
     }
 
 
-    public static String insertJob(String jobName, String jobPath) {
-        return "INSERT INTO \"Job\" (jobname, \"Jobpath\") VALUES ('" + jobName + "', '" + jobPath + "')";
+    public static String insertJob(String jobName, String jobPath, Timestamp ts) {
+        return "INSERT INTO \"Jobs\" (name,\"jobpath\",status, \"resultpath\",created) VALUES ('" + jobName + "', '" + jobPath + "','waiting','"+jobPath+"','"+ts+"')";
     }
 
     public static String selectAllJobs(String username) {
