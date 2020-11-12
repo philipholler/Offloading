@@ -11,10 +11,16 @@ public class DataManager {
     static ResultSet resultSet;
 
     public static void insertJobInDB(String jobName, String jobPath) {
-        Date date= new Date();
+        Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
-        ConnectionManager.updateSql(QueryManager.insertJob(jobName, jobPath,ts));
+        ConnectionManager.updateSql(QueryManager.insertJob(jobName, jobPath, ts));
     }
+
+    public static void updateJobStatus(String status, long jobID) {
+        ConnectionManager.updateSql(QueryManager.updateJobStatus(status,jobID));
+
+    }
+
 
     public static List getCurrentJobs(String userName) throws SQLException {
         resultSet = ConnectionManager.selectSQL(QueryManager.selectAllJobs(userName));
@@ -29,16 +35,24 @@ public class DataManager {
         ConnectionManager.updateSql(QueryManager.createUser(userName, pass));
     }
 
-    public String selectJobResult(int jobID, String userName) throws SQLException {
+    public static String getJobResult(long jobID, String userName) throws SQLException {
         resultSet = ConnectionManager.selectSQL(QueryManager.selectJobResult(jobID, userName));
         while (resultSet.next()) {
-            return resultSet.getString(2);
+            return resultSet.getString(1);
         }
         return "no result found";
     }
 
-    public void removeJob(int jobID) {
+    public static void removeJob(long jobID) {
         ConnectionManager.updateSql(QueryManager.deleteJob(jobID));
     }
 
+    public static String getJobPath(long jobID) throws SQLException {
+        resultSet = ConnectionManager.selectSQL(QueryManager.selectJobPath(jobID));
+        while (resultSet.next()) {
+            return resultSet.getString(1);
+        }
+        return "no result found";
+
+    }
 }

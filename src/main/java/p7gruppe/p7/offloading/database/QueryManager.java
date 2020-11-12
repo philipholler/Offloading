@@ -11,7 +11,7 @@ public class QueryManager {
 
 
     public static String insertJob(String jobName, String jobPath, Timestamp ts) {
-        return "INSERT INTO \"Jobs\" (name,\"jobpath\",status, \"resultpath\",created) VALUES ('" + jobName + "', '" + jobPath + "','waiting','"+jobPath+"','"+ts+"')";
+        return "INSERT INTO \"Jobs\" (name,\"jobpath\",status, \"resultpath\",created) VALUES ('" + jobName + "', '" + jobPath + "','waiting','" + jobPath + "','" + ts + "')";
     }
 
     public static String selectAllJobs(String username) {
@@ -25,15 +25,26 @@ public class QueryManager {
         return "INSERT INTO \"Clients\" (username, password) VALUES ('" + username + "','" + pass + "')";
     }
 
-    public static String selectJobResult(int jobID, String userName) {
+    public static String selectJobResult(long jobID, String userName) {
         return "SELECT resultpath FROM \"Jobs\" INNER JOIN \"Device\" D on D.deviceid = \"Jobs\".deviceid\n" +
                 "INNER JOIN \"Clients\" C on C.clientid = D.clientid\n" +
                 "WHERE jobid = " + jobID + " AND username = '" + userName + "'";
     }
 
-    public static String deleteJob(int jobID) {
+    public static String deleteJob(long jobID) {
         return "DELETE FROM \"Jobs\" WHERE jobid = " + jobID + "";
     }
 
+    public static String selectJobPath(long jobID) {
+        return "SELECT jobpath\n" +
+                "    FROM \"Jobs\"\n" +
+                "    INNER JOIN \"Device\" D on D.deviceid = \"Jobs\".deviceid\n" +
+                "    INNER JOIN \"Clients\" C on C.clientid = D.clientid\n" +
+                "    WHERE jobid = " + jobID + "LIMIT 1";
+    }
+
+    public static String updateJobStatus(String status, long jobID) {
+        return "UPDATE \"Jobs\" SET status = '" + status + "' WHERE jobid =" + jobID + "";
+    }
 
 }
