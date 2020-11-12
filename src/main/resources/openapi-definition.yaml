@@ -4,48 +4,37 @@ info:
   version: "1.0.0"
   title: "Offloading"
 servers:
-  - url: http://localhost:8080
+  - url: https://localhost:8080
 
 components:
   schemas:
-    job:
+    Job:
       type: object
       properties:
-        name:
-          type: string
         id:
           type: integer
           format: i64
           default: 0
-  securitySchemes:
-    oAuth2Password:
-      type: oauth2
-      description: See https://developers.getbase.com/docs/rest/articles/oauth2/requests
-      flows:
-        password:
-          tokenUrl: http://localhost:9000/oauth/token
-          scopes: {}
+        name:
+          type: string
+        jobpath:
+          type: string
+        status:
+          type: string
+        assignedUser:
+          type: string
 
-# Step 2 - apply security globally...
-security:
-  - oAuthNoScope: []
+    UserCredentials:
+      type: object
+      properties:
+        username:
+          type: string
 
 paths:
   /jobs:
     get:
       description: Returns a job file
       operationId: jobsGet
-      "parameters": [
-        {
-          "in": "query",
-          "name": "name",
-          "description": "Job object that needs to be added to the store",
-          "required": true,
-          "schema": {
-            "$ref": '#/components/schemas/job'
-          }
-        }
-      ]
       responses:
         '200':
           description: List of funky stuff
@@ -55,6 +44,8 @@ paths:
                 type: string
                 format: binary
     post:
+      description: Uploads a job to be computed
+      operationId: createJob
       requestBody:
         content:
           multipart/form-data:
@@ -68,8 +59,144 @@ paths:
                   format: binary
       responses:
         '200':
-          description: unimplemented
+          description: Computed job
           content:
             application/json:
               schema:
                 type: integer
+
+  /jobs/{jobId}:
+    delete:
+      description: Deletes a job
+      operationId: deleteJob
+      responses:
+        '200':
+          description: Job Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+      parameters:
+      - name: jobId
+        in: path
+        description: Job to be deleted
+        required: true
+        schema:
+          type: integer
+          format: int64
+
+    get:
+      description: Gets the result of a job
+      operationId: getJobResult
+      responses:
+        '200':
+          description: Result for job
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '202':
+          description: Job not processed yet
+      parameters:
+      - name: jobId
+        in: path
+        description: Job to query result for
+        required: true
+        schema:
+          type: integer
+          format: int64
+
+    post:
+      description: Post the result of the job
+      operationId: postJobResult
+      responses:
+        '200':
+          description: Result posted
+      parameters:
+      - name: jobId
+        in: path
+        description: Job to post result to
+        required: true
+        schema:
+          type: integer
+          format: int64
+
+
+  /jobs/{jobId}/quit:
+    post:
+      description: Quits specified job
+      operationId: quitJob
+      responses:
+        '200':
+          description: Job quit
+      parameters:
+       - name: jobId
+         in: path
+         description: Job to quit
+         required: true
+         schema:
+           type: integer
+           format: int64
+
+  /users:
+    post:
+      description: Creates a user
+      operationId: createUser
+      responses:
+        '200':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCredentials'
+      requestBody:
+        description: Create new user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCredentials'
+
+  /users/{userId}:
+    delete:
+      description: Deletes a user
+      operationId: deleteUser
+      responses:
+        '200':
+          description: User Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCredentials'
+      parameters:
+      - name: userId
+        in: path
+        description: User to be deleted
+        required: true
+        schema:
+          type: integer
+          format: int64
+
+  /users/{userId}/jobs:
+    get:
+      description: Returns all jobs assigned to current user
+      operationId: getJobsForUser
+      parameters:
+      - name: userId
+        in: path
+        description: Id of user to filter jobs by
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: List of jobs for selected user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+
