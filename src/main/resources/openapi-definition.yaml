@@ -93,6 +93,15 @@ paths:
       responses:
         '200':
           description: Result posted
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
       parameters:
         - name: jobId
           in: path
@@ -106,6 +115,7 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/UserCredentials'
+
 
   /jobs/{jobId}:
     delete:
