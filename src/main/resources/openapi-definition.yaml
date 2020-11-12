@@ -32,28 +32,21 @@ components:
 
 paths:
   /jobs:
-    get:
-      description: Returns a job file
-      operationId: jobsGet
-      responses:
-        '200':
-          description: List of funky stuff
-          content:
-            application/json:
-              schema:
-                type: string
-                format: binary
     post:
       description: Uploads a job to be computed
-      operationId: createJob
+      operationId: postJob
+      parameters:
+        - name: username
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
       requestBody:
         content:
           multipart/form-data:
             schema:
               type: object
               properties:
-                name:
-                  type: string
                 file:
                   type: string
                   format: binary
@@ -64,6 +57,56 @@ paths:
             application/json:
               schema:
                 type: integer
+
+  /jobs/{jobId}/results:
+    get:
+      description: Gets the job results
+      operationId: getJobResult
+      responses:
+        '200':
+          description: Found the job results
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  jobZipFile:
+                    type: string
+                    format: binary
+        '202':
+          description: Could not find job
+      parameters:
+        - name: jobId
+          in: path
+          description: Job to query result for
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: username
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
+    post:
+      description: Post the result of the job
+      operationId: postJobResult
+      responses:
+        '200':
+          description: Result posted
+      parameters:
+        - name: jobId
+          in: path
+          description: Job to post result to
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: username
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
 
   /jobs/{jobId}:
     delete:
@@ -84,39 +127,37 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: username
+        required: true
+        in: query
+        schema:
+          $ref: '#/components/schemas/UserCredentials'
 
     get:
-      description: Gets the result of a job
-      operationId: getJobResult
+      description: Gets the job files
+      operationId: getJobFile
       responses:
         '200':
-          description: Result for job
+          description: Job files
           content:
-            application/json:
+            multipart/form-data:
               schema:
-                type: integer
-                format: int64
+                type: object
+                properties:
+                  jobZipFile:
+                    type: string
+                    format: binary
         '202':
-          description: Job not processed yet
+          description: Could not find job
       parameters:
+      - name: username
+        required: true
+        in: query
+        schema:
+          $ref: '#/components/schemas/UserCredentials'
       - name: jobId
         in: path
         description: Job to query result for
-        required: true
-        schema:
-          type: integer
-          format: int64
-
-    post:
-      description: Post the result of the job
-      operationId: postJobResult
-      responses:
-        '200':
-          description: Result posted
-      parameters:
-      - name: jobId
-        in: path
-        description: Job to post result to
         required: true
         schema:
           type: integer
@@ -138,6 +179,17 @@ paths:
          schema:
            type: integer
            format: int64
+       - name: deviceID
+         required: true
+         in: query
+         schema:
+           type: integer
+           format: int64
+       - name: username
+         required: true
+         in: query
+         schema:
+           $ref: '#/components/schemas/UserCredentials'
 
   /users:
     post:
@@ -158,7 +210,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UserCredentials'
 
-  /users/{userId}:
+  /users/{username}:
     delete:
       description: Deletes a user
       operationId: deleteUser
@@ -170,26 +222,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserCredentials'
       parameters:
-      - name: userId
+      - name: username
         in: path
-        description: User to be deleted
+        description: Username of user to filter jobs by
         required: true
         schema:
-          type: integer
-          format: int64
+          $ref: '#/components/schemas/UserCredentials'
 
-  /users/{userId}/jobs:
+  /users/{username}/jobs:
     get:
       description: Returns all jobs assigned to current user
       operationId: getJobsForUser
       parameters:
-      - name: userId
+      - name: username
         in: path
-        description: Id of user to filter jobs by
+        description: Username of user to filter jobs by
         required: true
         schema:
-          type: integer
-          format: int64
+          $ref: '#/components/schemas/UserCredentials'
       responses:
         '200':
           description: List of jobs for selected user
