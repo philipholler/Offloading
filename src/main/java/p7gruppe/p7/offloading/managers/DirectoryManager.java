@@ -6,25 +6,25 @@ import java.io.File;
 import java.io.IOException;
 
 public class DirectoryManager {
-    static final String rootPath = "C:/Programming/Offloading/data/jobs";
+    static final String jobsPath = System.getProperty("user.dir") + File.separator + "data" + File.separator + "jobs";
 
     public static File generateDirectoryTree(String jobID) throws IOException, FileExistsException {
-        File rootDirectory = new File(rootPath);
+        File rootDirectory = new File(jobsPath);
         if (!rootDirectory.exists())
             rootDirectory.mkdir();
 
 
-        File jobDircetory = new File(rootPath + File.separator + jobID.substring(0, jobID.lastIndexOf('.')));
-        if (!jobDircetory.exists())
-            jobDircetory.mkdir();
+        File jobDirectory = new File(jobsPath + File.separator + jobID.substring(0, jobID.lastIndexOf('.')));
+        if (!jobDirectory.exists())
+            jobDirectory.mkdir();
 
-        File recivedFile = new File(jobDircetory.getAbsolutePath() + File.separator + jobID);
-        if (!recivedFile.exists())
-            recivedFile.createNewFile();
+        File receivedFile = new File(jobDirectory.getAbsolutePath() + File.separator + jobID);
+        if (!receivedFile.exists())
+            receivedFile.createNewFile();
         else
             throw new FileExistsException("File already exists");
 
-        return recivedFile;
+        return receivedFile;
 
     }
 }
