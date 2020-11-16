@@ -1,5 +1,7 @@
 package p7gruppe.p7.offloading.database;
 
+import p7gruppe.p7.offloading.model.Job;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -10,17 +12,32 @@ import java.util.List;
 public class DataManager {
     static ResultSet resultSet;
 
-    public static void insertJobInDB(String jobName, String jobPath) {
+    public static void insertJobInDB(String jobName, String jobPath,String username) {
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
-        ConnectionManager.updateSql(QueryManager.insertJob(jobName, jobPath, ts));
+       long pk=  ConnectionManager.updateSqlWithGeneratedKey(QueryManager.insertJob(jobName, jobPath, ts),"jobid");
+        ConnectionManager.updateSql(QueryManager.insertJobRelations(pk,username));
+
     }
 
     public static void updateJobStatus(String status, long jobID) {
         ConnectionManager.updateSql(QueryManager.updateJobStatus(status,jobID));
 
     }
-
+    public static List getJobsBelongingToUser(String userName) throws SQLException {
+        resultSet = ConnectionManager.selectSQL(QueryManager.selectJobsWithUSer(userName));
+        List<Job> listOfJobs = new ArrayList<>();
+        while (resultSet.next()) {
+            Job job = new Job();
+            job.setId(resultSet.getInt(1));
+            job.setJobpath(resultSet.getString(2));
+            job.setStatus(resultSet.getString(3));
+            job.setTimestamp(resultSet.getTimestamp(4));
+            job.setAssignedUser(resultSet.getString(5));
+            listOfJobs.add(job);
+        }
+        return listOfJobs;
+    }
 
     public static List getCurrentJobs(String userName) throws SQLException {
         resultSet = ConnectionManager.selectSQL(QueryManager.selectAllJobs(userName));

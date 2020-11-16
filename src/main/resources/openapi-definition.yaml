@@ -19,6 +19,8 @@ components:
           type: string
         jobpath:
           type: string
+        timestamp:
+          type: timestamp
         status:
           type: string
         assignedUser:

@@ -50,7 +50,7 @@ public class JobsController implements JobsApi {
         try {
             File file = new File(DataManager.getJobPath(jobId));
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-            DataManager.updateJobStatus("calculating",jobId);
+            DataManager.updateJobStatus("calculating", jobId);
             return ResponseEntity.ok()
                     .headers(new HttpHeaders())
                     .contentLength(file.length())
@@ -68,7 +68,7 @@ public class JobsController implements JobsApi {
     @Override
     public ResponseEntity<Resource> getJobResult(Long jobId, @NotNull @Valid UserCredentials username) {
         try {
-            File file = new File(DataManager.getJobResult(jobId, username.toString()));
+            File file = new File(DataManager.getJobResult(jobId, username.getUsername()));
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
             return ResponseEntity.ok()
                     .headers(new HttpHeaders())
@@ -89,7 +89,7 @@ public class JobsController implements JobsApi {
         try {
             File directory = DirectoryManager.generateDirectoryTree(file.getOriginalFilename());
             file.transferTo(directory);
-            DataManager.insertJobInDB(file.getOriginalFilename(), directory.getAbsolutePath());
+            DataManager.insertJobInDB(file.getOriginalFilename(), directory.getAbsolutePath(), username.getUsername());
         } catch (IllegalStateException | IOException e) {
             return ResponseEntity.badRequest().header("error").build();
         } catch (FileExistsException e) {
@@ -101,8 +101,8 @@ public class JobsController implements JobsApi {
     @Override
     public ResponseEntity<Void> postJobResult(Long jobId, @NotNull @Valid UserCredentials username, @Valid MultipartFile file) {
         try {
-            file.transferTo(new File(DataManager.getJobResult(jobId, username.toString())));
-            DataManager.updateJobStatus("done",jobId);
+            file.transferTo(new File(DataManager.getJobResult(jobId, username.getUsername())));
+            DataManager.updateJobStatus("done", jobId);
         } catch (IllegalStateException | IOException e) {
             return ResponseEntity.badRequest().header("error").build();
         } catch (SQLException throwables) {
@@ -113,6 +113,7 @@ public class JobsController implements JobsApi {
 
     @Override
     public ResponseEntity<Void> quitJob(Long jobId, @NotNull @Valid Long deviceID, @NotNull @Valid UserCredentials username) {
+        DataManager.updateJobStatus("waiting", jobId);
         return null;
     }
 }
