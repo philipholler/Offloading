@@ -35,8 +35,8 @@ public class QueryManager {
     }
 
     public static String selectJobResult(long jobID, String userName) {
-        return "SELECT resultpath FROM \"jobs\" INNER JOIN \"Device\" D on D.deviceid = \"Jobs\".deviceid\n" +
-                "INNER JOIN \"Clients\" C on C.clientid = D.clientid\n" +
+        return "SELECT resultpath FROM jobs INNER JOIN jobrelations j on jobs.jobid = j.jobid\n" +
+                "INNER JOIN clients c on c.clientid = j.clientid" +
                 "WHERE jobid = " + jobID + " AND username = '" + userName + "'";
     }
 
