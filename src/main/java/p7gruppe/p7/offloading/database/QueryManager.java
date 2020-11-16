@@ -5,11 +5,6 @@ import java.sql.Timestamp;
 public class QueryManager {
     public static String connectionString = "jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password";
 
-    public static String selectAllFromTable() {
-        return "SELECT * FROM \"clients\"";
-    }
-
-
     public static String insertJob(String jobName, String jobPath, Timestamp ts) {
         return "INSERT INTO \"jobs\" (name,\"jobpath\",status, \"resultpath\",created) VALUES ('" + jobName + "', '" + jobPath + "','waiting','" + jobPath + "','" + ts + "')";
     }
@@ -18,9 +13,9 @@ public class QueryManager {
         return "INSERT INTO jobrelations (jobid, clientid)  SELECT " + jobID + " ,clientid FROM clients WHERE username = '" + userName + "' ";
     }
 
-    public static String selectJobsWithUSer(String username){
+    public static String selectJobsWithUSer(String username) {
         return "SELECT j.jobid,jobpath,status,created,username FROM jobs INNER JOIN jobrelations j on jobs.jobid = j.jobid\n" +
-                "INNER JOIN clients c on c.clientid = j.clientid WHERE username = '"+username+"'";
+                "INNER JOIN clients c on c.clientid = j.clientid WHERE username = '" + username + "'";
     }
 
     public static String selectAllJobs(String username) {
@@ -51,6 +46,12 @@ public class QueryManager {
                 "    INNER JOIN \"Clients\" C on C.clientid = D.clientid\n" +
                 "    WHERE jobid = " + jobID + "LIMIT 1";
     }
+
+    public static String selectFIFOJob() {
+        return "SELECT jobpath FROM\n" +
+                " jobs order by created LIMIT 1";
+    }
+
 
     public static String updateJobStatus(String status, long jobID) {
         return "UPDATE \"Jobs\" SET status = '" + status + "' WHERE jobid =" + jobID + "";
