@@ -21,7 +21,8 @@ import java.util.List;
 public class UserController implements UsersApi{
     @Override
     public ResponseEntity<UserCredentials> createUser(@Valid UserCredentials userCredentials) {
-        return null;
+        DataManager.createUser(userCredentials.getUsername(),"password");
+        return ResponseEntity.ok().header("user " + userCredentials.getUsername()+ " created").build();
     }
 
     @Override
