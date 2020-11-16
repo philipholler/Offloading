@@ -3,6 +3,7 @@ package p7gruppe.p7.offloading.api;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestParam;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.UserCredentials;
 

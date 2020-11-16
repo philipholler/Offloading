@@ -46,5 +46,4 @@ public class QueryManager {
     public static String updateJobStatus(String status, long jobID) {
         return "UPDATE \"Jobs\" SET status = '" + status + "' WHERE jobid =" + jobID + "";
     }
-
 }
