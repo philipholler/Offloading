@@ -5,10 +5,10 @@ import org.springframework.context.annotation.*;
 
 import javax.sql.DataSource;
 
-@Profile("test")
-@Configuration
+/*@Profile("test")
+@Configuration*/
 public class TestDataConfiguration {
-
+    /*
     @Bean
     public DataSource getDataSource() {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
@@ -17,6 +17,6 @@ public class TestDataConfiguration {
         dataSourceBuilder.username("postgres");
         dataSourceBuilder.password("Password");
         return dataSourceBuilder.build();
-    }
+    }*/
 
 }
