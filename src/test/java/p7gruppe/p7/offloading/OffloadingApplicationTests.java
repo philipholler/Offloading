@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import p7gruppe.p7.offloading.data.enitity.JobEntity;
+import p7gruppe.p7.offloading.data.repository.JobRepository;
 
 import javax.sql.DataSource;
 
@@ -11,12 +13,14 @@ import javax.sql.DataSource;
 class OffloadingApplicationTests {
 
 	@Autowired
-	DataSource dataSource;
+	JobRepository jobRepository;
 
 	@Test
 	void exampleTest(){
-		JdbcTemplate temp = new JdbcTemplate(dataSource);
-		temp.execute("INSERT INTO client VALUES (5)");
+		jobRepository.save(new JobEntity("Mads"));
+		jobRepository.save(new JobEntity("Faber"));
+
+		System.out.println(jobRepository.count());
 	}
 
 }

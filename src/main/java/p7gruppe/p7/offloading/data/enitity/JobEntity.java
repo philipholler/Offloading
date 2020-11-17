@@ -5,21 +5,21 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-//@Entity
-public class Job {
+@Entity
+public class JobEntity {
 
-    /*@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long jobID;
+    private Long jobID;
     private String owner;
 
 
-    public Job(String owner) {
+    public JobEntity(String owner) {
         this.owner = owner;
     }
 
 
-    protected Job() {
+    protected JobEntity() {
 
-    }*/
+    }
 }
