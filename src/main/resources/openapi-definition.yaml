@@ -255,3 +255,25 @@ paths:
                 items:
                   $ref: '#/components/schemas/Job'
 
+  /device/{deviceid}/assignedjob:
+    get:
+      description: Returns a job for the device to process
+      operationId: getJobForDevice
+      parameters:
+        - name: username
+          in: path
+          description: Username of user to filter jobs by
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
+      responses:
+        '200':
+          description: Job files for job assigned to device
+          content:
+            multipart/form-data:
+              schema:
+                title: fileID
+                type: string
+                format: binary
+        '202':
+          description: No jobs available for device

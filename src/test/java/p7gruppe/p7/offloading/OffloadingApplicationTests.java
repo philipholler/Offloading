@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
+import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
+import p7gruppe.p7.offloading.data.repository.UserRepository;
 
 import javax.sql.DataSource;
 
@@ -15,12 +17,19 @@ class OffloadingApplicationTests {
 	@Autowired
 	JobRepository jobRepository;
 
+	@Autowired
+	UserRepository userRepository;
+
 	@Test
 	void exampleTest(){
-		jobRepository.save(new JobEntity("Mads"));
-		jobRepository.save(new JobEntity("Faber"));
+		UserEntity user = userRepository.save(new UserEntity("SorenSmoke", "password"));
 
-		System.out.println(jobRepository.count());
+		jobRepository.save(new JobEntity(user, "data/test1"));
+		jobRepository.save(new JobEntity(user, "data/test2"));
+
+		jobRepository.findAll().forEach((job) -> {
+			System.out.println(job.employer.getUserName() + " : " + job.jobPath);
+		});
 	}
 
 }
