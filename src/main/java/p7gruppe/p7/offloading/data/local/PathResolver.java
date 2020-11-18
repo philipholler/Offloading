@@ -27,7 +27,7 @@ public class PathResolver {
         }while (file.exists());
 
         file.mkdir(); // todo Throw exception if false
-        return pathPrefix + jobName;
+        return pathPrefix + jobName + File.separator;
     }
 
     private static synchronized String generateJobName(int i) {

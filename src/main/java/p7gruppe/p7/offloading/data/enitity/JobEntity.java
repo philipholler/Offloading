@@ -13,11 +13,13 @@ public class JobEntity {
 
     @ManyToOne
     public UserEntity employer;
+    private String name;
     public String jobPath;
 
-    public JobEntity(UserEntity employer, String jobPath) {
+    public JobEntity(UserEntity employer, String jobPath, String name) {
         this.employer = employer;
         this.jobPath = jobPath;
+        this.name = name;
     }
 
     protected JobEntity() {}
@@ -29,5 +31,13 @@ public class JobEntity {
                 ", employer=" + employer +
                 ", jobPath='" + jobPath + '\'' +
                 '}';
+    }
+
+    public Long getJobId() {
+        return jobId;
+    }
+
+    public String getName() {
+        return name;
     }
 }
