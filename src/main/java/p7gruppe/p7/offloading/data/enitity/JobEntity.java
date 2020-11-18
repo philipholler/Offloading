@@ -21,4 +21,13 @@ public class JobEntity {
     }
 
     protected JobEntity() {}
+
+    @Override
+    public String toString() {
+        return "JobEntity{" +
+                "jobId=" + jobId +
+                ", employer=" + employer +
+                ", jobPath='" + jobPath + '\'' +
+                '}';
+    }
 }

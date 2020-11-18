@@ -10,7 +10,11 @@ class UserCredentialConverter implements Converter<String, UserCredentials> {
     @Override
     public UserCredentials convert(String source) {
         UserCredentials credentials = new UserCredentials();
-        credentials.setUsername(source);
+        String[] elements = source.split(",");
+
+        credentials.setUsername(elements[1]);
+        credentials.setPassword(elements[3]);
+
         return credentials;
     }
 }

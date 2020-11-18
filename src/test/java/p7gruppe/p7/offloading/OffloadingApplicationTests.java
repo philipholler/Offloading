@@ -8,8 +8,6 @@ import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 
-import javax.sql.DataSource;
-
 @SpringBootTest
 class OffloadingApplicationTests {
 
@@ -28,9 +26,14 @@ class OffloadingApplicationTests {
 		jobRepository.save(new JobEntity(user, "data/test1"));
 		jobRepository.save(new JobEntity(user, "data/test2"));
 
+
 		jobRepository.findAll().forEach((job) -> {
 			System.out.println(job.employer.getUserName() + " : " + job.jobPath);
 		});
+
+        System.out.println("________");
+        JobEntity myJob = jobRepository.getJobsWithId(2L);
+        System.out.println(myJob);
 	}
 
 }

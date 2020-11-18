@@ -88,7 +88,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserCredentials'
-        '202':
+        '404':
           description: User credentials invalid
 
     delete:

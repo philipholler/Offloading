@@ -1,8 +1,12 @@
 package p7gruppe.p7.offloading.api;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.NativeWebRequest;
+import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
+import p7gruppe.p7.offloading.data.repository.JobRepository;
+import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
 import java.util.Optional;
 
@@ -12,11 +16,15 @@ import java.util.Optional;
 @RequestMapping("${openapi.offloading.base-path:}")
 public class JobsApiController implements JobsApi {
 
+    @Autowired
+    JobScheduler scheduler;
+
     private final NativeWebRequest request;
 
-    @org.springframework.beans.factory.annotation.Autowired
+    @Autowired
     public JobsApiController(NativeWebRequest request) {
         this.request = request;
+
     }
 
     @Override

@@ -10,13 +10,15 @@ public class DeviceEntity {
 
     @Id
     @GeneratedValue
-    private Long deviceId;
+    private int deviceId;
+    private String imei;
 
     @ManyToOne
     private UserEntity owner;
 
-    public DeviceEntity(UserEntity owner) {
+    public DeviceEntity(UserEntity owner, String imei) {
         this.owner = owner;
+        this.imei = imei;
     }
 
     protected DeviceEntity() {}
