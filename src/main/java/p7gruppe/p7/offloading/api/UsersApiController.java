@@ -6,12 +6,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.NativeWebRequest;
+import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
+import p7gruppe.p7.offloading.model.DeviceId;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2020-11-18T11:02:06.033+01:00[Europe/Copenhagen]")
@@ -44,16 +47,39 @@ public class UsersApiController implements UsersApi {
 
     @Override
     public ResponseEntity<UserCredentials> deleteUser(UserCredentials userCredentials) {
-        return null;
+        if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
+            return ResponseEntity.badRequest().build();
+        }
+
+        long id = userRepository.getUserID(userCredentials.getUsername());
+
+        userRepository.deleteById(id);
+
+        return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<UserCredentials> login(UserCredentials userCredentials) {
-        return null;
+    public ResponseEntity<UserCredentials> login(UserCredentials userCredentials, @Valid DeviceId deviceId) {
+        // If logged in from an employer client
+        if(deviceId == null){
+            if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
+                return ResponseEntity.status(404).build();
+            }
+
+            return ResponseEntity.ok(userCredentials);
+        }
+        // If logged in from a worker
+        else {
+            if(!deviceRepository.isDevicePresent(deviceId.getImei())){
+                UserEntity deviceUser = userRepository.getUserByUsername(userCredentials.getUsername());
+                // If user does not exist
+                if(deviceUser == null) return ResponseEntity.status(404).build();
+                DeviceEntity newDevice = new DeviceEntity(deviceUser, deviceId.getImei());
+            }
+        }
+
+        return ResponseEntity.ok().build();
     }
-
-
-
 
     @org.springframework.beans.factory.annotation.Autowired
     public UsersApiController(NativeWebRequest request) {

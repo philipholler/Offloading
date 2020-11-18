@@ -34,16 +34,6 @@ public class AssignmentsApiController implements AssignmentsApi {
 
     private final NativeWebRequest request;
 
-    @org.springframework.beans.factory.annotation.Autowired
-    public AssignmentsApiController(NativeWebRequest request) {
-        this.request = request;
-    }
-
-    @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return Optional.ofNullable(request);
-    }
-
     @Override
     public ResponseEntity<Resource> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         UserEntity user = new UserEntity(userCredentials.getUsername(), userCredentials.getPassword());
@@ -68,5 +58,17 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Override
     public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId) {
         return null;
+    }
+
+
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public AssignmentsApiController(NativeWebRequest request) {
+        this.request = request;
+    }
+
+    @Override
+    public Optional<NativeWebRequest> getRequest() {
+        return Optional.ofNullable(request);
     }
 }
