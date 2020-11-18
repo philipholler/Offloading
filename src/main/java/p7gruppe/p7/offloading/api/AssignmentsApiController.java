@@ -1,7 +1,11 @@
 package p7gruppe.p7.offloading.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +19,9 @@ import p7gruppe.p7.offloading.model.DeviceId;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Optional;
 
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2020-11-18T11:02:06.033+01:00[Europe/Copenhagen]")
@@ -36,18 +43,33 @@ public class AssignmentsApiController implements AssignmentsApi {
 
     @Override
     public ResponseEntity<Resource> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
-        UserEntity user = new UserEntity(userCredentials.getUsername(), userCredentials.getPassword());
-        userRepository.save(user);
-        DeviceEntity device = new DeviceEntity(user, deviceId.getImei());
-        deviceRepository.save(device);
+        // First check password
+        if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Check if device belongs to user
+        if(!deviceRepository.doesDeviceBelongToUser(userCredentials.getUsername(), deviceId.getImei())){
+            return ResponseEntity.badRequest().build();
+        }
+
+        DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
 
         Optional<JobEntity> job = jobScheduler.assignJob(device);
 
-        if (job.isPresent()){
-            return ResponseEntity.ok().build();
+        File file = new File("Some path...."); // TODO: 18/11/2020 Input correct path.
+        InputStreamResource resource = null;
+        try {
+            resource = new InputStreamResource(new FileInputStream(file));
+            return ResponseEntity.ok()
+                    .headers(new HttpHeaders())
+                    .contentLength(file.length())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        return ResponseEntity.badRequest().build();
     }
 
     @Override
