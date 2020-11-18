@@ -10,6 +10,7 @@ import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class FIFOJobScheduler implements JobScheduler{
@@ -24,6 +25,8 @@ public class FIFOJobScheduler implements JobScheduler{
 
     @Override
     public synchronized Optional<JobEntity> assignJob(DeviceEntity device) {
+        JobEntity newJob = jobRepository.getNewestAvailableJob();
+        if (newJob != null) return Optional.of(newJob);
         return Optional.empty();
     }
 

@@ -13,6 +13,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.data.enitity.UserEntity;
+import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.DeviceId;
@@ -48,8 +49,9 @@ public class AssignmentsApiController implements AssignmentsApi {
             return ResponseEntity.badRequest().build();
         }
 
+        long userID = userRepository.getUserID(userCredentials.getUsername());
         // Check if device belongs to user
-        if(!deviceRepository.doesDeviceBelongToUser(userCredentials.getUsername(), deviceId.getImei())){
+        if(!deviceRepository.doesDeviceBelongToUser(userID, deviceId.getImei())){
             return ResponseEntity.badRequest().build();
         }
 
@@ -57,19 +59,24 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         Optional<JobEntity> job = jobScheduler.assignJob(device);
 
-        File file = new File("Some path...."); // TODO: 18/11/2020 Input correct path.
-        InputStreamResource resource = null;
-        try {
-            resource = new InputStreamResource(new FileInputStream(file));
-            return ResponseEntity.ok()
-                    .headers(new HttpHeaders())
-                    .contentLength(file.length())
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
-        } catch (FileNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        if(job.isPresent()){
+            // If some job is available for computation
+            File file = JobFileManager.getJobFile(job.get().jobPath);
+            InputStreamResource resource = null;
+            try {
+                resource = new InputStreamResource(new FileInputStream(file));
+                return ResponseEntity.ok()
+                        .headers(new HttpHeaders())
+                        .contentLength(file.length())
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(resource);
+            } catch (FileNotFoundException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
         }
 
+        // If not job is present, return status 202
+        return ResponseEntity.status(202).build();
     }
 
     @Override

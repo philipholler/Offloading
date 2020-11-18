@@ -9,7 +9,10 @@ public class AssignmentEntity {
     @GeneratedValue
     private Long assignmentId;
 
-    @OneToOne
+    @ManyToOne
+    private JobEntity job;
+
+    @ManyToOne
     private UserEntity worker;
     private String status;
 
