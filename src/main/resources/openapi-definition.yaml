@@ -81,6 +81,12 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/UserCredentials'
+        - name: deviceId
+          in: query
+          description: If logged in from a worker
+          required: false
+          schema:
+            $ref: '#/components/schemas/DeviceId'
       responses:
         '200':
           description: User logged in
