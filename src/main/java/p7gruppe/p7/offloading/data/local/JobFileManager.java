@@ -17,4 +17,9 @@ public class JobFileManager {
         file.transferTo(new File(directoryPath + File.separator + JOB_FILE_NAME));
         return directoryPath;
     }
+
+    public static File getJobFile(String jobDirectoryPath){
+        return new File(jobDirectoryPath + JOB_FILE_NAME);
+    }
+
 }
