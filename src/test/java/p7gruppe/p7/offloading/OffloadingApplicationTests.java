@@ -23,7 +23,7 @@ class OffloadingApplicationTests {
 
         user = userRepository.save(user);
 
-		jobRepository.save(new JobEntity(user, "data/test1"));
+		/*jobRepository.save(new JobEntity(user, "data/test1"));
 		jobRepository.save(new JobEntity(user, "data/test2"));
 
 
@@ -33,7 +33,7 @@ class OffloadingApplicationTests {
 
         System.out.println("________");
         JobEntity myJob = jobRepository.getJobsWithId(2L);
-        System.out.println(myJob);
+        System.out.println(myJob);*/
 	}
 
 }
