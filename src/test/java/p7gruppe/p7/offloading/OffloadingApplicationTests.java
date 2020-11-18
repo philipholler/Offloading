@@ -21,11 +21,13 @@ class OffloadingApplicationTests {
 
 	@Test
 	void exampleTest(){
-		UserEntity user = userRepository.save(new UserEntity("SorenSmoke", "password"));
+	    UserEntity user = new UserEntity("SorenSmoke", "password");
+
+        user = userRepository.save(user);
 
 		jobRepository.save(new JobEntity(user, "data/test1"));
 		jobRepository.save(new JobEntity(user, "data/test2"));
-		
+
 		jobRepository.findAll().forEach((job) -> {
 			System.out.println(job.employer.getUserName() + " : " + job.jobPath);
 		});

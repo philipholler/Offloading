@@ -1,5 +1,7 @@
 package p7gruppe.p7.offloading.data.enitity;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import javax.persistence.*;
 
 @Entity
