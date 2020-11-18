@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public class FIFOJobScheduler implements JobScheduler{
 
-    @Autowired
-    JobRepository jobRepository;
 
     @Override
     public synchronized Optional<JobEntity> assignJob(DeviceEntity device) {

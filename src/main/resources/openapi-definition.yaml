@@ -122,7 +122,7 @@ paths:
       parameters:
         - name: userCredentials
           required: true
-          in: query
+          in: path
           schema:
             $ref: '#/components/schemas/UserCredentials'
       requestBody:
@@ -181,13 +181,13 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: username
+        - name: userCredentials
           required: true
-          in: query
+          in: path
           schema:
             $ref: '#/components/schemas/UserCredentials'
 
-  /jobs/{userCredentials}/{jobid}/result:
+  /jobs/{userCredentials}/{jobId}/result:
     get:
       tags:
         - job
@@ -221,7 +221,7 @@ paths:
         '202':
           description: Could not find job
 
-  /jobs/{userCredentials}/{jobid}/files:
+  /jobs/{userCredentials}/{jobId}/files:
     get:
       tags:
         - job
@@ -257,7 +257,7 @@ paths:
 
 
   # Jobs assigned to workers
-  /assignments/{userCredentials}/{deviceid}:
+  /assignments/{userCredentials}/{deviceId}:
     get:
       tags:
         - assignment
@@ -290,7 +290,7 @@ paths:
         '202':
           description: No jobs available for device
 
-  /assignments/{userCredentials}/{deviceid}/{jobId}:
+  /assignments/{userCredentials}/{deviceId}/{jobId}:
     post:
       tags:
         - assignment
@@ -312,7 +312,7 @@ paths:
             $ref: '#/components/schemas/DeviceId'
         - name: jobId
           in: path
-          description: Job to query result for
+          description: Job upload result for
           required: true
           schema:
             type: integer
@@ -344,7 +344,7 @@ paths:
             $ref: '#/components/schemas/DeviceId'
         - name: jobId
           in: path
-          description: Job to query result for
+          description: Job to quit
           required: true
           schema:
             type: integer
