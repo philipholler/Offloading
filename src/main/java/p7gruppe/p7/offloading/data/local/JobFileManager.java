@@ -29,5 +29,16 @@ public class JobFileManager {
         if (!file.exists()) throw new RuntimeException("Job file does not exist : " + jobDirectoryPath);
         return file;
     }
+    public static void deleteDirectory(String jobDirectoryPath) throws IOException {
+        File file = new File(jobDirectoryPath);
+        for (File subFile : file.listFiles()) {
+            if (subFile.isDirectory()) {
+                deleteDirectory(subFile.getPath());
+            } else {
+                subFile.delete();
+            }
+        }
+        file.delete();
+    }
 
 }
