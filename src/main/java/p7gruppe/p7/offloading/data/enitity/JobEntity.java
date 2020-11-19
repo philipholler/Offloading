@@ -15,11 +15,15 @@ public class JobEntity {
     private String name;
     public String jobPath;
     public long uploadTime;
+    public int requestedWorkers;
+    public int workersAssigned;
 
-    public JobEntity(UserEntity employer, String jobPath, String name) {
+    public JobEntity(UserEntity employer, String jobPath, String name, int requestedWorkers) {
         this.employer = employer;
         this.jobPath = jobPath;
         this.name = name;
+        this.requestedWorkers = requestedWorkers;
+        this.workersAssigned = 0;
         this.uploadTime = System.currentTimeMillis();
     }
 
@@ -30,7 +34,11 @@ public class JobEntity {
         return "JobEntity{" +
                 "jobId=" + jobId +
                 ", employer=" + employer +
+                ", name='" + name + '\'' +
                 ", jobPath='" + jobPath + '\'' +
+                ", uploadTime=" + uploadTime +
+                ", requestedWorkers=" + requestedWorkers +
+                ", workersAssigned=" + workersAssigned +
                 '}';
     }
 

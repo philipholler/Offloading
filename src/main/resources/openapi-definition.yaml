@@ -28,8 +28,11 @@ components:
           type: timestamp
         status:
           type: string
-        assignedUser:
+        employer:
           type: string
+        workersRequested:
+          type: integer
+
 
     UserCredentials:
       type: object
@@ -131,6 +134,11 @@ paths:
           in: path
           schema:
             $ref: '#/components/schemas/UserCredentials'
+        - name: requestedWorkers
+          required: true
+          in: query
+          schema:
+            type: integer
       requestBody:
         content:
           multipart/form-data:
