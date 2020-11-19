@@ -10,10 +10,6 @@ import java.util.List;
 
 
 public interface JobRepository extends CrudRepository<JobEntity, Long> {
-    @Query (value = "SELECT * FROM job_entity WHERE job_id = ?1", nativeQuery = true)
-    JobEntity getJobsWithId(Long name);
-
-
     @Query(value = "SELECT * " +
             "FROM job_entity " +
             "WHERE workers_assigned < requested_workers " +

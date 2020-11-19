@@ -10,7 +10,7 @@ public class DeviceEntity {
 
     @Id
     @GeneratedValue
-    private int deviceId;
+    public int deviceId;
     private String imei;
 
     @ManyToOne

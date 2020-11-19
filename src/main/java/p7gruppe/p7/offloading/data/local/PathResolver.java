@@ -12,7 +12,7 @@ public class PathResolver {
     private static List<String> temporaryReservedPaths = new ArrayList<>();
 
     public static synchronized String generateNewJobFolder(String userName){
-        String pathPrefix = JOBS_PREFIX + File.separator + userName + File.separator;
+        String pathPrefix = JOBS_PREFIX + userName + File.separator;
 
         File rootDirectory = new File(pathPrefix);
         if (!rootDirectory.exists())
@@ -35,5 +35,14 @@ public class PathResolver {
     }
 
 
+    public static synchronized String generateNewResultFolder(String jobFolderPath) {
+        String resultFolderPath = jobFolderPath + File.separator + "results" + File.separator;
+        File resultFolder = new File(resultFolderPath);
 
+        if(!resultFolder.exists()){
+            resultFolder.mkdirs();
+        }
+
+        return resultFolderPath;
+    }
 }

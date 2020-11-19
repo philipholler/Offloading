@@ -13,12 +13,12 @@ public class AssignmentEntity {
     private JobEntity job;
 
     @ManyToOne
-    private UserEntity worker;
+    public DeviceEntity worker;
 
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    public AssignmentEntity(Status status, UserEntity worker, JobEntity job) {
+    public AssignmentEntity(Status status, DeviceEntity worker, JobEntity job) {
         this.status = status;
         this.worker = worker;
         this.job = job;
@@ -30,6 +30,19 @@ public class AssignmentEntity {
         PROCESSING,
         DONE_NOT_CHECKED,
         DONE_MAYBE_WRONG,
+        QUIT,
         DONE;
+    }
+
+    public void setJob(JobEntity job) {
+        this.job = job;
+    }
+
+    public void setWorker(DeviceEntity worker) {
+        this.worker = worker;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

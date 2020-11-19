@@ -10,21 +10,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.multipart.MultipartFile;
 import p7gruppe.p7.offloading.data.enitity.AssignmentEntity;
 import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
-import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
+import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.DeviceId;
+import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Optional;
 
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2020-11-18T11:02:06.033+01:00[Europe/Copenhagen]")
@@ -46,6 +50,9 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Autowired
     AssignmentRepository assignmentRepository;
 
+    @Autowired
+    JobRepository jobRepository;
+
     @Override
     public ResponseEntity<Resource> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
@@ -66,8 +73,8 @@ public class AssignmentsApiController implements AssignmentsApi {
         if(job.isPresent()){
             // If some job is available for computation
             File file = JobFileManager.getJobFile(job.get().jobPath);
-            UserEntity worker = userRepository.getUserByUsername(userCredentials.getUsername());
-            AssignmentEntity assignment = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, worker, job.get());
+            // create assignment entity to save in the database
+            AssignmentEntity assignment = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, device, job.get());
             assignmentRepository.save(assignment);
             InputStreamResource resource = null;
             try {
@@ -75,7 +82,7 @@ public class AssignmentsApiController implements AssignmentsApi {
                 return ResponseEntity.ok()
                         .headers(new HttpHeaders())
                         .contentLength(file.length())
-                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .body(resource);
             } catch (FileNotFoundException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -88,15 +95,68 @@ public class AssignmentsApiController implements AssignmentsApi {
 
     @Override
     public ResponseEntity<Void> quitAssignment(UserCredentials userCredentials, DeviceId deviceId, Long jobId) {
-        return null;
+        // First check password
+        if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Update status for assignment to QUIT
+        DeviceEntity quittingDevice = deviceRepository.getDeviceByIMEI(deviceId.getImei());
+        AssignmentEntity assignment = assignmentRepository.getProcessingAssignmentForDevice(quittingDevice.deviceId);
+        assignment.setStatus(AssignmentEntity.Status.QUIT);
+        assignmentRepository.save(assignment);
+
+        // Decrement workers assigned to job
+        Optional<JobEntity> job = jobRepository.findById(jobId);
+        if (job.isPresent()) {
+            JobEntity jobValue = job.get();
+            jobValue.workersAssigned -= 1;
+            jobRepository.save(jobValue);
+
+            return ResponseEntity.ok().build();
+        }
+        else {
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
     @Override
-    public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId) {
-        return null;
+    public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid MultipartFile result) {
+        // First check password
+        if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
+            return ResponseEntity.badRequest().build();
+        }
+
+        // TODO: 19/11/2020 Check status of all others doing the same job. If all are done, then combine results.
+
+        // Check that job is still present
+        Optional<JobEntity> job = jobRepository.findById(jobId);
+        JobEntity jobValue;
+        if(!job.isPresent()){
+            return ResponseEntity.badRequest().build();
+        }
+        else {
+            jobValue = job.get();
+        }
+
+        // If present upload file
+        try {
+
+            JobFileManager.saveResult(jobValue.jobPath, result);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Update assignment to set as done
+        DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
+        AssignmentEntity assignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
+        assignment.setStatus(AssignmentEntity.Status.DONE_NOT_CHECKED);
+        assignmentRepository.save(assignment);
+
+
+        return ResponseEntity.ok().build();
     }
-
-
 
     @org.springframework.beans.factory.annotation.Autowired
     public AssignmentsApiController(NativeWebRequest request) {

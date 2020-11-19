@@ -313,6 +313,16 @@ paths:
       description: Uploads the result
       operationId: uploadJobResult
 
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                result:
+                  type: string
+                  format: binary
+
       parameters:
         - name: userCredentials
           in: path
