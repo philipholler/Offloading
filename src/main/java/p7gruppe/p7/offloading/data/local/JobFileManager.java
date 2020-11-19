@@ -19,7 +19,9 @@ public class JobFileManager {
     }
 
     public static File getJobFile(String jobDirectoryPath){
-        return new File(jobDirectoryPath + JOB_FILE_NAME);
+        File file = new File(jobDirectoryPath + JOB_FILE_NAME);
+        if (!file.exists()) throw new RuntimeException("Job file does not exist : " + jobDirectoryPath);
+        return file;
     }
 
 }
