@@ -68,6 +68,32 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
 
+        /**
+         * Check if device is already doing a job, but crashed or something
+         */
+        Optional<AssignmentEntity> possibleOldAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
+        if (possibleOldAssignment.isPresent()){
+            AssignmentEntity oldAssignment = possibleOldAssignment.get();
+            Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
+            JobEntity jobValue = job.get();
+            File file = JobFileManager.getJobFile(job.get().jobPath);
+
+            InputStreamResource resource = null;
+            try {
+                resource = new InputStreamResource(new FileInputStream(file));
+                return ResponseEntity.ok()
+                        .headers(new HttpHeaders())
+                        .contentLength(file.length())
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .body(resource);
+            } catch (FileNotFoundException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+
+        /**
+         * If device is not doing a job find one through the scheduler
+         */
         Optional<JobEntity> job = jobScheduler.assignJob(device);
 
         if(job.isPresent()){
@@ -102,7 +128,11 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // Update status for assignment to QUIT
         DeviceEntity quittingDevice = deviceRepository.getDeviceByIMEI(deviceId.getImei());
-        AssignmentEntity assignment = assignmentRepository.getProcessingAssignmentForDevice(quittingDevice.deviceId);
+        Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(quittingDevice.deviceId);
+        if (!possibleAssignment.isPresent()){
+            return ResponseEntity.badRequest().build();
+        }
+        AssignmentEntity assignment = possibleAssignment.get();
         assignment.setStatus(AssignmentEntity.Status.QUIT);
         assignmentRepository.save(assignment);
 
@@ -140,6 +170,15 @@ public class AssignmentsApiController implements AssignmentsApi {
             jobValue = job.get();
         }
 
+        // Update assignment to set as done
+        DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
+        Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
+        if (possibleAssignment.isPresent()){
+            return ResponseEntity.badRequest().build();
+        }
+        AssignmentEntity assignment = possibleAssignment.get();
+        assignment.setStatus(AssignmentEntity.Status.DONE_NOT_CHECKED);
+
         // If present upload file
         try {
 
@@ -148,12 +187,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             e.printStackTrace();
         }
 
-        // Update assignment to set as done
-        DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
-        AssignmentEntity assignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
-        assignment.setStatus(AssignmentEntity.Status.DONE_NOT_CHECKED);
         assignmentRepository.save(assignment);
-
 
         return ResponseEntity.ok().build();
     }

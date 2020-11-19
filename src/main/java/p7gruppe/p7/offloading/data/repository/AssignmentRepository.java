@@ -11,5 +11,5 @@ import java.util.Optional;
 
 public interface AssignmentRepository extends CrudRepository<AssignmentEntity, Long> {
     @Query(value = "SELECT * FROM assignment_entity WHERE worker_device_id = ?1 AND status = 'PROCESSING'", nativeQuery = true)
-    AssignmentEntity getProcessingAssignmentForDevice(long workerDeviceID);
+    Optional<AssignmentEntity> getProcessingAssignmentForDevice(long workerDeviceID);
 }

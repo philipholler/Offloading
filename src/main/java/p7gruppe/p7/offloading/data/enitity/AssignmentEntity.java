@@ -10,7 +10,7 @@ public class AssignmentEntity {
     private Long assignmentId;
 
     @ManyToOne
-    private JobEntity job;
+    public JobEntity job;
 
     @ManyToOne
     public DeviceEntity worker;
