@@ -12,7 +12,6 @@ class JobConverter implements Converter<String, Job> {
     public Job convert(String source) {
         Job job = new Job();
         // TODO: 16/11/2020 Parse this object correctly! - Philip
-        job.setAssignedUser(source);
         job.setId((int)System.currentTimeMillis());
         job.setJobpath(source);
         job.setName(source);

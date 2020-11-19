@@ -22,7 +22,7 @@ public class DataManager {
             job.setJobpath(resultSet.getString(2));
             job.setStatus(resultSet.getString(3));
             //job.setTimestamp(resultSet.getTimestamp(4));
-            job.setAssignedUser(resultSet.getString(5));
+            // job.setAssignedUser(resultSet.getString(5));
             listOfJobs.add(job);
         }
         return listOfJobs;

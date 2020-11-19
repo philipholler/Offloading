@@ -1,7 +1,5 @@
 package p7gruppe.p7.offloading.data.enitity;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.persistence.*;
 
 @Entity
@@ -13,13 +11,20 @@ public class JobEntity {
 
     @ManyToOne
     public UserEntity employer;
+
     private String name;
     public String jobPath;
+    public long uploadTime;
+    public int requestedWorkers;
+    public int workersAssigned;
 
-    public JobEntity(UserEntity employer, String jobPath, String name) {
+    public JobEntity(UserEntity employer, String jobPath, String name, int requestedWorkers) {
         this.employer = employer;
         this.jobPath = jobPath;
         this.name = name;
+        this.requestedWorkers = requestedWorkers;
+        this.workersAssigned = 0;
+        this.uploadTime = System.currentTimeMillis();
     }
 
     protected JobEntity() {}
@@ -29,7 +34,11 @@ public class JobEntity {
         return "JobEntity{" +
                 "jobId=" + jobId +
                 ", employer=" + employer +
+                ", name='" + name + '\'' +
                 ", jobPath='" + jobPath + '\'' +
+                ", uploadTime=" + uploadTime +
+                ", requestedWorkers=" + requestedWorkers +
+                ", workersAssigned=" + workersAssigned +
                 '}';
     }
 

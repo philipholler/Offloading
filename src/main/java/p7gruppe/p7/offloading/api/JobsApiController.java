@@ -15,6 +15,7 @@ import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -47,7 +48,7 @@ public class JobsApiController implements JobsApi {
     }
 
     @Override
-    public ResponseEntity<Long> postJob(UserCredentials userCredentials, @Valid MultipartFile file) {
+    public ResponseEntity<Long> postJob(UserCredentials userCredentials, @NotNull @Valid Integer requestedWorkers, @Valid MultipartFile file) {
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
@@ -55,7 +56,7 @@ public class JobsApiController implements JobsApi {
         try {
             String path = JobFileManager.saveJob(userCredentials.getUsername(), file);
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
-            JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, file.getOriginalFilename()));
+            JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, file.getOriginalFilename(), requestedWorkers));
             return ResponseEntity.ok(jobEntity.getJobId());
         } catch (IOException e) {
             // Fatal server io error // todo add error logging
