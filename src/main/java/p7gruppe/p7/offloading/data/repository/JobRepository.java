@@ -16,10 +16,7 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
 
     @Query(value = "SELECT * " +
             "FROM job_entity " +
-            "WHERE job_id NOT IN ( " +
-            "SELECT a.job_job_id " +
-            "FROM assignment_entity as a " +
-            ") " +
+            "WHERE workers_assigned < requested_workers " +
             "ORDER BY upload_time ASC " +
             "LIMIT 1 ",
             nativeQuery = true)

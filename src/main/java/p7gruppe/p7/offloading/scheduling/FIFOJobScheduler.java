@@ -25,6 +25,11 @@ public class FIFOJobScheduler implements JobScheduler{
 
     @Override
     public synchronized Optional<JobEntity> assignJob(DeviceEntity device) {
+        // TODO: 19/11/2020 Check if device is already assigned to a job, in which case the same job should be returned.
+
+
+        // Else get newest job
+        // TODO: 19/11/2020 Update workers assigned in job repo
         JobEntity newJob = jobRepository.getNewestAvailableJob();
         if (newJob != null) return Optional.of(newJob);
         return Optional.empty();

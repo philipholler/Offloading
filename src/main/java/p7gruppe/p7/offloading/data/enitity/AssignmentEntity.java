@@ -14,11 +14,22 @@ public class AssignmentEntity {
 
     @ManyToOne
     private UserEntity worker;
-    private String status;
 
-    public AssignmentEntity(String status) {
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    public AssignmentEntity(Status status, UserEntity worker, JobEntity job) {
         this.status = status;
+        this.worker = worker;
+        this.job = job;
     }
 
     protected AssignmentEntity() {}
+
+    public enum Status{
+        PROCESSING,
+        DONE_NOT_CHECKED,
+        DONE_MAYBE_WRONG,
+        DONE;
+    }
 }

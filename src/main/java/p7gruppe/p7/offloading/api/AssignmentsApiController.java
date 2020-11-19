@@ -10,10 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.NativeWebRequest;
+import p7gruppe.p7.offloading.data.enitity.AssignmentEntity;
 import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
+import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.DeviceId;
@@ -30,6 +32,7 @@ import java.util.Optional;
 @Controller
 @RequestMapping("${openapi.offloading.base-path:}")
 public class AssignmentsApiController implements AssignmentsApi {
+    private final NativeWebRequest request;
 
     @Autowired
     JobScheduler jobScheduler;
@@ -40,7 +43,8 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Autowired
     DeviceRepository deviceRepository;
 
-    private final NativeWebRequest request;
+    @Autowired
+    AssignmentRepository assignmentRepository;
 
     @Override
     public ResponseEntity<Resource> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
@@ -62,6 +66,9 @@ public class AssignmentsApiController implements AssignmentsApi {
         if(job.isPresent()){
             // If some job is available for computation
             File file = JobFileManager.getJobFile(job.get().jobPath);
+            UserEntity worker = userRepository.getUserByUsername(userCredentials.getUsername());
+            AssignmentEntity assignment = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, worker, job.get());
+            assignmentRepository.save(assignment);
             InputStreamResource resource = null;
             try {
                 resource = new InputStreamResource(new FileInputStream(file));
