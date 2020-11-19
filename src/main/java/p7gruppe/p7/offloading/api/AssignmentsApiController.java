@@ -92,19 +92,26 @@ public class AssignmentsApiController implements AssignmentsApi {
         }
 
         /**
-         * If device is not doing a job find one through the scheduler
+         * If device is not already doing a job find one through the scheduler
          */
         Optional<JobEntity> job = jobScheduler.assignJob(device);
 
         if(job.isPresent()){
             // If some job is available for computation
+            JobEntity jobValue = job.get();
             File file = JobFileManager.getJobFile(job.get().jobPath);
             // create assignment entity to save in the database
             AssignmentEntity assignment = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, device, job.get());
-            assignmentRepository.save(assignment);
+            // Update workers assigned
+            jobValue.workersAssigned++;
+            // Set status to Proccesing (it might already be, but then it doesn't make a difference)
+            jobValue.jobStatus = JobEntity.JobStatus.PROCESSING;
             InputStreamResource resource = null;
             try {
                 resource = new InputStreamResource(new FileInputStream(file));
+                // Save the job changes
+                jobRepository.save(jobValue);
+                assignmentRepository.save(assignment);
                 return ResponseEntity.ok()
                         .headers(new HttpHeaders())
                         .contentLength(file.length())

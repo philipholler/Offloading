@@ -12,12 +12,15 @@ public class UserEntity {
     @Column(unique=true)
     private String userName;
 
+
+
     private String password;
 
     protected UserEntity(){}
 
     public UserEntity(String userName, String password) {
         this.userName = userName;
+
         this.password = password;
     }
 
@@ -29,4 +32,8 @@ public class UserEntity {
     public String getPassword() {
         return password;
     }
+
+
+
+
 }

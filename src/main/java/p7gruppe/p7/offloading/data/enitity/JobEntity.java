@@ -17,6 +17,8 @@ public class JobEntity {
     public long uploadTime;
     public int requestedWorkers;
     public int workersAssigned;
+    @Enumerated(EnumType.STRING)
+    public JobStatus jobStatus;
 
     public JobEntity(UserEntity employer, String jobPath, String name, int requestedWorkers) {
         this.employer = employer;
@@ -25,6 +27,7 @@ public class JobEntity {
         this.requestedWorkers = requestedWorkers;
         this.workersAssigned = 0;
         this.uploadTime = System.currentTimeMillis();
+        this.jobStatus = JobStatus.WAITING;
     }
 
     protected JobEntity() {}
@@ -50,5 +53,9 @@ public class JobEntity {
         return name;
     }
 
-
+    public enum JobStatus{
+        WAITING,
+        PROCESSING,
+        DONE
+    }
 }
