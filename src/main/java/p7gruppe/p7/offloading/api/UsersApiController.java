@@ -36,7 +36,6 @@ public class UsersApiController implements UsersApi {
 
     @Override
     public ResponseEntity<UserCredentials> createUser(UserCredentials userCredentials) {
-        System.out.println("RECEIVED USER POST");
         if (userRepository.userExists(userCredentials.getUsername())){
             return ResponseEntity.badRequest().build();
         }
