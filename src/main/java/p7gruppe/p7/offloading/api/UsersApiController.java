@@ -69,7 +69,7 @@ public class UsersApiController implements UsersApi {
         }
 
         // If logged in from an employer client
-        if(deviceId == null){
+        if(deviceId.getImei().equals("null")){
             return ResponseEntity.ok(userCredentials);
         }
         // If logged in from a worker

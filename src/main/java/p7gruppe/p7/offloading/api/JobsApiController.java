@@ -20,19 +20,13 @@ import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
-import javax.swing.text.html.parser.Entity;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,22 +53,23 @@ public class JobsApiController implements JobsApi {
 
     }
 
-    @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return Optional.ofNullable(request);
-    }
 
     @Override
-    public ResponseEntity<Long> postJob(UserCredentials userCredentials, @NotNull @Valid Integer requestedWorkers, @Valid MultipartFile file) {
+    public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer requestedWorkers, @Valid MultipartFile file) {
+        System.out.println("Posting job....");
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
 
         try {
+            System.out.println("Trying to save job...");
             String path = JobFileManager.saveJob(userCredentials.getUsername(), file);
+            System.out.println("Job saved...");
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
+            System.out.println("Username pulled");
             JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, file.getOriginalFilename(), requestedWorkers));
-            return ResponseEntity.ok(jobEntity.getJobId());
+            System.out.println("Job entity saved...");
+            return ResponseEntity.ok().build();
         } catch (IOException e) {
             // Fatal server io error // todo add error logging
             return ResponseEntity.status(500).build();

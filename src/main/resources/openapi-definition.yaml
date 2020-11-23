@@ -18,15 +18,16 @@ components:
       properties:
         id:
           type: integer
-          format: i64
+          format: int64
           default: 0
         name:
           type: string
         jobpath:
           type: string
         timestamp:
-          type: string
-          format: date-time
+          type: integer
+          format: int64
+          default: 0
         status:
           type: string
         employer:
@@ -35,10 +36,6 @@ components:
           type: integer
         workersAssigned:
           type: integer
-        imei:
-          type: String
-
-
 
 
     UserCredentials:
@@ -146,6 +143,9 @@ paths:
           in: query
           schema:
             type: integer
+            format: int32
+
+
       requestBody:
         content:
           multipart/form-data:
@@ -158,11 +158,6 @@ paths:
       responses:
         '200':
           description: Computed job
-          content:
-            application/json:
-              schema:
-                type: integer
-                format: int64
 
     get:
       tags:
