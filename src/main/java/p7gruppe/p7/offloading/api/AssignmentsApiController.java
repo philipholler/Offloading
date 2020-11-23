@@ -1,6 +1,7 @@
 package p7gruppe.p7.offloading.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -19,8 +20,8 @@ import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
+import p7gruppe.p7.offloading.model.Assignment;
 import p7gruppe.p7.offloading.model.DeviceId;
-import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
@@ -54,7 +55,7 @@ public class AssignmentsApiController implements AssignmentsApi {
     JobRepository jobRepository;
 
     @Override
-    public ResponseEntity<Resource> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
+    public ResponseEntity<Assignment> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
         if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
             return ResponseEntity.badRequest().build();
@@ -76,19 +77,10 @@ public class AssignmentsApiController implements AssignmentsApi {
             AssignmentEntity oldAssignment = possibleOldAssignment.get();
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
-            File file = JobFileManager.getJobFile(job.get().jobPath);
+            File jobFile = JobFileManager.getJobFile(job.get().jobPath);
 
-            InputStreamResource resource = null;
-            try {
-                resource = new InputStreamResource(new FileInputStream(file));
-                return ResponseEntity.ok()
-                        .headers(new HttpHeaders())
-                        .contentLength(file.length())
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .body(resource);
-            } catch (FileNotFoundException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
+            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(new FileSystemResource(jobFile));
+            return ResponseEntity.ok(assignment);
         }
 
         /**
@@ -99,27 +91,18 @@ public class AssignmentsApiController implements AssignmentsApi {
         if(job.isPresent()){
             // If some job is available for computation
             JobEntity jobValue = job.get();
-            File file = JobFileManager.getJobFile(job.get().jobPath);
+            File jobFile = JobFileManager.getJobFile(job.get().jobPath);
             // create assignment entity to save in the database
-            AssignmentEntity assignment = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, device, job.get());
+            AssignmentEntity assignmentEntity = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, device, job.get());
             // Update workers assigned
             jobValue.workersAssigned++;
             // Set status to Proccesing (it might already be, but then it doesn't make a difference)
             jobValue.jobStatus = JobEntity.JobStatus.PROCESSING;
-            InputStreamResource resource = null;
-            try {
-                resource = new InputStreamResource(new FileInputStream(file));
-                // Save the job changes
-                jobRepository.save(jobValue);
-                assignmentRepository.save(assignment);
-                return ResponseEntity.ok()
-                        .headers(new HttpHeaders())
-                        .contentLength(file.length())
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .body(resource);
-            } catch (FileNotFoundException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
+            // Save the job changes
+            jobRepository.save(jobValue);
+            assignmentRepository.save(assignmentEntity);
+            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(new FileSystemResource(jobFile));
+            return ResponseEntity.ok(assignment);
         }
 
         // If not job is present, return status 202

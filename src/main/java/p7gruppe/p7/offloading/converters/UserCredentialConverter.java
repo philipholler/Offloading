@@ -13,12 +13,11 @@ class UserCredentialConverter implements Converter<String, UserCredentials> {
     @Override
     public UserCredentials convert(String source) {
         // /UserCredentials(username=user1,%20password=password1)
-
         if (source.contains("username=")) {
             Pattern pattern = Pattern.compile(".*username=([^,]*),.*password=([^)]*).*");
             Matcher matcher = pattern.matcher(source);
             boolean found = matcher.find();
-            if(found){
+            if (found) {
                 UserCredentials credentials = new UserCredentials();
                 credentials.setUsername(matcher.group(1));
                 credentials.password(matcher.group(2));

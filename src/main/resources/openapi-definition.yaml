@@ -37,6 +37,15 @@ components:
         workersAssigned:
           type: integer
 
+    Assignment:
+      type: object
+      properties:
+        job_id:
+          type: integer
+          format: int64
+        file:
+          type: string
+          format: binary
 
     UserCredentials:
       type: object
@@ -297,13 +306,11 @@ paths:
 
       responses:
         '200':
-          description: Job files for job assigned to device
+          description: Job id and files for job assigned to device
           content:
-            multipart/form-data:
+            application/json:
               schema:
-                title: fileID
-                type: string
-                format: binary
+                $ref: '#/components/schemas/Assignment'
         '202':
           description: No jobs available for device
 

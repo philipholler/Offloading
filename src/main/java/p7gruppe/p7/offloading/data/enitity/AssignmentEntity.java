@@ -34,6 +34,10 @@ public class AssignmentEntity {
         DONE;
     }
 
+    public Long getAssignmentId() {
+        return assignmentId;
+    }
+
     public void setJob(JobEntity job) {
         this.job = job;
     }
