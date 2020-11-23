@@ -15,16 +15,16 @@ public class JobEntity {
     private String name;
     public String jobPath;
     public long uploadTime;
-    public int requestedWorkers;
+    public int workersRequested;
     public int workersAssigned;
     @Enumerated(EnumType.STRING)
     public JobStatus jobStatus;
 
-    public JobEntity(UserEntity employer, String jobPath, String name, int requestedWorkers) {
+    public JobEntity(UserEntity employer, String jobPath, String name, int workersRequested) {
         this.employer = employer;
         this.jobPath = jobPath;
         this.name = name;
-        this.requestedWorkers = requestedWorkers;
+        this.workersRequested = workersRequested;
         this.workersAssigned = 0;
         this.uploadTime = System.currentTimeMillis();
         this.jobStatus = JobStatus.WAITING;
@@ -40,7 +40,7 @@ public class JobEntity {
                 ", name='" + name + '\'' +
                 ", jobPath='" + jobPath + '\'' +
                 ", uploadTime=" + uploadTime +
-                ", requestedWorkers=" + requestedWorkers +
+                ", requestedWorkers=" + workersRequested +
                 ", workersAssigned=" + workersAssigned +
                 '}';
     }
