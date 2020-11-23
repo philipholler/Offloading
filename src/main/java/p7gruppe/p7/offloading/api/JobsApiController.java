@@ -141,17 +141,16 @@ public class JobsApiController implements JobsApi {
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
+
+        System.out.println(userCredentials);
         Iterable<JobEntity> jobIterable = jobRepository.getJobsByUsername(userCredentials.getUsername());
         List<Job> listOfJobs = new ArrayList<>();
 
         for(JobEntity jobEntity : jobIterable){
             Job job = new Job();
 
-            // casts upload time to datetime
-            OffsetDateTime timestamp = Instant.ofEpochMilli(jobEntity.uploadTime).atZone(ZoneId.systemDefault()).toOffsetDateTime();
             job.setStatus(jobEntity.jobStatus.name());
-
-            job.setTimestamp(timestamp);
+            job.setTimestamp(jobEntity.uploadTime);
             job.setJobpath(jobEntity.jobPath);
             job.setId(jobEntity.getJobId());
             job.setEmployer(jobEntity.employer.getUserName());
