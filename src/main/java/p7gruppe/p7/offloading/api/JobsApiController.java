@@ -141,34 +141,26 @@ public class JobsApiController implements JobsApi {
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
-        Iterable jobIterable = jobRepository.getJobsByUsername(userCredentials.getUsername());
-        Iterator<JobEntity> iter = jobIterable.iterator();
+        Iterable<JobEntity> jobIterable = jobRepository.getJobsByUsername(userCredentials.getUsername());
         List<Job> listOfJobs = new ArrayList<>();
 
-        while (iter.hasNext()) {
-
+        for(JobEntity jobEntity : jobIterable){
             Job job = new Job();
-            JobEntity jobEntity = iter.next();
 
             // casts upload time to datetime
-            OffsetDateTime ldt = Instant.ofEpochMilli(jobEntity.uploadTime)
-                    .atZone(ZoneId.systemDefault()).toOffsetDateTime();
-            job.setStatus(jobEntity.jobStatus.toString());
+            OffsetDateTime timestamp = Instant.ofEpochMilli(jobEntity.uploadTime).atZone(ZoneId.systemDefault()).toOffsetDateTime();
+            job.setStatus(jobEntity.jobStatus.name());
 
-            // casts jobEntity id to int
-            long l = jobEntity.getJobId();
-            int i = (int) l;
-
-            job.setTimestamp(ldt);
+            job.setTimestamp(timestamp);
             job.setJobpath(jobEntity.jobPath);
-            job.setId(i);
-            job.setEmployer(jobEntity.employer.toString());
+            job.setId(jobEntity.getJobId());
+            job.setEmployer(jobEntity.employer.getUserName());
             job.setName(jobEntity.getName());
-            job.setWorkersRequested(jobEntity.requestedWorkers);
+            job.setWorkersRequested(jobEntity.workersRequested);
+            job.setWorkersAssigned(jobEntity.workersAssigned);
 
             listOfJobs.add(job);
         }
-
 
         return ResponseEntity.ok(listOfJobs);
 

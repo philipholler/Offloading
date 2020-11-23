@@ -7,7 +7,7 @@ import java.util.List;
 public class PathResolver {
 
     static final String DATA_PREFIX = System.getProperty("user.dir") + File.separator + "data" + File.separator;
-    private static final String JOBS_PREFIX = DATA_PREFIX + File.separator + "jobs" + File.separator;
+    private static final String JOBS_PREFIX = DATA_PREFIX + "jobs" + File.separator;
 
     private static List<String> temporaryReservedPaths = new ArrayList<>();
 
