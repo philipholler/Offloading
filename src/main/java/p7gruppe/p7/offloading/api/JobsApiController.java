@@ -27,6 +27,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -65,6 +69,7 @@ public class JobsApiController implements JobsApi {
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
+
         try {
             String path = JobFileManager.saveJob(userCredentials.getUsername(), file);
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
@@ -137,25 +142,35 @@ public class JobsApiController implements JobsApi {
             return ResponseEntity.badRequest().build();
         }
         Iterable jobIterable = jobRepository.getJobsByUsername(userCredentials.getUsername());
-        Iterator<Entity> iter = jobIterable.iterator();
-        List<Job> listOfJob = new ArrayList<>();
+        Iterator<JobEntity> iter = jobIterable.iterator();
+        List<Job> listOfJobs = new ArrayList<>();
+
         while (iter.hasNext()) {
+
             Job job = new Job();
-            job.setStatus(iter.next());
-            job.setTimestamp();
-            job.setJobpath();
-            job.setId();
-            job.setEmployer();
-            job.setName();
-            job.setWorkersRequested();
+            JobEntity jobEntity = iter.next();
 
-            iter.next().employer
+            // casts upload time to datetime
+            OffsetDateTime ldt = Instant.ofEpochMilli(jobEntity.uploadTime)
+                    .atZone(ZoneId.systemDefault()).toOffsetDateTime();
+            job.setStatus(jobEntity.jobStatus.toString());
 
-            System.out.println(iter.next());
+            // casts jobEntity id to int
+            long l = jobEntity.getJobId();
+            int i = (int) l;
+
+            job.setTimestamp(ldt);
+            job.setJobpath(jobEntity.jobPath);
+            job.setId(i);
+            job.setEmployer(jobEntity.employer.toString());
+            job.setName(jobEntity.getName());
+            job.setWorkersRequested(jobEntity.requestedWorkers);
+
+            listOfJobs.add(job);
         }
 
 
-        // return ResponseEntity<List<Job>>
-        return null;
+        return ResponseEntity.ok(listOfJobs);
+
     }
 }

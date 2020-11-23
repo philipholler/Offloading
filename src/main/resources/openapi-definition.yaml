@@ -33,6 +33,12 @@ components:
           type: string
         workersRequested:
           type: integer
+        workersAssigned:
+          type: integer
+        imei:
+          type: String
+
+
 
 
     UserCredentials:
