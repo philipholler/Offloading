@@ -54,8 +54,6 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Autowired
     JobRepository jobRepository;
 
-
-
     @Override
     public ResponseEntity<Assignment> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
