@@ -141,6 +141,7 @@ paths:
         - job
       description: Uploads a job to be computed
       operationId: postJob
+
       parameters:
         - name: userCredentials
           required: true
@@ -161,7 +162,7 @@ paths:
             schema:
               type: object
               properties:
-                file:
+                jobfile:
                   type: string
                   format: binary
       responses:
@@ -383,8 +384,3 @@ paths:
           schema:
             type: integer
             format: int64
-
-
-
-
-

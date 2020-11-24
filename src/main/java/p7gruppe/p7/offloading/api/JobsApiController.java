@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
@@ -16,6 +17,7 @@ import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
+import p7gruppe.p7.offloading.model.InlineObject;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
@@ -55,7 +57,7 @@ public class JobsApiController implements JobsApi {
 
 
     @Override
-    public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer requestedWorkers, @Valid MultipartFile file) {
+    public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer requestedWorkers, @Valid MultipartFile jobfile) {
         System.out.println("Posting job....");
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
@@ -63,11 +65,11 @@ public class JobsApiController implements JobsApi {
 
         try {
             System.out.println("Trying to save job...");
-            String path = JobFileManager.saveJob(userCredentials.getUsername(), file);
+            String path = JobFileManager.saveJob(userCredentials.getUsername(), jobfile);
             System.out.println("Job saved...");
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
             System.out.println("Username pulled");
-            JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, file.getOriginalFilename(), requestedWorkers));
+            JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobfile.getOriginalFilename(), requestedWorkers));
             System.out.println("Job entity saved...");
             return ResponseEntity.ok().build();
         } catch (IOException e) {
