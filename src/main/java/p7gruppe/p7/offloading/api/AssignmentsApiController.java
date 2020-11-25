@@ -58,6 +58,7 @@ public class AssignmentsApiController implements AssignmentsApi {
     public ResponseEntity<Assignment> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
         if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
+            System.out.println("GET_ASSIGNMENT - Invalid password: " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
         }
 
@@ -66,7 +67,6 @@ public class AssignmentsApiController implements AssignmentsApi {
         if(!deviceRepository.doesDeviceBelongToUser(userID, deviceId.getImei())){
             return ResponseEntity.badRequest().build();
         }
-
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
 
         /**
@@ -78,8 +78,8 @@ public class AssignmentsApiController implements AssignmentsApi {
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
-
             Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(new FileSystemResource(jobFile));
+            System.out.println("GET JOB : ");
             return ResponseEntity.ok(assignment);
         }
 
@@ -87,7 +87,6 @@ public class AssignmentsApiController implements AssignmentsApi {
          * If device is not already doing a job find one through the scheduler
          */
         Optional<JobEntity> job = jobScheduler.assignJob(device);
-
         if(job.isPresent()){
             // If some job is available for computation
             JobEntity jobValue = job.get();

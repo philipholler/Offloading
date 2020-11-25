@@ -155,7 +155,6 @@ paths:
             type: integer
             format: int32
 
-
       requestBody:
         content:
           multipart/form-data:
