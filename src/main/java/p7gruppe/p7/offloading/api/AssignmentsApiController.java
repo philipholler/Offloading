@@ -1,7 +1,6 @@
 package p7gruppe.p7.offloading.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +17,6 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Assignment;
 import p7gruppe.p7.offloading.model.DeviceId;
-import p7gruppe.p7.offloading.model.Jobresult;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
@@ -76,9 +74,13 @@ public class AssignmentsApiController implements AssignmentsApi {
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
-
-            Assignment assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
-            return ResponseEntity.status(HttpStatus.OK).body(assignment);
+            Assignment assignment = null;
+            try {
+                assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+            } catch (IOException e) {
+                return ResponseEntity.status(500).build();
+            }
+            return ResponseEntity.ok(assignment);
         }
 
         /**
@@ -90,6 +92,12 @@ public class AssignmentsApiController implements AssignmentsApi {
             // If some job is available for computation
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
+            Assignment assignment = null;
+            try {
+                assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+            } catch (IOException e) {
+                return ResponseEntity.status(500).build();
+            }
             // create assignment entity to save in the database
             AssignmentEntity assignmentEntity = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, device, job.get());
             // Update workers assigned
