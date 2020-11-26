@@ -161,7 +161,7 @@ paths:
             schema:
               type: object
               properties:
-                jobfile:
+                file:
                   type: string
                   format: binary
       responses:
