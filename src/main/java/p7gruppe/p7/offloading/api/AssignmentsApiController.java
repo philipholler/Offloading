@@ -1,6 +1,7 @@
 package p7gruppe.p7.offloading.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Assignment;
 import p7gruppe.p7.offloading.model.DeviceId;
+import p7gruppe.p7.offloading.model.Jobresult;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
@@ -75,8 +77,8 @@ public class AssignmentsApiController implements AssignmentsApi {
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
 
-            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
-            return ResponseEntity.ok(assignment);
+            Assignment assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
+            return ResponseEntity.status(HttpStatus.OK).body(assignment);
         }
 
         /**
@@ -97,7 +99,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Save the job changes
             jobRepository.save(jobValue);
             assignmentRepository.save(assignmentEntity);
-            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+            Assignment assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
             return ResponseEntity.ok(assignment);
         }
 
@@ -138,7 +140,7 @@ public class AssignmentsApiController implements AssignmentsApi {
     }
 
     @Override
-    public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid MultipartFile result) {
+    public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid Jobresult jobresult) {
         // First check password
         if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
             return ResponseEntity.badRequest().build();
@@ -167,8 +169,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // If present upload file
         try {
-
-            JobFileManager.saveResult(jobValue.jobPath, result);
+            JobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult()));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,9 @@
 package p7gruppe.p7.offloading.data.local;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.web.multipart.MultipartFile;
+import p7gruppe.p7.offloading.converters.FileStringConverter;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,15 +15,17 @@ public class JobFileManager {
 
     // Saves a job to a directory that is generated from the given username
     // Returns the directory where job files are located
-    public static String saveJob(String username, MultipartFile file) throws IOException {
+    public static String saveJob(String username, byte[] fileBytes) throws IOException {
         String directoryPath = PathResolver.generateNewJobFolder(username);
-        file.transferTo(new File(directoryPath + File.separator + JOB_FILE_NAME));
+        File f = new File(directoryPath + File.separator + JOB_FILE_NAME);
+        FileUtils.writeByteArrayToFile(f, fileBytes);
         return directoryPath;
     }
 
-    public static String saveResult(String path, MultipartFile file) throws IOException {
+    public static String saveResult(String path, byte[] fileBytes) throws IOException {
         String resultDirectoryPath = PathResolver.generateNewResultFolder(path);
-        file.transferTo(new File(resultDirectoryPath + File.separator + RESULT_FILE_NAME));
+        File f = new File(resultDirectoryPath + File.separator + RESULT_FILE_NAME);
+        FileUtils.writeByteArrayToFile(f, fileBytes);
         return resultDirectoryPath;
     }
 
@@ -39,6 +44,10 @@ public class JobFileManager {
             }
         }
         file.delete();
+    }
+
+    public static byte[] decodeJobByte64(byte[] fileBytes){
+        return Base64.decodeBase64(fileBytes);
     }
 
 }
