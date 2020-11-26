@@ -9,15 +9,8 @@ import java.util.Arrays;
 
 public class FileStringConverter {
 
-    public static byte[] fileToBytes(File file){
-        try {
-            byte[] bytes = FileUtils.readFileToByteArray(file);
-            //FileUtils.writeByteArrayToFile(new File("/home/magnus/IdeaProjects/OffloadingResourceServer/data/jobs/magnus/job_5/job_files_2.zip"), bytes);
-            return bytes;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static byte[] fileToBytes(File file) throws IOException {
+        return FileUtils.readFileToByteArray(file);
     }
 
     public static File saveStringToFile(String data, String path){

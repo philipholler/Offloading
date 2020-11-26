@@ -47,7 +47,6 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Autowired
     JobRepository jobRepository;
 
-
     @Override
     public ResponseEntity<Assignment> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
@@ -74,8 +73,12 @@ public class AssignmentsApiController implements AssignmentsApi {
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
-
-            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+            Assignment assignment = null;
+            try {
+                assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+            } catch (IOException e) {
+                return ResponseEntity.status(500).build();
+            }
             return ResponseEntity.ok(assignment);
         }
 
@@ -83,11 +86,16 @@ public class AssignmentsApiController implements AssignmentsApi {
          * If device is not already doing a job find one through the scheduler
          */
         Optional<JobEntity> job = jobScheduler.assignJob(device);
-
         if(job.isPresent()){
             // If some job is available for computation
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
+            Assignment assignment = null;
+            try {
+                assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+            } catch (IOException e) {
+                return ResponseEntity.status(500).build();
+            }
             // create assignment entity to save in the database
             AssignmentEntity assignmentEntity = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, device, job.get());
             // Update workers assigned
@@ -97,11 +105,11 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Save the job changes
             jobRepository.save(jobValue);
             assignmentRepository.save(assignmentEntity);
-            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+
             return ResponseEntity.ok(assignment);
         }
 
-        // If not job is present, return status 202
+        // If no job is present, return status 202
         return ResponseEntity.status(202).build();
     }
 
