@@ -45,7 +45,7 @@ components:
           format: int64
         file:
           type: string
-          format: binary
+          format: byte
 
     UserCredentials:
       type: object

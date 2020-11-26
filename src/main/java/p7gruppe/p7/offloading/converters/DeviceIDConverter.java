@@ -4,7 +4,6 @@ package p7gruppe.p7.offloading.converters;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 import p7gruppe.p7.offloading.model.DeviceId;
-import p7gruppe.p7.offloading.model.Job;
 
 @Component
 class DeviceIDConverter implements Converter<String, DeviceId> {

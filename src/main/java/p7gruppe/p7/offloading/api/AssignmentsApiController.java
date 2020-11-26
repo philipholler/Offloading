@@ -1,17 +1,12 @@
 package p7gruppe.p7.offloading.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
+import p7gruppe.p7.offloading.converters.FileStringConverter;
 import p7gruppe.p7.offloading.data.enitity.AssignmentEntity;
 import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
@@ -27,8 +22,6 @@ import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
 import javax.validation.Valid;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -54,6 +47,7 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Autowired
     JobRepository jobRepository;
 
+
     @Override
     public ResponseEntity<Assignment> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
@@ -65,8 +59,10 @@ public class AssignmentsApiController implements AssignmentsApi {
         long userID = userRepository.getUserID(userCredentials.getUsername());
         // Check if device belongs to user
         if(!deviceRepository.doesDeviceBelongToUser(userID, deviceId.getImei())){
+            System.out.println("GET_ASSIGNMENT - Device does not belong to user: " + deviceId + " " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
         }
+
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
 
         /**
@@ -78,8 +74,8 @@ public class AssignmentsApiController implements AssignmentsApi {
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
-            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(new FileSystemResource(jobFile));
-            System.out.println("GET JOB : ");
+
+            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
             return ResponseEntity.ok(assignment);
         }
 
@@ -87,6 +83,7 @@ public class AssignmentsApiController implements AssignmentsApi {
          * If device is not already doing a job find one through the scheduler
          */
         Optional<JobEntity> job = jobScheduler.assignJob(device);
+
         if(job.isPresent()){
             // If some job is available for computation
             JobEntity jobValue = job.get();
@@ -100,7 +97,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Save the job changes
             jobRepository.save(jobValue);
             assignmentRepository.save(assignmentEntity);
-            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(new FileSystemResource(jobFile));
+            Assignment assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
             return ResponseEntity.ok(assignment);
         }
 
