@@ -17,6 +17,7 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Assignment;
 import p7gruppe.p7.offloading.model.DeviceId;
+import p7gruppe.p7.offloading.model.Jobresult;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
@@ -76,7 +77,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
             Assignment assignment = null;
             try {
-                assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+                assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
             } catch (IOException e) {
                 return ResponseEntity.status(500).build();
             }
@@ -94,7 +95,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
             Assignment assignment = null;
             try {
-                assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+                assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
             } catch (IOException e) {
                 return ResponseEntity.status(500).build();
             }
@@ -107,7 +108,6 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Save the job changes
             jobRepository.save(jobValue);
             assignmentRepository.save(assignmentEntity);
-            Assignment assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
             return ResponseEntity.ok(assignment);
         }
 

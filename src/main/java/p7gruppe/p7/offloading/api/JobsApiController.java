@@ -1,10 +1,11 @@
 package p7gruppe.p7.offloading.api;
 
-import org.apache.tomcat.util.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.aspectj.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,7 @@ import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Job;
+import p7gruppe.p7.offloading.model.JobFiles;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
@@ -25,6 +27,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,7 +99,7 @@ public class JobsApiController implements JobsApi {
 
 
     @Override
-    public ResponseEntity<byte[]> getJobFiles(Long jobId, UserCredentials userCredentials) {
+    public ResponseEntity<JobFiles> getJobFiles(Long jobId, UserCredentials userCredentials) {
         // First check password
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
@@ -108,13 +111,19 @@ public class JobsApiController implements JobsApi {
             return ResponseEntity.badRequest().build();
         // If some job is available for computation
         File file = JobFileManager.getJobFile(job.get().jobPath);
-        InputStreamResource resource = null;
-        return ResponseEntity.ok()
-                .headers(new HttpHeaders())
-                .contentLength(file.length())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(FileStringConverter.fileToBytes(file));
 
+        try {
+            byte[] bytes = FileStringConverter.fileToBytes(file); // These bytes ARE correct.
+
+            // byte[] encoded = Base64.getEncoder().encodeToString(bytes).getBytes(); // These are WRONG.
+            JobFiles jobfiles = new JobFiles();
+            jobfiles.setData(bytes);
+            jobfiles.jobid(jobId);
+
+            return ResponseEntity.status(HttpStatus.OK).body(jobfiles);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Override

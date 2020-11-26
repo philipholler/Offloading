@@ -1,6 +1,5 @@
 package p7gruppe.p7.offloading.converters;
 
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;

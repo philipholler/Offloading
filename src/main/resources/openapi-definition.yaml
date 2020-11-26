@@ -47,6 +47,16 @@ components:
           type: string
           format: byte
 
+    JobFiles:
+      type: object
+      properties:
+        jobid:
+          type: integer
+          format: int64
+        data:
+          type: string
+          format: byte
+
     UserCredentials:
       type: object
       properties:
@@ -277,8 +287,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                format: byte
+                $ref: '#/components/schemas/JobFiles'
 
         '202':
           description: Could not find job
