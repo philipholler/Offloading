@@ -16,12 +16,16 @@ public class UserEntity {
 
     private String password;
 
+    public int cpuTime;
+
     protected UserEntity(){}
 
     public UserEntity(String userName, String password) {
         this.userName = userName;
 
         this.password = password;
+
+        this.cpuTime = 0;
     }
 
 

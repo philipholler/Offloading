@@ -19,11 +19,13 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.JobFiles;
+import p7gruppe.p7.offloading.model.Result;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.xml.ws.Response;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,7 +57,7 @@ public class JobsApiController implements JobsApi {
     }
 
     @Override
-    public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer requestedWorkers, @NotNull @Valid String jobname, @Valid byte[] body) {
+    public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer requestedWorkers, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
         System.out.println("Posting job....");
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
@@ -67,7 +69,7 @@ public class JobsApiController implements JobsApi {
             System.out.println("Job saved...");
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
             System.out.println("Username pulled");
-            JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, requestedWorkers));
+            JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, requestedWorkers, timeout));
             System.out.println("Job entity saved...");
             return ResponseEntity.ok().build();
         } catch (IOException e) {
@@ -127,11 +129,42 @@ public class JobsApiController implements JobsApi {
     }
 
     @Override
-    public ResponseEntity<byte[]> getJobResult(Long jobId, UserCredentials userCredentials) {
+    public ResponseEntity<JobFiles> getJobResult(Long jobId, UserCredentials userCredentials) {
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
-        return null;
+
+        // Find the job
+        Optional<JobEntity> job = jobRepository.findById(jobId);
+
+        if (!job.isPresent()) {
+            System.out.println("Job not found for get job result");
+            // If job not even in system
+            return ResponseEntity.badRequest().build();
+        }
+
+        JobEntity jobValue = job.get();
+
+        // Check that the status is done, otherwise do not include
+        if(jobValue.jobStatus != JobEntity.JobStatus.DONE){
+            // If result file not ready yet
+            System.out.println("Job status not done, could not fetch result");
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        }
+
+        // Try to fetch result files
+        try {
+            System.out.println("Trying to get result file");
+            File file = JobFileManager.getResultFile(job.get().jobPath);
+            JobFiles resultFiles = new JobFiles();
+            resultFiles.setJobid(jobId);
+            resultFiles.setData(FileStringConverter.fileToBytes(file));
+            return ResponseEntity.ok(resultFiles);
+        }
+        catch (Exception e){
+            // If result file not ready yet
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        }
     }
 
     @Override

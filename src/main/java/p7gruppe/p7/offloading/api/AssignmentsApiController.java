@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.multipart.MultipartFile;
 import p7gruppe.p7.offloading.converters.FileStringConverter;
 import p7gruppe.p7.offloading.data.enitity.AssignmentEntity;
 import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
@@ -15,8 +14,8 @@ import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
-import p7gruppe.p7.offloading.model.Assignment;
 import p7gruppe.p7.offloading.model.DeviceId;
+import p7gruppe.p7.offloading.model.JobFiles;
 import p7gruppe.p7.offloading.model.Jobresult;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
@@ -50,7 +49,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
 
     @Override
-    public ResponseEntity<Assignment> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
+    public ResponseEntity<JobFiles> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
         if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
             System.out.println("GET_ASSIGNMENT - Invalid password: " + userCredentials.toString());
@@ -75,13 +74,13 @@ public class AssignmentsApiController implements AssignmentsApi {
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
-            Assignment assignment = null;
+            JobFiles jobfiles = null;
             try {
-                assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
+                jobfiles = new JobFiles().jobid(jobValue.getJobId()).data(FileStringConverter.fileToBytes(jobFile));
             } catch (IOException e) {
                 return ResponseEntity.status(500).build();
             }
-            return ResponseEntity.ok(assignment);
+            return ResponseEntity.ok(jobfiles);
         }
 
         /**
@@ -93,9 +92,9 @@ public class AssignmentsApiController implements AssignmentsApi {
             // If some job is available for computation
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
-            Assignment assignment = null;
+            JobFiles jobfile = null;
             try {
-                assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
+                jobfile = new JobFiles().jobid(jobValue.getJobId()).data(FileStringConverter.fileToBytes(jobFile));
             } catch (IOException e) {
                 return ResponseEntity.status(500).build();
             }
@@ -108,7 +107,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Save the job changes
             jobRepository.save(jobValue);
             assignmentRepository.save(assignmentEntity);
-            return ResponseEntity.ok(assignment);
+            return ResponseEntity.ok(jobfile);
         }
 
         // If not job is present, return status 202
@@ -154,7 +153,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             return ResponseEntity.badRequest().build();
         }
 
-        // TODO: 19/11/2020 Check status of all others doing the same job. If all are done, then combine results.
+        // TODO: 19/11/2020 Check status of all others doing the same job. If all are done, then combine results. - Philip
 
         // Check that job is still present
         Optional<JobEntity> job = jobRepository.findById(jobId);
@@ -177,7 +176,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // If present upload file
         try {
-            JobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult()));
+            JobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult().getData()));
         } catch (IOException e) {
             e.printStackTrace();
         }

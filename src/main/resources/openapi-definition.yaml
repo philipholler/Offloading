@@ -36,16 +36,30 @@ components:
           type: integer
         workersAssigned:
           type: integer
+        timeoutInMinutes:
+          type: integer
 
-    Assignment:
+    Statistics:
+      type: object
+      properties:
+        didFinish:
+          type: boolean
+        cpuTime:
+          type: integer
+          format: int64
+
+    Result:
       type: object
       properties:
         jobid:
           type: integer
           format: int64
-        jobfile:
+        resultfile:
           type: string
           format: byte
+        statistics:
+          $ref: '#/components/schemas/Statistics'
+
 
     JobFiles:
       type: object
@@ -169,6 +183,11 @@ paths:
           in: query
           schema:
             type: string
+        - name: timeout
+          required: true
+          in: query
+          schema:
+            type: integer
 
       requestBody:
         required: true
@@ -253,12 +272,11 @@ paths:
           content:
             application/json:
               schema:
-                title: fileID
-                type: string
-                format: byte
+                $ref: '#/components/schemas/JobFiles'
 
         '202':
-          description: Could not find job
+          description: Result file not ready yet
+
 
   /jobs/{userCredentials}/{jobId}/files:
     get:
@@ -321,7 +339,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Assignment'
+                $ref: '#/components/schemas/JobFiles'
         '202':
           description: No jobs available for device
 
@@ -340,8 +358,7 @@ paths:
               type: object
               properties:
                 result:
-                  type: string
-                  format: byte
+                  $ref: '#/components/schemas/JobFiles'
 
       parameters:
         - name: userCredentials

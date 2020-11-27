@@ -8,16 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.ResourceHttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import p7gruppe.p7.offloading.converters.AssignmentConverter;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"p7gruppe.p7.offloading", "p7gruppe.p7.offloading.api" , "p7gruppe.p7.offloading.config"})
