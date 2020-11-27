@@ -18,6 +18,8 @@ public class AssignmentEntity {
     @Enumerated(EnumType.STRING)
     public Status status;
 
+    public int priority;
+
     public AssignmentEntity(Status status, DeviceEntity worker, JobEntity job) {
         this.status = status;
         this.worker = worker;
@@ -48,5 +50,13 @@ public class AssignmentEntity {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

@@ -32,7 +32,7 @@ components:
           type: string
         employer:
           type: string
-        workersRequested:
+        anwsersNeeded:
           type: integer
         workersAssigned:
           type: integer
@@ -172,7 +172,7 @@ paths:
           in: path
           schema:
             $ref: '#/components/schemas/UserCredentials'
-        - name: requestedWorkers
+        - name: anwsersNeeded
           required: true
           in: query
           schema:

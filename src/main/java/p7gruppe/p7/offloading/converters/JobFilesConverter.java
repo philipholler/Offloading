@@ -1,6 +1,6 @@
 package p7gruppe.p7.offloading.converters;
 
-import jdk.jfr.ContentType;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNullApi;
 import org.springframework.lang.Nullable;

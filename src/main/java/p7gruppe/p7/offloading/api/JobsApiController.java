@@ -1,12 +1,7 @@
 package p7gruppe.p7.offloading.api;
 
-import org.apache.commons.io.FileUtils;
-import org.aspectj.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +24,6 @@ import javax.xml.ws.Response;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -186,7 +180,7 @@ public class JobsApiController implements JobsApi {
             job.setId(jobEntity.getJobId());
             job.setEmployer(jobEntity.employer.getUserName());
             job.setName(jobEntity.getName());
-            job.setWorkersRequested(jobEntity.workersRequested);
+            job.anwsersNeeded(jobEntity.anwsersNeeded);
             job.setWorkersAssigned(jobEntity.workersAssigned);
 
             listOfJobs.add(job);
