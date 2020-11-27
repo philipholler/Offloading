@@ -17,12 +17,11 @@ public class JobEntity {
     public long uploadTime;
     public int workersRequested;
     public int workersAssigned;
-    public int timeOut;
-    public int priority;
     @Enumerated(EnumType.STRING)
     public JobStatus jobStatus;
+    public int timeoutInMinutes;
 
-    public JobEntity(UserEntity employer, String jobPath, String name, int workersRequested, int timeOut) {
+    public JobEntity(UserEntity employer, String jobPath, String name, int workersRequested, int timeoutInMinutes) {
         this.employer = employer;
         this.jobPath = jobPath;
         this.name = name;
@@ -30,11 +29,10 @@ public class JobEntity {
         this.workersAssigned = 0;
         this.uploadTime = System.currentTimeMillis();
         this.jobStatus = JobStatus.WAITING;
-        this.timeOut = timeOut;
+        this.timeoutInMinutes = timeoutInMinutes;
     }
 
-    protected JobEntity() {
-    }
+    protected JobEntity() {}
 
     @Override
     public String toString() {
@@ -46,9 +44,8 @@ public class JobEntity {
                 ", uploadTime=" + uploadTime +
                 ", workersRequested=" + workersRequested +
                 ", workersAssigned=" + workersAssigned +
-                ", timeOut=" + timeOut +
-                ", priority=" + priority +
                 ", jobStatus=" + jobStatus +
+                ", timeoutInMinutes=" + timeoutInMinutes +
                 '}';
     }
 
@@ -60,26 +57,9 @@ public class JobEntity {
         return name;
     }
 
-    public enum JobStatus {
+    public enum JobStatus{
         WAITING,
         PROCESSING,
         DONE
     }
-
-    public int getTimeOut() {
-        return timeOut;
-    }
-
-    public void setTimeOut(int timeOut) {
-        this.timeOut = timeOut;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
 }
