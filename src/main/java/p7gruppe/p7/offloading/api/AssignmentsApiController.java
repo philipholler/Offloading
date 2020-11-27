@@ -17,6 +17,7 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Assignment;
 import p7gruppe.p7.offloading.model.DeviceId;
+import p7gruppe.p7.offloading.model.Jobresult;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
@@ -47,6 +48,7 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Autowired
     JobRepository jobRepository;
 
+
     @Override
     public ResponseEntity<Assignment> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
@@ -75,7 +77,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
             Assignment assignment = null;
             try {
-                assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+                assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
             } catch (IOException e) {
                 return ResponseEntity.status(500).build();
             }
@@ -86,13 +88,14 @@ public class AssignmentsApiController implements AssignmentsApi {
          * If device is not already doing a job find one through the scheduler
          */
         Optional<JobEntity> job = jobScheduler.assignJob(device);
+
         if(job.isPresent()){
             // If some job is available for computation
             JobEntity jobValue = job.get();
             File jobFile = JobFileManager.getJobFile(job.get().jobPath);
             Assignment assignment = null;
             try {
-                assignment = new Assignment().jobId(jobValue.getJobId()).file(FileStringConverter.fileToBytes(jobFile));
+                assignment = new Assignment().jobid(jobValue.getJobId()).jobfile(FileStringConverter.fileToBytes(jobFile));
             } catch (IOException e) {
                 return ResponseEntity.status(500).build();
             }
@@ -105,11 +108,10 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Save the job changes
             jobRepository.save(jobValue);
             assignmentRepository.save(assignmentEntity);
-
             return ResponseEntity.ok(assignment);
         }
 
-        // If no job is present, return status 202
+        // If not job is present, return status 202
         return ResponseEntity.status(202).build();
     }
 
@@ -146,7 +148,7 @@ public class AssignmentsApiController implements AssignmentsApi {
     }
 
     @Override
-    public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid MultipartFile result) {
+    public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid Jobresult jobresult) {
         // First check password
         if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
             return ResponseEntity.badRequest().build();
@@ -175,8 +177,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // If present upload file
         try {
-
-            JobFileManager.saveResult(jobValue.jobPath, result);
+            JobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult()));
         } catch (IOException e) {
             e.printStackTrace();
         }
