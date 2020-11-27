@@ -172,7 +172,7 @@ paths:
           in: path
           schema:
             $ref: '#/components/schemas/UserCredentials'
-        - name: requestedWorkers
+        - name: workersRequested
           required: true
           in: query
           schema:
