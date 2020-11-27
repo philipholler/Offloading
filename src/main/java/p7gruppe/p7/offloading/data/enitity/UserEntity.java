@@ -1,6 +1,7 @@
 package p7gruppe.p7.offloading.data.enitity;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 
 @Entity
 public class UserEntity {
@@ -9,18 +10,17 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long userId;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private String userName;
-
-
-
     private String password;
+    private BigInteger cpuTime;
 
-    protected UserEntity(){}
+
+    protected UserEntity() {
+    }
 
     public UserEntity(String userName, String password) {
         this.userName = userName;
-
         this.password = password;
     }
 
@@ -33,7 +33,13 @@ public class UserEntity {
         return password;
     }
 
+    public void setCpuTime(BigInteger cpuTime) {
+        this.cpuTime = cpuTime;
+    }
+
+    public BigInteger getCpuTime() {
+        return cpuTime;
 
 
-
+    }
 }
