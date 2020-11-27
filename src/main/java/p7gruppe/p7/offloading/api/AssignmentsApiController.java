@@ -154,6 +154,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         }
 
         // TODO: 19/11/2020 Check status of all others doing the same job. If all are done, then combine results. - Philip
+        // Possibly do hash of zip files and check equality
 
         // Check that job is still present
         Optional<JobEntity> job = jobRepository.findById(jobId);
