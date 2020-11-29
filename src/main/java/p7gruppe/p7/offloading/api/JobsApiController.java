@@ -173,7 +173,6 @@ public class JobsApiController implements JobsApi {
             return ResponseEntity.badRequest().build();
         }
 
-        System.out.println(userCredentials);
         Iterable<JobEntity> jobIterable = jobRepository.getJobsByUsername(userCredentials.getUsername());
         List<Job> listOfJobs = new ArrayList<>();
 

@@ -152,7 +152,7 @@ public class AssignmentsApiController implements AssignmentsApi {
     public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid Result result) {
         // First check password
         if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
-            System.out.println("Attempted result upload. Invalid user credentials " + userCredentials.toString());
+            System.err.println("Attempted result upload. Invalid user credentials " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
         }
 
@@ -163,7 +163,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         JobEntity jobValue;
         if(!job.isPresent()){
             // todo Better response that can be interpreted on android side (so that the worker knows to quit this job)
-            System.out.println("Attempted result upload. Job result is no longer present" + jobId);
+            System.err.println("Attempted result upload. Job result is no longer present" + jobId);
             return ResponseEntity.badRequest().build();
         } else {
             jobValue = job.get();
@@ -173,7 +173,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
         Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
         if (!possibleAssignment.isPresent()){
-            System.out.println("Attempted result upload. But device (" + device.deviceId + ", " + deviceId.getImei() + ") does not have matching assignment");
+            System.err.println("Attempted result upload. But device (" + device.deviceId + ", " + deviceId.getImei() + ") does not have matching assignment");
             return ResponseEntity.badRequest().build();
         }
         AssignmentEntity assignment = possibleAssignment.get();
