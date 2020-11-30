@@ -172,7 +172,7 @@ paths:
           in: path
           schema:
             $ref: '#/components/schemas/UserCredentials'
-        - name: requestedWorkers
+        - name: anwsersNeeded
           required: true
           in: query
           schema:
@@ -354,7 +354,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Result'
+              title: jobresult
+              type: object
+              properties:
+                result:
+                  $ref: '#/components/schemas/JobFiles'
 
       parameters:
         - name: userCredentials

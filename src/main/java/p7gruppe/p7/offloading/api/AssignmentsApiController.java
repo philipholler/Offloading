@@ -148,7 +148,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
     }
 
-    @Override
+
     public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid Result result) {
         // First check password
         if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
