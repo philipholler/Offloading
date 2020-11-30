@@ -36,7 +36,7 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
             nativeQuery = true)
     Iterable<JobEntity> getJobPriorityAndTimeOutByUserID();
 
-    @Query(value = "SELECT * FROM job_entity WHERE job_id = jobID LIMIT 1",
+    @Query(value = "SELECT * FROM job_entity WHERE job_id = ?1 LIMIT 1",
             nativeQuery = true)
     JobEntity getJobByID(long jobID);
 
