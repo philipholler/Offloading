@@ -68,7 +68,8 @@ public class UsersApiController implements UsersApi {
         }
 
         // If logged in from an employer client
-        if(deviceId.getImei() == null){
+        if(deviceId.getImei().equals("null")){
+            System.out.println("Logged in using employer client");
             return ResponseEntity.ok(userCredentials);
         }
         // If logged in from a worker
@@ -81,7 +82,7 @@ public class UsersApiController implements UsersApi {
                 DeviceEntity newDevice = new DeviceEntity(deviceUser, deviceId.getImei());
                 deviceRepository.save(newDevice);
             }
-
+            System.out.println("Logged in using worker");
             return ResponseEntity.ok(userCredentials);
         }
     }

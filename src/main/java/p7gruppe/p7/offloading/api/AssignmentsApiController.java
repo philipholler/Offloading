@@ -16,13 +16,14 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.DeviceId;
 import p7gruppe.p7.offloading.model.JobFiles;
-import p7gruppe.p7.offloading.model.Jobresult;
+import p7gruppe.p7.offloading.model.Result;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2020-11-18T11:02:06.033+01:00[Europe/Copenhagen]")
@@ -70,6 +71,7 @@ public class AssignmentsApiController implements AssignmentsApi {
          */
         Optional<AssignmentEntity> possibleOldAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
         if (possibleOldAssignment.isPresent()){
+            System.out.println("GET_ASSIGNMENT - Device already has an active assignment");
             AssignmentEntity oldAssignment = possibleOldAssignment.get();
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
@@ -147,28 +149,32 @@ public class AssignmentsApiController implements AssignmentsApi {
     }
 
     @Override
-    public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid Jobresult jobresult) {
+    public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid Result result) {
         // First check password
         if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
+            System.err.println("Attempted result upload. Invalid user credentials " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
         }
 
         // TODO: 19/11/2020 Check status of all others doing the same job. If all are done, then combine results. - Philip
+        // Possibly do hash of zip files and check equality
 
         // Check that job is still present
         Optional<JobEntity> job = jobRepository.findById(jobId);
         JobEntity jobValue;
         if(!job.isPresent()){
+            // todo Better response that can be interpreted on android side (so that the worker knows to quit this job)
+            System.err.println("Attempted result upload. Job result is no longer present" + jobId);
             return ResponseEntity.badRequest().build();
-        }
-        else {
+        } else {
             jobValue = job.get();
         }
 
         // Update assignment to set as done
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
         Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
-        if (possibleAssignment.isPresent()){
+        if (!possibleAssignment.isPresent()){
+            System.err.println("Attempted result upload. But device (" + device.deviceId + ", " + deviceId.getImei() + ") does not have matching assignment");
             return ResponseEntity.badRequest().build();
         }
         AssignmentEntity assignment = possibleAssignment.get();
@@ -176,13 +182,12 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // If present upload file
         try {
-            JobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult().getData()));
+            JobFileManager.saveResult(jobValue.jobPath, result.getResultfile());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         assignmentRepository.save(assignment);
-
         return ResponseEntity.ok().build();
     }
 

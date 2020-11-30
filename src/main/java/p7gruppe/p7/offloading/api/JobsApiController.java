@@ -54,7 +54,7 @@ public class JobsApiController implements JobsApi {
 
 
     @Override
-    public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer requestedWorkers, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
+    public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
         System.out.println("Posting job....");
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
@@ -65,7 +65,7 @@ public class JobsApiController implements JobsApi {
             System.out.println("Job saved...");
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
             System.out.println("Username pulled");
-            JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, requestedWorkers, timeout));
+            JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, workersRequested, timeout));
             System.out.println("Job entity saved...");
             //updates user cpu time and sets job priority
             PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository);
@@ -171,7 +171,6 @@ public class JobsApiController implements JobsApi {
             return ResponseEntity.badRequest().build();
         }
 
-        System.out.println(userCredentials);
         Iterable<JobEntity> jobIterable = jobRepository.getJobsByUsername(userCredentials.getUsername());
         List<Job> listOfJobs = new ArrayList<>();
 
