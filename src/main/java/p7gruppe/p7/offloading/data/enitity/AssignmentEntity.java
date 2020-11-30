@@ -18,6 +18,9 @@ public class AssignmentEntity {
     @Enumerated(EnumType.STRING)
     public Status status;
 
+    public long timeOfAssignment;
+
+    public long timeOfCompletion;
 
     public AssignmentEntity(Status status, DeviceEntity worker, JobEntity job) {
         this.status = status;
@@ -51,5 +54,20 @@ public class AssignmentEntity {
         this.status = status;
     }
 
+    public long getTimeOfAssignment() {
+        return timeOfAssignment;
+    }
+
+    public long getTimeOfCompletion() {
+        return timeOfCompletion;
+    }
+
+    public void setTimeOfAssignment(long assignmentTime) {
+        this.timeOfAssignment = assignmentTime;
+    }
+
+    public void setTimeOfCompletion(long completedTime) {
+        this.timeOfCompletion = completedTime;
+    }
 
 }

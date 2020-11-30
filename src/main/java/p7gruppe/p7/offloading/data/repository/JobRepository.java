@@ -41,4 +41,11 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
     JobEntity getJobByID(long jobID);
 
 
+    @Query(value = "SELECT * FROM job_entity\n" +
+            "INNER JOIN user_entity ue on ue.user_id = job_entity.employer_user_id\n" +
+            "WHERE user_name = ?1 ORDER BY  upload_time LIMIT 1",
+            nativeQuery = true)
+    JobEntity getOldestJobByUserName(String userName);
+
+
 }
