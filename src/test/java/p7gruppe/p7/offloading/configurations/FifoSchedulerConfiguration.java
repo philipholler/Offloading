@@ -1,4 +1,4 @@
-package p7gruppe.p7.offloading;
+package p7gruppe.p7.offloading.configurations;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -11,11 +11,12 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.scheduling.FIFOJobScheduler;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
+import p7gruppe.p7.offloading.scheduling.SampleScheduler;
 
 @Configuration
-@Profile("production")
+@Profile("fifo-test")
 @EnableJpaRepositories("p7gruppe.p7.offloading.data.repository")
-public class OffloadingConfiguration {
+public class FifoSchedulerConfiguration {
 
     @Autowired
     JobRepository jobRepository;
@@ -28,6 +29,6 @@ public class OffloadingConfiguration {
 
     @Bean
     JobScheduler getJobScheduler(){
-        return new FIFOJobScheduler(assignmentRepository, jobRepository);
+        return new SampleScheduler();
     }
 }

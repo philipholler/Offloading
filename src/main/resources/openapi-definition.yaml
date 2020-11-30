@@ -354,11 +354,7 @@ paths:
         content:
           application/json:
             schema:
-              title: jobresult
-              type: object
-              properties:
-                result:
-                  $ref: '#/components/schemas/JobFiles'
+              $ref: '#/components/schemas/Result'
 
       parameters:
         - name: userCredentials
