@@ -5,17 +5,23 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 public class MockWorker {
 
     public final double CPU_FACTOR;
-    public final boolean MALICIOUS;
     public final String ID;
+    public final MockUser owner;
+    private final APISupplier apiSupplier;
 
-    public MockWorker(double cpu_factor, boolean malicious, String id) {
+    public MockWorker(double cpu_factor, String deviceID, MockUser mockUser, APISupplier apiSupplier) {
         CPU_FACTOR = cpu_factor;
-        MALICIOUS = malicious;
-        ID = id;
+        this.owner = mockUser;
+        ID = deviceID;
+        this.apiSupplier = apiSupplier;
     }
 
     public void update() {
         throw new NotImplementedException();
+    }
+
+    public boolean isMalicious(){
+        return owner.isMalicious;
     }
 
     private void login() {

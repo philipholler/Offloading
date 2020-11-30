@@ -1,5 +1,6 @@
 package p7gruppe.p7.offloading.performance;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,8 @@ import p7gruppe.p7.offloading.api.JobsApiController;
 import p7gruppe.p7.offloading.api.UsersApiController;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 
-import javax.validation.constraints.AssertTrue;
+import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,6 +30,15 @@ public class MockGenerationTest {
     @Autowired
     UserRepository userRepository;
 
+
+    static final long RANDOM_SEED = 123456789L;
+    private APISupplier apiSupplier;
+
+    @BeforeEach
+    void setup(){
+        apiSupplier = new APISupplier(usersApiController, assignmentsApiController, jobsApiController);
+    }
+
     @BeforeEach
     void resetRepositories(){
         userRepository.deleteAll();
@@ -35,10 +46,8 @@ public class MockGenerationTest {
 
     @Test
     void generateUsers_proportionOfMaliciousUsers() throws Exception {
-        long randomSeed = 123456789L;
         double proportionMalicious = 0.15d;
-        APISupplier apiSupplier = new APISupplier(usersApiController, assignmentsApiController, jobsApiController);
-        UserGenerator userGenerator = new UserGenerator(randomSeed, proportionMalicious);
+        UserGenerator userGenerator = new UserGenerator(RANDOM_SEED, proportionMalicious);
         List<MockUser> users = userGenerator.generateUsers(100, apiSupplier);
 
         int amountOfMaliciousUsers = 0;
@@ -50,10 +59,8 @@ public class MockGenerationTest {
 
     @Test
     void registerUsers_usersExistsInUserRepository() throws Exception {
-        long randomSeed = 123456789L;
         double proportionMalicious = 0.15d;
-        APISupplier apiSupplier = new APISupplier(usersApiController, assignmentsApiController, jobsApiController);
-        UserGenerator userGenerator = new UserGenerator(randomSeed, proportionMalicious);
+        UserGenerator userGenerator = new UserGenerator(RANDOM_SEED, proportionMalicious);
         List<MockUser> users = userGenerator.generateUsers(100, apiSupplier);
 
         // Register users
@@ -61,6 +68,32 @@ public class MockGenerationTest {
 
         // Assert that they are now registered in the repository
         for (MockUser mockUser : users) assertTrue(userRepository.userExists(mockUser.userCredentials.getUsername()));
+    }
+
+    @Test
+    void generateWorkers_allUsersHave2Devices() {
+        MockWorkerGenerator workerGenerator = new MockWorkerGenerator();
+        UserGenerator userGenerator = new UserGenerator();
+
+        List<MockUser> users = userGenerator.generateUsers(100, apiSupplier);
+        List<MockWorker> workers = workerGenerator.generateWorkers(200, users, apiSupplier);
+
+        HashMap<String, Integer> userToDeviceCount = new HashMap<String, Integer>();
+        for (MockWorker worker : workers) {
+            String username = worker.owner.userCredentials.getUsername();
+            if (userToDeviceCount.containsKey(username)) {
+                userToDeviceCount.put(username, userToDeviceCount.get(username) + 1);
+            }else {
+                userToDeviceCount.put(username, 1);
+            }
+        }
+
+        assertEquals(200, workers.size());
+        assertEquals(100, userToDeviceCount.keySet().size());
+
+        for (MockWorker worker : workers) {
+            assertEquals(2, userToDeviceCount.get(worker.owner.userCredentials.getUsername()));
+        }
     }
 
 }
