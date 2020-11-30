@@ -1,7 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run Server" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <module name="Offloading" />
+    <module name="offloading" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="p7gruppe.p7.offloading.OffloadingApplication" />
+    <option name="ACTIVE_PROFILES" value="production" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <method v="2">
       <option name="Make" enabled="true" />

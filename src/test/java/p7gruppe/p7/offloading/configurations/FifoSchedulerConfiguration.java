@@ -31,5 +31,4 @@ public class FifoSchedulerConfiguration {
     JobScheduler getJobScheduler(){
         return new SampleScheduler();
     }
-
 }

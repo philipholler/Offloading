@@ -12,7 +12,6 @@ import org.springframework.test.context.junit.jupiter.EnabledIf;
 @EnabledIf(expression = "#{environment['spring.profiles.active'] == 'fifo-test'}", loadContext = true)
 @SpringBootTest()
 class FIFOJobSchedulerTest {
-
     @Test
     void testTest() {
         System.out.println("runs only on fifo-test profile!");
