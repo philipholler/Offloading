@@ -7,16 +7,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class MockWorkerFactory {
+public class MockWorkerGenerator {
 
     private long randomSeed = 0L;
     private float fractionMalicious = 0.0f;
 
-    private DistributionSupplier<Float> cpuDistributionSupplier;
+    private DistributionSupplier<Double> cpuDistributionSupplier;
 
-    public List<MockWorker> createWorkers(int amountOfWorkers){
+    public List<MockWorker> generateWorkers(int amountOfWorkers){
         int amountOfMaliciousWorkers = Math.round(amountOfWorkers * fractionMalicious);
-        List<Float> cpuTimeFactors = cpuDistributionSupplier.getDistribution(randomSeed, amountOfWorkers);
+        List<Double> cpuTimeFactors = cpuDistributionSupplier.getDistribution(randomSeed, amountOfWorkers);
 
         List<MockWorker> mockWorkers = new ArrayList<>();
         for (int i = 0; i < amountOfWorkers; i++){
@@ -29,17 +29,11 @@ public class MockWorkerFactory {
         return mockWorkers;
     }
 
-    public void setFractionMalicious(float fractionMalicious) {
-        if (fractionMalicious > 1.0f || fractionMalicious < 0.0f)
-            throw new IllegalArgumentException("Fraction of malicious users must be between 0.0 and 1.0");
-        this.fractionMalicious = fractionMalicious;
-    }
-
     public void setRandomSeed(long randomSeed) {
         this.randomSeed = randomSeed;
     }
 
-    public void setCpuDistributionSupplier(DistributionSupplier<Float> cpuDistributionSupplier) {
+    public void setCpuDistributionSupplier(DistributionSupplier<Double> cpuDistributionSupplier) {
         this.cpuDistributionSupplier = cpuDistributionSupplier;
     }
 }
