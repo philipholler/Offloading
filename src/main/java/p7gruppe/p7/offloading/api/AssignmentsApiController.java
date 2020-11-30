@@ -189,7 +189,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         Iterable<AssignmentEntity> assignmentsForJob = assignmentRepository.getAssignmentForJob(jobValue.getJobId());
 
         // Check that enough assignments have been made
-        if(jobValue.workersAssigned == jobValue.workersRequested){
+        if(jobValue.workersAssigned == jobValue.answersNeeded){
             // Check that all assignments are done
             boolean allAssignmentsDone = true;
             for (AssignmentEntity assig : assignmentsForJob){

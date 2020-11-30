@@ -5,8 +5,6 @@ import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 
-import java.math.BigInteger;
-
 public class PrioritizationManager {
      UserRepository userRepository;
      JobRepository jobRepository;
@@ -23,7 +21,7 @@ public class PrioritizationManager {
         UserEntity userEntity = userRepository.getUserByUsername(userName);
         JobEntity jobEntity = jobRepository.getJobByID(jobID);
 
-        jobEntity.priority = (int) (userEntity.cpuTime - jobEntity.timeoutInMinutes * Math.ceil(jobEntity.anwsersNeeded * workerMultiplyFactor));
+        jobEntity.priority = (int) (userEntity.cpuTime - jobEntity.timeoutInMinutes * Math.ceil(jobEntity.answersNeeded * workerMultiplyFactor));
 
         if (jobEntity.priority < 1) {
             jobEntity.priority = 0;

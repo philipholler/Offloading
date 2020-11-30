@@ -15,13 +15,11 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.JobFiles;
-import p7gruppe.p7.offloading.model.Result;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.xml.ws.Response;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -183,7 +181,7 @@ public class JobsApiController implements JobsApi {
             job.setId(jobEntity.getJobId());
             job.setEmployer(jobEntity.employer.getUserName());
             job.setName(jobEntity.getName());
-            job.anwsersNeeded(jobEntity.anwsersNeeded);
+            job.answersNeeded(jobEntity.answersNeeded);
             job.setWorkersAssigned(jobEntity.workersAssigned);
 
             listOfJobs.add(job);

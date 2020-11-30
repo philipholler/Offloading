@@ -9,7 +9,6 @@ public class FileStringConverter {
 
     public static byte[] fileToBytes(File file) throws IOException {
         byte[] bytes = FileUtils.readFileToByteArray(file);
-        System.out.println(Arrays.toString(bytes));
         return bytes;
     }
 
