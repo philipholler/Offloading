@@ -10,6 +10,7 @@ import p7gruppe.p7.offloading.converters.FileStringConverter;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
+import p7gruppe.p7.offloading.data.managers.PrioritizationManager;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Job;
@@ -50,13 +51,14 @@ public class JobsApiController implements JobsApi {
 
     }
 
+
+
     @Override
     public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer requestedWorkers, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
         System.out.println("Posting job....");
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
-
         try {
             byte[] decoded = JobFileManager.decodeJobByte64(body);
             String path = JobFileManager.saveJob(userCredentials.getUsername(), decoded);
@@ -65,6 +67,10 @@ public class JobsApiController implements JobsApi {
             System.out.println("Username pulled");
             JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, requestedWorkers, timeout));
             System.out.println("Job entity saved...");
+            //updates user cpu time and sets job priority
+            PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository);
+            prioritizationManager.calculateJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
+
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             // Fatal server io error // todo add error logging
@@ -91,7 +97,6 @@ public class JobsApiController implements JobsApi {
 
         return ResponseEntity.status(200).build();
     }
-
 
 
     @Override
@@ -140,7 +145,7 @@ public class JobsApiController implements JobsApi {
         JobEntity jobValue = job.get();
 
         // Check that the status is done, otherwise do not include
-        if(jobValue.jobStatus != JobEntity.JobStatus.DONE){
+        if (jobValue.jobStatus != JobEntity.JobStatus.DONE) {
             // If result file not ready yet
             System.out.println("Job status not done, could not fetch result");
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
@@ -154,8 +159,7 @@ public class JobsApiController implements JobsApi {
             resultFiles.setJobid(jobId);
             resultFiles.setData(FileStringConverter.fileToBytes(file));
             return ResponseEntity.ok(resultFiles);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             // If result file not ready yet
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
         }
@@ -171,7 +175,7 @@ public class JobsApiController implements JobsApi {
         Iterable<JobEntity> jobIterable = jobRepository.getJobsByUsername(userCredentials.getUsername());
         List<Job> listOfJobs = new ArrayList<>();
 
-        for(JobEntity jobEntity : jobIterable){
+        for (JobEntity jobEntity : jobIterable) {
             Job job = new Job();
 
             job.setStatus(jobEntity.jobStatus.name());

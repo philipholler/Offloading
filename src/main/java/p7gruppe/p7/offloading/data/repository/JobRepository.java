@@ -7,6 +7,7 @@ import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.model.Job;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,5 +27,18 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
     @Query(value = "SELECT * FROM job_entity WHERE employer_user_id = ?1 ORDER BY upload_time ASC limit 1 ",
             nativeQuery = true)
     JobEntity getNewestAvailableJobFromSameUser();
+
+    @Query(value = " SELECT * FROM job_entity ORDER BY priority DESC LIMIT 1",
+            nativeQuery = true)
+    JobEntity getJobWithHighestPriority();
+
+    @Query(value = "SELECT priority, timeout_in_minutes FROM job_entity WHERE employer_user_id = ?1",
+            nativeQuery = true)
+    Iterable<JobEntity> getJobPriorityAndTimeOutByUserID();
+
+    @Query(value = "SELECT * FROM job_entity WHERE job_id = jobID LIMIT 1",
+            nativeQuery = true)
+    JobEntity getJobByID(long jobID);
+
 
 }

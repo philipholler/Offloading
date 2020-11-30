@@ -20,6 +20,8 @@ public class JobEntity {
     @Enumerated(EnumType.STRING)
     public JobStatus jobStatus;
     public int timeoutInMinutes;
+    public int priority;
+
 
     public JobEntity(UserEntity employer, String jobPath, String name, int anwsersNeeded, int timeoutInMinutes) {
         this.employer = employer;
@@ -42,10 +44,11 @@ public class JobEntity {
                 ", name='" + name + '\'' +
                 ", jobPath='" + jobPath + '\'' +
                 ", uploadTime=" + uploadTime +
-                ", workersRequested=" + anwsersNeeded +
+                ", anwsersNeeded=" + anwsersNeeded +
                 ", workersAssigned=" + workersAssigned +
                 ", jobStatus=" + jobStatus +
                 ", timeoutInMinutes=" + timeoutInMinutes +
+                ", priority=" + priority +
                 '}';
     }
 
@@ -61,5 +64,13 @@ public class JobEntity {
         WAITING,
         PROCESSING,
         DONE
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }
