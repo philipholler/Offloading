@@ -14,6 +14,7 @@ import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
+import p7gruppe.p7.offloading.fileutils.FileUtilsKt;
 import p7gruppe.p7.offloading.model.DeviceId;
 import p7gruppe.p7.offloading.model.JobFiles;
 import p7gruppe.p7.offloading.model.Jobresult;
@@ -23,6 +24,7 @@ import p7gruppe.p7.offloading.scheduling.JobScheduler;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2020-11-18T11:02:06.033+01:00[Europe/Copenhagen]")
@@ -56,9 +58,10 @@ public class AssignmentsApiController implements AssignmentsApi {
             return ResponseEntity.badRequest().build();
         }
 
+
         long userID = userRepository.getUserID(userCredentials.getUsername());
         // Check if device belongs to user
-        if(!deviceRepository.doesDeviceBelongToUser(userID, deviceId.getImei())){
+        if(!deviceRepository.doesDeviceBelongToUser(deviceId.getImei(), userID)){
             System.out.println("GET_ASSIGNMENT - Device does not belong to user: " + deviceId + " " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
         }
@@ -153,9 +156,6 @@ public class AssignmentsApiController implements AssignmentsApi {
             return ResponseEntity.badRequest().build();
         }
 
-        // TODO: 19/11/2020 Check status of all others doing the same job. If all are done, then combine results. - Philip
-        // Possibly do hash of zip files and check equality
-
         // Check that job is still present
         Optional<JobEntity> job = jobRepository.findById(jobId);
         JobEntity jobValue;
@@ -168,21 +168,59 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // Update assignment to set as done
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
-        Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
-        if (possibleAssignment.isPresent()){
+        Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.getDeviceId());
+        if (!possibleAssignment.isPresent()){
+            System.out.println("Assignment not present for device " + device.toString());
             return ResponseEntity.badRequest().build();
         }
         AssignmentEntity assignment = possibleAssignment.get();
         assignment.setStatus(AssignmentEntity.Status.DONE_NOT_CHECKED);
+        assignmentRepository.save(assignment);
 
         // If present upload file
         try {
-            JobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult().getData()));
+            JobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult().getData()), assignment.getAssignmentId());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        assignmentRepository.save(assignment);
+        Iterable<AssignmentEntity> assignmentsForJob = assignmentRepository.getAssignmentForJob(jobValue.getJobId());
+
+        // Check that enough assignments have been made
+        if(jobValue.workersAssigned == jobValue.workersRequested){
+            // Check that all assignments are done
+            boolean allAssignmentsDone = true;
+            for (AssignmentEntity assig : assignmentsForJob){
+                if(assig.getStatus() != AssignmentEntity.Status.DONE_NOT_CHECKED){
+                    allAssignmentsDone = false;
+                    break;
+                }
+            }
+
+            // If all assignments done, check equality of results
+            if(allAssignmentsDone){
+                boolean resultsAreEqual = checkResultFilesAreEqual(jobValue.getJobPath());
+
+                if(resultsAreEqual){
+                    jobValue.setJobStatus(JobEntity.JobStatus.DONE);
+                    for(AssignmentEntity assig : assignmentsForJob){
+                        assig.setStatus(AssignmentEntity.Status.DONE);
+                        assignmentRepository.save(assig);
+                    }
+                    jobRepository.save(jobValue);
+                    JobFileManager.saveFinalResultFromIntermediate(jobValue.getJobPath());
+                }
+                else {
+                    jobValue.setJobStatus(JobEntity.JobStatus.DONE_CONFLICTING_RESULTS);
+                    for(AssignmentEntity assig : assignmentsForJob){
+                        assig.setStatus(AssignmentEntity.Status.DONE_MAYBE_WRONG);
+                        assignmentRepository.save(assig);
+                    }
+                    jobRepository.save(jobValue);
+                }
+            }
+
+        }
 
         return ResponseEntity.ok().build();
     }
@@ -195,5 +233,24 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Override
     public Optional<NativeWebRequest> getRequest() {
         return Optional.ofNullable(request);
+    }
+
+    public boolean checkResultFilesAreEqual(String pathToJobDir){
+        ArrayList<File> resultFiles = new ArrayList<>();
+
+        File directoryFile = new File(pathToJobDir + File.separator + "results" + File.separator);
+        for(File f : directoryFile.listFiles()){
+            resultFiles.add(f);
+        }
+
+        // If only 1 result
+        if (resultFiles.size() == 1) return true;
+
+        File lastFile = resultFiles.get(0);
+        for(int i = 1; i < resultFiles.size(); i++){
+            if (!FileUtilsKt.checkZipFilesEquality(lastFile, resultFiles.get(i))) return false;
+        }
+
+        return true;
     }
 }

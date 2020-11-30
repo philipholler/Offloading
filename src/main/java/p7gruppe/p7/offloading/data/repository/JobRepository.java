@@ -22,7 +22,4 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
 
     @Query(value = "SELECT * FROM job_entity INNER JOIN user_entity ue on ue.user_id = job_entity.employer_user_id WHERE user_name = ?1", nativeQuery = true)
     Iterable<JobEntity> getJobsByUsername(String username);
-
-
-
 }

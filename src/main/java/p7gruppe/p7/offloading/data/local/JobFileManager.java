@@ -12,6 +12,7 @@ public class JobFileManager {
 
     private static final String JOB_FILE_NAME = "job_file.zip";
     private static final String RESULT_FILE_NAME = "result_file.zip";
+    private static final String INTERMEDIATE_RESULT_FILE_NAME = "result_file_";
 
     // Saves a job to a directory that is generated from the given username
     // Returns the directory where job files are located
@@ -22,9 +23,22 @@ public class JobFileManager {
         return directoryPath;
     }
 
-    public static String saveResult(String path, byte[] fileBytes) throws IOException {
+    public static void saveFinalResultFromIntermediate(String jobPath) {
+        String resultDirectoryPath = PathResolver.generateNewResultFolder(jobPath);
+        File f = new File(resultDirectoryPath + File.separator);
+        File firstResult = f.listFiles()[0];
+
+        File finalResultFile = new File(jobPath + File.separator + RESULT_FILE_NAME);
+        try {
+            FileUtils.copyFile(firstResult, finalResultFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String saveResult(String path, byte[] fileBytes, long assignmentId) throws IOException {
         String resultDirectoryPath = PathResolver.generateNewResultFolder(path);
-        File f = new File(resultDirectoryPath + File.separator + RESULT_FILE_NAME);
+        File f = new File(resultDirectoryPath + File.separator + INTERMEDIATE_RESULT_FILE_NAME + assignmentId + ".zip");
         FileUtils.writeByteArrayToFile(f, fileBytes);
         return resultDirectoryPath;
     }
@@ -55,5 +69,4 @@ public class JobFileManager {
     public static byte[] decodeJobByte64(byte[] fileBytes){
         return Base64.decodeBase64(fileBytes);
     }
-
 }

@@ -22,4 +22,21 @@ public class DeviceEntity {
     }
 
     protected DeviceEntity() {}
+
+    public int getDeviceId() {
+        return deviceId;
+    }
+
+    public String getImei() {
+        return imei;
+    }
+
+    @Override
+    public String toString() {
+        return "DeviceEntity{" +
+                "deviceId=" + deviceId +
+                ", imei='" + imei + '\'' +
+                ", owner=" + owner +
+                '}';
+    }
 }

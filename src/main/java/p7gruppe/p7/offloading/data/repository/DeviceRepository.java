@@ -9,8 +9,8 @@ public interface DeviceRepository extends CrudRepository<DeviceEntity, Long> {
     @Query(value = "SELECT EXISTS (SELECT * FROM device_entity WHERE imei = ?1)", nativeQuery = true)
     boolean isDevicePresent(String imei);
 
-    @Query(value = "SELECT EXISTS (SELECT * FROM device_entity WHERE imei = ?2 AND owner_user_id = ?1)", nativeQuery = true)
-    boolean doesDeviceBelongToUser(long userId, String imei);
+    @Query(value = "SELECT EXISTS (SELECT * FROM device_entity WHERE imei = ?1 AND owner_user_id = ?2)", nativeQuery = true)
+    boolean doesDeviceBelongToUser(String imei, long userId);
 
     @Query(value = "SELECT * FROM device_entity WHERE imei = ?1", nativeQuery = true)
     DeviceEntity getDeviceByIMEI(String imei);

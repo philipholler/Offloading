@@ -60,6 +60,15 @@ public class JobEntity {
     public enum JobStatus{
         WAITING,
         PROCESSING,
-        DONE
+        DONE,
+        DONE_CONFLICTING_RESULTS
+    }
+
+    public String getJobPath() {
+        return jobPath;
+    }
+
+    public void setJobStatus(JobStatus jobStatus) {
+        this.jobStatus = jobStatus;
     }
 }
