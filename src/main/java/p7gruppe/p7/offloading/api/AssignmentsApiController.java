@@ -15,10 +15,7 @@ import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.fileutils.FileUtilsKt;
-import p7gruppe.p7.offloading.model.DeviceId;
-import p7gruppe.p7.offloading.model.JobFiles;
-import p7gruppe.p7.offloading.model.Jobresult;
-import p7gruppe.p7.offloading.model.UserCredentials;
+import p7gruppe.p7.offloading.model.*;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
 import javax.validation.Valid;
@@ -73,6 +70,7 @@ public class AssignmentsApiController implements AssignmentsApi {
          */
         Optional<AssignmentEntity> possibleOldAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
         if (possibleOldAssignment.isPresent()){
+            System.out.println("GET_ASSIGNMENT - Device already has an active assignment");
             AssignmentEntity oldAssignment = possibleOldAssignment.get();
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
@@ -149,12 +147,16 @@ public class AssignmentsApiController implements AssignmentsApi {
 
     }
 
-    @Override
+
     public ResponseEntity<Void> uploadJobResult(UserCredentials userCredentials, DeviceId deviceId, Long jobId, @Valid Jobresult jobresult) {
         // First check password
         if(!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())){
+            System.err.println("Attempted result upload. Invalid user credentials " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
         }
+
+        // TODO: 19/11/2020 Check status of all others doing the same job. If all are done, then combine results. - Philip
+        // Possibly do hash of zip files and check equality
 
         // Check that job is still present
         Optional<JobEntity> job = jobRepository.findById(jobId);

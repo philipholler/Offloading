@@ -7,6 +7,7 @@ import p7gruppe.p7.offloading.converters.FileStringConverter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class JobFileManager {
 

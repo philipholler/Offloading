@@ -18,6 +18,7 @@ public class AssignmentEntity {
     @Enumerated(EnumType.STRING)
     public Status status;
 
+
     public AssignmentEntity(Status status, DeviceEntity worker, JobEntity job) {
         this.status = status;
         this.worker = worker;

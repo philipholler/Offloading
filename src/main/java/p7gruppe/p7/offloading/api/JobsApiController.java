@@ -1,12 +1,7 @@
 package p7gruppe.p7.offloading.api;
 
-import org.apache.commons.io.FileUtils;
-import org.aspectj.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +10,7 @@ import p7gruppe.p7.offloading.converters.FileStringConverter;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
+import p7gruppe.p7.offloading.data.managers.PrioritizationManager;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Job;
@@ -29,7 +25,6 @@ import javax.xml.ws.Response;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,13 +51,14 @@ public class JobsApiController implements JobsApi {
 
     }
 
+
+
     @Override
     public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
         System.out.println("Posting job....");
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
-
         try {
             byte[] decoded = JobFileManager.decodeJobByte64(body);
             String path = JobFileManager.saveJob(userCredentials.getUsername(), decoded);
@@ -71,6 +67,10 @@ public class JobsApiController implements JobsApi {
             System.out.println("Username pulled");
             JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, workersRequested, timeout));
             System.out.println("Job entity saved...");
+            //updates user cpu time and sets job priority
+            PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository);
+            prioritizationManager.calculateJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
+
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             // Fatal server io error // todo add error logging
@@ -97,7 +97,6 @@ public class JobsApiController implements JobsApi {
 
         return ResponseEntity.status(200).build();
     }
-
 
 
     @Override
@@ -146,7 +145,7 @@ public class JobsApiController implements JobsApi {
         JobEntity jobValue = job.get();
 
         // Check that the status is done, otherwise do not include
-        if(jobValue.jobStatus != JobEntity.JobStatus.DONE){
+        if (jobValue.jobStatus != JobEntity.JobStatus.DONE) {
             // If result file not ready yet
             System.out.println("Job status not done, could not fetch result");
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
@@ -160,8 +159,7 @@ public class JobsApiController implements JobsApi {
             resultFiles.setJobid(jobId);
             resultFiles.setData(FileStringConverter.fileToBytes(file));
             return ResponseEntity.ok(resultFiles);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             // If result file not ready yet
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
         }
@@ -173,11 +171,10 @@ public class JobsApiController implements JobsApi {
             return ResponseEntity.badRequest().build();
         }
 
-        System.out.println(userCredentials);
         Iterable<JobEntity> jobIterable = jobRepository.getJobsByUsername(userCredentials.getUsername());
         List<Job> listOfJobs = new ArrayList<>();
 
-        for(JobEntity jobEntity : jobIterable){
+        for (JobEntity jobEntity : jobIterable) {
             Job job = new Job();
 
             job.setStatus(jobEntity.jobStatus.name());
@@ -186,7 +183,7 @@ public class JobsApiController implements JobsApi {
             job.setId(jobEntity.getJobId());
             job.setEmployer(jobEntity.employer.getUserName());
             job.setName(jobEntity.getName());
-            job.setWorkersRequested(jobEntity.workersRequested);
+            job.anwsersNeeded(jobEntity.anwsersNeeded);
             job.setWorkersAssigned(jobEntity.workersAssigned);
 
             listOfJobs.add(job);

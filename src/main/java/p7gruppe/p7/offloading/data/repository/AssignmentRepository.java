@@ -10,6 +10,7 @@ import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import java.util.Optional;
 
 public interface AssignmentRepository extends CrudRepository<AssignmentEntity, Long> {
+
     @Query(value = "SELECT * FROM assignment_entity WHERE worker_device_id = ?1 AND status = 'PROCESSING'", nativeQuery = true)
     Optional<AssignmentEntity> getProcessingAssignmentForDevice(long workerDeviceID);
 
