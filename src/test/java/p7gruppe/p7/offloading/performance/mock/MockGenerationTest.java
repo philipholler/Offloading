@@ -1,6 +1,5 @@
-package p7gruppe.p7.offloading.performance;
+package p7gruppe.p7.offloading.performance.mock;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +8,8 @@ import p7gruppe.p7.offloading.api.AssignmentsApiController;
 import p7gruppe.p7.offloading.api.JobsApiController;
 import p7gruppe.p7.offloading.api.UsersApiController;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
+import p7gruppe.p7.offloading.performance.APISupplier;
 
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class MockGenerationTest {
     @Test
     void generateUsers_proportionOfMaliciousUsers() throws Exception {
         double proportionMalicious = 0.15d;
-        UserGenerator userGenerator = new UserGenerator(RANDOM_SEED, proportionMalicious);
+        MockUserGenerator userGenerator = new MockUserGenerator(RANDOM_SEED, proportionMalicious);
         List<MockUser> users = userGenerator.generateUsers(100, apiSupplier);
 
         int amountOfMaliciousUsers = 0;
@@ -60,7 +59,7 @@ public class MockGenerationTest {
     @Test
     void registerUsers_usersExistsInUserRepository() throws Exception {
         double proportionMalicious = 0.15d;
-        UserGenerator userGenerator = new UserGenerator(RANDOM_SEED, proportionMalicious);
+        MockUserGenerator userGenerator = new MockUserGenerator(RANDOM_SEED, proportionMalicious);
         List<MockUser> users = userGenerator.generateUsers(100, apiSupplier);
 
         // Register users
@@ -73,7 +72,7 @@ public class MockGenerationTest {
     @Test
     void generateWorkers_allUsersHave2Devices() {
         MockWorkerGenerator workerGenerator = new MockWorkerGenerator();
-        UserGenerator userGenerator = new UserGenerator();
+        MockUserGenerator userGenerator = new MockUserGenerator();
 
         List<MockUser> users = userGenerator.generateUsers(100, apiSupplier);
         List<MockWorker> workers = workerGenerator.generateWorkers(200, users, apiSupplier);

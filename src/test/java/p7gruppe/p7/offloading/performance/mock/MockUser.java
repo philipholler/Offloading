@@ -1,7 +1,8 @@
-package p7gruppe.p7.offloading.performance;
+package p7gruppe.p7.offloading.performance.mock;
 
 import p7gruppe.p7.offloading.api.UsersApi;
 import p7gruppe.p7.offloading.model.UserCredentials;
+import p7gruppe.p7.offloading.performance.APISupplier;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class MockUser {

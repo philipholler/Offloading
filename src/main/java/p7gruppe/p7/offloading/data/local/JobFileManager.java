@@ -53,6 +53,10 @@ public class JobFileManager {
         file.delete();
     }
 
+    public static byte[] encodeJobBytes(byte[] fileBytes){
+        return Base64.encodeBase64(fileBytes);
+    }
+
     public static byte[] decodeJobByte64(byte[] fileBytes){
         return Base64.decodeBase64(fileBytes);
     }

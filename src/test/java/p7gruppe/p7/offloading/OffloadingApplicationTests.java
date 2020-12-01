@@ -7,8 +7,8 @@ import p7gruppe.p7.offloading.api.AssignmentsApiController;
 import p7gruppe.p7.offloading.api.JobsApiController;
 import p7gruppe.p7.offloading.api.UsersApiController;
 import p7gruppe.p7.offloading.performance.APISupplier;
-import p7gruppe.p7.offloading.performance.MockUser;
-import p7gruppe.p7.offloading.performance.UserGenerator;
+import p7gruppe.p7.offloading.performance.mock.MockUser;
+import p7gruppe.p7.offloading.performance.mock.MockUserGenerator;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
 import java.util.List;
@@ -33,7 +33,7 @@ class OffloadingApplicationTests {
 	    long randomSeed = 123456789L;
 	    double proportionMalicious = 0.1d;
         APISupplier apiSupplier = new APISupplier(usersApiController, assignmentsApiController, jobsApiController);
-        UserGenerator userGenerator = new UserGenerator(randomSeed, proportionMalicious);
+        MockUserGenerator userGenerator = new MockUserGenerator(randomSeed, proportionMalicious);
         List<MockUser> users = userGenerator.generateUsers(100, apiSupplier);
 
         int amountOfMaliciousUsers = 0;

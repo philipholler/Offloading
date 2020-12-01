@@ -1,5 +1,6 @@
-package p7gruppe.p7.offloading.performance;
+package p7gruppe.p7.offloading.performance.mock;
 
+import p7gruppe.p7.offloading.performance.APISupplier;
 import p7gruppe.p7.offloading.performance.statistics.ArbitraryCPUDistributionSupplier;
 import p7gruppe.p7.offloading.performance.statistics.DistributionSupplier;
 

@@ -1,20 +1,21 @@
-package p7gruppe.p7.offloading.performance;
+package p7gruppe.p7.offloading.performance.mock;
 
 import p7gruppe.p7.offloading.model.UserCredentials;
+import p7gruppe.p7.offloading.performance.APISupplier;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class UserGenerator {
+public class MockUserGenerator {
 
     private long randomSeed = 0L;
     private double proportionOfMaliciousUsers = 0.0;
 
-    public UserGenerator() {}
+    public MockUserGenerator() {}
 
-    public UserGenerator(long randomSeed, double proportionOfMaliciousUsers) {
+    public MockUserGenerator(long randomSeed, double proportionOfMaliciousUsers) {
         this.randomSeed = randomSeed;
         this.proportionOfMaliciousUsers = proportionOfMaliciousUsers;
     }
