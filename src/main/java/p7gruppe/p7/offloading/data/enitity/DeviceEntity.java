@@ -21,5 +21,9 @@ public class DeviceEntity {
         this.imei = imei;
     }
 
+    public UserEntity getOwner() {
+        return owner;
+    }
+
     protected DeviceEntity() {}
 }

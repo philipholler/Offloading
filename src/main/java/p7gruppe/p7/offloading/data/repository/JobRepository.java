@@ -28,9 +28,14 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
             nativeQuery = true)
     JobEntity getNewestAvailableJobFromSameUser(long userID);
 
-    @Query(value = "SELECT * FROM job_entity WHERE employer_user_id = ?1 ORDER BY upload_time DESC limit 1 ",
+    @Query(value = "SELECT *\n" +
+            "FROM job_entity\n" +
+            "         INNER JOIN user_entity ue on ue.user_id = job_entity.employer_user_id\n" +
+            "WHERE user_name = ?1\n" +
+            "ORDER BY upload_time DESC\n" +
+            "limit 1",
             nativeQuery = true)
-    JobEntity getOldestAvailableJobFromSameUser(long userID);
+    JobEntity getOldestAvailableJobFromSameUser(String userName);
 
     @Query(value = " SELECT * FROM job_entity ORDER BY priority DESC LIMIT 1",
             nativeQuery = true)

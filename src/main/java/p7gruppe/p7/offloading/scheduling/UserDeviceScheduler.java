@@ -11,7 +11,7 @@ public class UserDeviceScheduler implements JobScheduler {
 
     @Override
     public Optional<JobEntity> assignJob(DeviceEntity device) {
-        JobEntity newJob = jobRepository.getOldestAvailableJobFromSameUser(device.deviceId);
+        JobEntity newJob = jobRepository.getOldestAvailableJobFromSameUser(device.getOwner().getUserName());
 
         if (newJob == null)
             newJob = jobRepository.getJobWithHighestPriority();
