@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import p7gruppe.p7.offloading.converters.FileStringConverter;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
