@@ -51,8 +51,6 @@ public class JobsApiController implements JobsApi {
 
     }
 
-
-
     @Override
     public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
         System.out.println("Posting job....");

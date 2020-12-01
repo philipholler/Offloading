@@ -28,7 +28,7 @@ public class OffloadingConfiguration {
     UserRepository userRepository;
 
     @Bean
-    PathResolver pathResolver(){
+    PathResolver getPathResolver(){
         return new PathResolver("data");
     }
 
@@ -36,6 +36,4 @@ public class OffloadingConfiguration {
     JobScheduler getJobScheduler(){
         return new FIFOJobScheduler(assignmentRepository, jobRepository);
     }
-
-
 }

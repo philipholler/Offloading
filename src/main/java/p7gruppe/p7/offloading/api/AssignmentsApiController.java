@@ -184,7 +184,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // If present upload file
         try {
-            jobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult().getData()), assignment.getAssignmentId());
+            jobFileManager.saveResult(jobValue.jobPath, jobFileManager.decodeJobByte64(jobresult.getResult().getData()), assignment.getAssignmentId());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -213,7 +213,7 @@ public class AssignmentsApiController implements AssignmentsApi {
                         assignmentRepository.save(assig);
                     }
                     jobRepository.save(jobValue);
-                    JobFileManager.saveFinalResultFromIntermediate(jobValue.getJobPath());
+                    jobFileManager.saveFinalResultFromIntermediate(jobValue.getJobPath());
                 }
                 else {
                     jobValue.setJobStatus(JobEntity.JobStatus.DONE_CONFLICTING_RESULTS);

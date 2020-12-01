@@ -1,6 +1,7 @@
 package p7gruppe.p7.offloading.data.local;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,5 +51,13 @@ public class PathResolver {
         }
 
         return resultFolderPath;
+    }
+
+    @Override
+    public String toString() {
+        return "PathResolver{" +
+                "DATA_PREFIX='" + DATA_PREFIX + '\'' +
+                ", JOBS_PREFIX='" + JOBS_PREFIX + '\'' +
+                '}';
     }
 }
