@@ -26,7 +26,11 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
 
     @Query(value = "SELECT * FROM job_entity WHERE employer_user_id = ?1 ORDER BY upload_time ASC limit 1 ",
             nativeQuery = true)
-    JobEntity getNewestAvailableJobFromSameUser();
+    JobEntity getNewestAvailableJobFromSameUser(long userID);
+
+    @Query(value = "SELECT * FROM job_entity WHERE employer_user_id = ?1 ORDER BY upload_time DESC limit 1 ",
+            nativeQuery = true)
+    JobEntity getOldestAvailableJobFromSameUser(long userID);
 
     @Query(value = " SELECT * FROM job_entity ORDER BY priority DESC LIMIT 1",
             nativeQuery = true)
