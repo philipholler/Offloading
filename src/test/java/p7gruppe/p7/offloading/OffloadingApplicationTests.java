@@ -3,54 +3,44 @@ package p7gruppe.p7.offloading;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import p7gruppe.p7.offloading.api.AssignmentsApiController;
+import p7gruppe.p7.offloading.api.JobsApiController;
 import p7gruppe.p7.offloading.api.UsersApiController;
-import p7gruppe.p7.offloading.data.enitity.UserEntity;
-import p7gruppe.p7.offloading.data.repository.JobRepository;
-import p7gruppe.p7.offloading.data.repository.UserRepository;
-import p7gruppe.p7.offloading.model.UserCredentials;
+import p7gruppe.p7.offloading.performance.APISupplier;
+import p7gruppe.p7.offloading.performance.mock.MockUser;
+import p7gruppe.p7.offloading.performance.mock.MockUserGenerator;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
-import p7gruppe.p7.offloading.scheduling.SampleScheduler;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest()
 class OffloadingApplicationTests {
 
 	@Autowired
-	JobRepository jobRepository;
-
-	@Autowired
-	UserRepository userRepository;
-
-	@Autowired
     UsersApiController usersApiController;
+    @Autowired
+    JobsApiController jobsApiController;
+    @Autowired
+    AssignmentsApiController assignmentsApiController;
 
 	@Autowired
 	JobScheduler scheduler;
 
 	@Test
 	void exampleTest() throws Exception {
-	    UserCredentials userCredentials = new UserCredentials();
-	    userCredentials.setUsername("user1");
-	    userCredentials.password("password");
-	    usersApiController.createUser(userCredentials);
+	    long randomSeed = 123456789L;
+	    double proportionMalicious = 0.1d;
+        APISupplier apiSupplier = new APISupplier(usersApiController, assignmentsApiController, jobsApiController);
+        MockUserGenerator userGenerator = new MockUserGenerator(randomSeed, proportionMalicious);
+        List<MockUser> users = userGenerator.generateUsers(100, apiSupplier);
 
-        //TestUserGeneration.createTestUser(mockMvc);
+        int amountOfMaliciousUsers = 0;
+        for (MockUser mockUser : users) if (mockUser.isMalicious) amountOfMaliciousUsers += 1;
 
-	    UserEntity user = new UserEntity("SorenSmoke", "password");
-
-        user = userRepository.save(user);
-
-		System.out.println(scheduler instanceof SampleScheduler);
-		/*jobRepository.save(new JobEntity(user, "data/test1"));
-		jobRepository.save(new JobEntity(user, "data/test2"));
-
-
-		jobRepository.findAll().forEach((job) -> {
-			System.out.println(job.employer.getUserName() + " : " + job.jobPath);
-		});
-
-        System.out.println("________");
-        JobEntity myJob = jobRepository.getJobsWithId(2L);
-        System.out.println(myJob);*/
+        assertEquals(100, users.size());
+        assertEquals(10, amountOfMaliciousUsers);
 	}
 
 }
