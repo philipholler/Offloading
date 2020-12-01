@@ -46,6 +46,8 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Autowired
     JobRepository jobRepository;
 
+    JobFileManager jobFileManager = new JobFileManager();
+
     @Override
     public ResponseEntity<JobFiles> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
@@ -73,7 +75,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             AssignmentEntity oldAssignment = possibleOldAssignment.get();
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
-            File jobFile = JobFileManager.getJobFile(job.get().jobPath);
+            File jobFile = jobFileManager.getJobFile(job.get().jobPath);
             JobFiles jobfiles = null;
             try {
                 jobfiles = new JobFiles().jobid(jobValue.getJobId()).data(FileStringConverter.fileToBytes(jobFile));
@@ -91,7 +93,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         if(job.isPresent()){
             // If some job is available for computation
             JobEntity jobValue = job.get();
-            File jobFile = JobFileManager.getJobFile(job.get().jobPath);
+            File jobFile = jobFileManager.getJobFile(job.get().jobPath);
             JobFiles jobfile = null;
             try {
                 jobfile = new JobFiles().jobid(jobValue.getJobId()).data(FileStringConverter.fileToBytes(jobFile));
@@ -161,6 +163,8 @@ public class AssignmentsApiController implements AssignmentsApi {
         Optional<JobEntity> job = jobRepository.findById(jobId);
         JobEntity jobValue;
         if(!job.isPresent()){
+            // todo Better response that can be interpreted on android side (so that the worker knows to quit this job)
+            System.err.println("Attempted result upload. Job result is no longer present" + jobId);
             return ResponseEntity.badRequest().build();
         }
         else {
@@ -169,9 +173,9 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // Update assignment to set as done
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
-        Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.getDeviceId());
+        Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
         if (!possibleAssignment.isPresent()){
-            System.out.println("Assignment not present for device " + device.toString());
+            System.err.println("Attempted result upload. But device (" + device.deviceId + ", " + deviceId.getImei() + ") does not have matching assignment");
             return ResponseEntity.badRequest().build();
         }
         AssignmentEntity assignment = possibleAssignment.get();
@@ -180,7 +184,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // If present upload file
         try {
-            JobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult().getData()), assignment.getAssignmentId());
+            jobFileManager.saveResult(jobValue.jobPath, JobFileManager.decodeJobByte64(jobresult.getResult().getData()), assignment.getAssignmentId());
         } catch (IOException e) {
             e.printStackTrace();
         }

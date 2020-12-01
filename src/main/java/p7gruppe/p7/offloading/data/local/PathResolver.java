@@ -1,17 +1,24 @@
 package p7gruppe.p7.offloading.data.local;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PathResolver {
 
-    static final String DATA_PREFIX = System.getProperty("user.dir") + File.separator + "data" + File.separator;
-    private static final String JOBS_PREFIX = DATA_PREFIX + "jobs" + File.separator;
+    private final String DATA_PREFIX;
+    private final String JOBS_PREFIX;
 
     private static List<String> temporaryReservedPaths = new ArrayList<>();
 
-    public static synchronized String generateNewJobFolder(String userName){
+    public PathResolver(String dataFolderName) {
+        DATA_PREFIX = System.getProperty("user.dir") + File.separator + dataFolderName + File.separator;
+        JOBS_PREFIX = DATA_PREFIX + "jobs" + File.separator;
+    }
+
+    public synchronized String generateNewJobFolder(String userName){
         String pathPrefix = JOBS_PREFIX + userName + File.separator;
 
         File rootDirectory = new File(pathPrefix);
@@ -30,12 +37,11 @@ public class PathResolver {
         return pathPrefix + jobName + File.separator;
     }
 
-    private static synchronized String generateJobName(int i) {
+    private synchronized String generateJobName(int i) {
         return "job_" + i;
     }
 
-
-    public static synchronized String generateNewResultFolder(String jobFolderPath) {
+    public synchronized String generateNewResultFolder(String jobFolderPath) {
         String resultFolderPath = jobFolderPath + File.separator + "results" + File.separator;
         File resultFolder = new File(resultFolderPath);
 

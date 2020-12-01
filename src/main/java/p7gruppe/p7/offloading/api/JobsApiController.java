@@ -43,6 +43,8 @@ public class JobsApiController implements JobsApi {
 
     private final NativeWebRequest request;
 
+    JobFileManager jobFileManager = new JobFileManager();
+
     @Autowired
     public JobsApiController(NativeWebRequest request) {
         this.request = request;
@@ -59,7 +61,7 @@ public class JobsApiController implements JobsApi {
         }
         try {
             byte[] decoded = JobFileManager.decodeJobByte64(body);
-            String path = JobFileManager.saveJob(userCredentials.getUsername(), decoded);
+            String path = jobFileManager.saveJob(userCredentials.getUsername(), decoded);
             System.out.println("Job saved...");
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
             System.out.println("Username pulled");
@@ -85,7 +87,7 @@ public class JobsApiController implements JobsApi {
         if (!job.isPresent())
             return ResponseEntity.badRequest().build();
         try {
-            JobFileManager.deleteDirectory(job.get().jobPath);
+            jobFileManager.deleteDirectory(job.get().jobPath);
             jobRepository.deleteById(jobId);
 
         } catch (IOException e) {
@@ -109,7 +111,7 @@ public class JobsApiController implements JobsApi {
         if (!job.isPresent())
             return ResponseEntity.badRequest().build();
         // If some job is available for computation
-        File file = JobFileManager.getJobFile(job.get().jobPath);
+        File file = jobFileManager.getJobFile(job.get().jobPath);
 
         try {
             byte[] bytes = FileStringConverter.fileToBytes(file); // These bytes ARE correct.
@@ -152,7 +154,7 @@ public class JobsApiController implements JobsApi {
         // Try to fetch result files
         try {
             System.out.println("Trying to get result file");
-            File file = JobFileManager.getResultFile(job.get().jobPath);
+            File file = jobFileManager.getResultFile(job.get().jobPath);
             JobFiles resultFiles = new JobFiles();
             resultFiles.setJobid(jobId);
             resultFiles.setData(FileStringConverter.fileToBytes(file));

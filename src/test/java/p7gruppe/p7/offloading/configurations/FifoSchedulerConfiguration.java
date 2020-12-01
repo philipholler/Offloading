@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import p7gruppe.p7.offloading.data.local.PathResolver;
 import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
@@ -27,8 +28,12 @@ public class FifoSchedulerConfiguration {
     @Autowired
     UserRepository userRepository;
 
+
+    @Bean
+    PathResolver pathResolver() {return new PathResolver("test_data");}
+
     @Bean
     JobScheduler getJobScheduler(){
-        return new SampleScheduler();
+        return new FIFOJobScheduler(assignmentRepository, jobRepository);
     }
 }
