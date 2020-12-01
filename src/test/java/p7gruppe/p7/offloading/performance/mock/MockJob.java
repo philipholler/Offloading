@@ -5,12 +5,12 @@ import p7gruppe.p7.offloading.util.ByteUtils;
 
 public class MockJob {
 
-    public final long computationTimeMillis;
-    public final long requestedWorkers;
+    public final int computationTimeMillis;
+    public final int requestedWorkers;
 
     private int jobID = -1;
 
-    public MockJob(long computationTimeMillis, long requestedWorkers) {
+    public MockJob(int computationTimeMillis, int requestedWorkers) {
         if (computationTimeMillis < 0)
             throw new IllegalArgumentException("Job must have positive calculation time");
         if (requestedWorkers <= 0)

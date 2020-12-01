@@ -25,10 +25,8 @@ public class MockGenerationTest {
     JobsApiController jobsApiController;
     @Autowired
     AssignmentsApiController assignmentsApiController;
-
     @Autowired
     UserRepository userRepository;
-
 
     static final long RANDOM_SEED = 123456789L;
     private APISupplier apiSupplier;
