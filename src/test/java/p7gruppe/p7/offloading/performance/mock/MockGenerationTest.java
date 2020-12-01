@@ -95,4 +95,14 @@ public class MockGenerationTest {
         }
     }
 
+    @Test
+    void mockJob_cpuTimeByteConversion() {
+        long computationTime = 123789465L;
+        MockJob mockJob = new MockJob(computationTime, 2);
+
+        byte[] encodedCpuTimeBytes = mockJob.getComputationTimeAsBase64Bytes();
+        long decodedComputationTime = MockJob.base64BytesToComputationTime(encodedCpuTimeBytes);
+        assertEquals(computationTime, decodedComputationTime);
+    }
+
 }

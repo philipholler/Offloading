@@ -11,6 +11,11 @@ public class MockJob {
     private int jobID = -1;
 
     public MockJob(long computationTimeMillis, long requestedWorkers) {
+        if (computationTimeMillis < 0)
+            throw new IllegalArgumentException("Job must have positive calculation time");
+        if (requestedWorkers <= 0)
+            throw new IllegalArgumentException("Job must have at least 1 requested worker");
+
         this.computationTimeMillis = computationTimeMillis;
         this.requestedWorkers = requestedWorkers;
     }
