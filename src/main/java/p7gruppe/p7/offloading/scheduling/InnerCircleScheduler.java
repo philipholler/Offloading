@@ -23,7 +23,7 @@ public class InnerCircleScheduler implements JobScheduler {
 
     @Override
     public Optional<JobEntity> assignJob(DeviceEntity device, JobFilter jobFilter) {
-        JobEntity newJob = jobRepository.getNewestAvailableJobFromSameUser(device.deviceId);
+        JobEntity newJob = jobRepository.getOldestJobByUserName(device.getOwner().getUserName());
         if (newJob != null) return Optional.of(newJob);
         return Optional.empty();
     }
