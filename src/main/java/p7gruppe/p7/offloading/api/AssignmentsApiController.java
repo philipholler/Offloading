@@ -48,6 +48,8 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Autowired
     JobRepository jobRepository;
 
+    JobFileManager jobFileManager = new JobFileManager();
+
     @Override
     public ResponseEntity<JobFiles> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
         // First check password
@@ -74,7 +76,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             AssignmentEntity oldAssignment = possibleOldAssignment.get();
             Optional<JobEntity> job = jobRepository.findById(oldAssignment.job.getJobId());
             JobEntity jobValue = job.get();
-            File jobFile = JobFileManager.getJobFile(job.get().jobPath);
+            File jobFile = jobFileManager.getJobFile(job.get().jobPath);
             JobFiles jobfiles = null;
             try {
                 jobfiles = new JobFiles().jobid(jobValue.getJobId()).data(FileStringConverter.fileToBytes(jobFile));
@@ -92,7 +94,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         if(job.isPresent()){
             // If some job is available for computation
             JobEntity jobValue = job.get();
-            File jobFile = JobFileManager.getJobFile(job.get().jobPath);
+            File jobFile = jobFileManager.getJobFile(job.get().jobPath);
             JobFiles jobfile = null;
             try {
                 jobfile = new JobFiles().jobid(jobValue.getJobId()).data(FileStringConverter.fileToBytes(jobFile));
@@ -181,7 +183,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // If present upload file
         try {
-            JobFileManager.saveResult(jobValue.jobPath, result.getResultfile());
+            jobFileManager.saveResult(jobValue.jobPath, result.getResultfile());
         } catch (IOException e) {
             e.printStackTrace();
         }

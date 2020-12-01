@@ -4,8 +4,6 @@ import java.util.Optional;
 
 public interface JobSpawner {
 
-
-
     Optional<MockJob> pollJob();
 
 }
