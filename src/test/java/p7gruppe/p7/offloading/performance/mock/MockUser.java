@@ -25,7 +25,6 @@ public class MockUser {
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("User registration failed for " + userCredentials.toString());
         }
-
     }
 
     @Override

@@ -11,7 +11,7 @@ import p7gruppe.p7.offloading.util.ByteUtils;
 
 import java.util.function.Function;
 
-public class MockWorker {
+public class MockWorker implements Updatable {
 
     public static final int MALICIOUS_RESULT = 0;
     public static final int CORRECT_RESULT = 1;
@@ -26,7 +26,7 @@ public class MockWorker {
     private long currentJobFinishTime;
     private boolean isLoggedIn = false;
 
-    private long getRequestIntervalMillis = 5000;
+    private long getRequestIntervalMillis = 5000L;
     private long lastGetRequestTimeMillis = 0L;
 
     // Default activation policy is that it is always active
@@ -105,7 +105,7 @@ public class MockWorker {
     }
 
     private void quitJob() {
-        ResponseEntity response = apiSupplier.assignmentsApi.quitAssignment(owner.userCredentials, deviceId, currentJob.getJobid());
+        ResponseEntity<Void> response = apiSupplier.assignmentsApi.quitAssignment(owner.userCredentials, deviceId, currentJob.getJobid());
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Attempted job quit but not accepted by server : " + deviceId.toString());
         }

@@ -74,7 +74,6 @@ public class UsersApiController implements UsersApi {
         else {
             // If worker not seen before, add it
             if(!deviceRepository.isDevicePresent(deviceId.getImei())){
-                System.out.println("Added " + deviceId.getImei() + " to device repository");
                 UserEntity deviceUser = userRepository.getUserByUsername(userCredentials.getUsername());
                 // If user does not exist or the device is already registered but with a different user.
                 if(deviceUser == null || !(deviceUser.getUserName().equals(userCredentials.getUsername()))) return ResponseEntity.status(404).build();

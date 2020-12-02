@@ -5,7 +5,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Optional;
 
-public class MockEmployer {
+public class MockEmployer implements Updatable {
 
     public final MockUser mockUser;
 
