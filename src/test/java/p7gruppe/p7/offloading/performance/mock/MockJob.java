@@ -23,11 +23,11 @@ public class MockJob {
     /** Mock job data bytes represent the simulated cpu time of the job **/
     // Converts the computation time to bytes
     public byte[] getComputationTimeAsBase64Bytes(){
-        return JobFileManager.encodeJobBytes(ByteUtils.longToBytes(computationTimeMillis));
+        return JobFileManager.encodeJobBytes(ByteUtils.intToBytes(computationTimeMillis));
     }
 
-    public static long base64BytesToComputationTime(byte[] encoded){
-        return ByteUtils.bytesToLong(JobFileManager.decodeJobByte64(encoded));
+    public static int base64BytesToComputationTime(byte[] encoded){
+        return ByteUtils.bytesToInt(JobFileManager.decodeJobByte64(encoded));
     }
 
     public int getJobID() {

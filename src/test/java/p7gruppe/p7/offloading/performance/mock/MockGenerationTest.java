@@ -2,6 +2,8 @@ package p7gruppe.p7.offloading.performance.mock;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import p7gruppe.p7.offloading.api.AssignmentsApiController;
@@ -93,9 +95,9 @@ public class MockGenerationTest {
         }
     }
 
-    @Test
-    void mockJob_cpuTimeByteConversion() {
-        long computationTime = 123789465L;
+    @ParameterizedTest
+    @ValueSource(ints = {0, 63, 66, 126, 129, 254, 257, 159156156})
+    void mockJob_cpuTimeByteConversion(int computationTime) {
         MockJob mockJob = new MockJob(computationTime, 2);
 
         byte[] encodedCpuTimeBytes = mockJob.getComputationTimeAsBase64Bytes();

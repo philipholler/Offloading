@@ -3,6 +3,8 @@ package p7gruppe.p7.offloading.performance.mock;
 import p7gruppe.p7.offloading.performance.APISupplier;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.Optional;
+
 public class MockEmployer {
 
     private final MockUser mockUser;
@@ -18,7 +20,8 @@ public class MockEmployer {
     }
 
     public void update(){
-
+        Optional<MockJob> optionalJob = jobSpawner.pollJob();
+        optionalJob.ifPresent(this::uploadJob);
     }
 
     private void login(){
@@ -26,7 +29,7 @@ public class MockEmployer {
         throw new NotImplementedException();
     }
 
-    private void uploadJob(){
+    private void uploadJob(MockJob mockJob){
         // JobController
         throw new NotImplementedException();
     }

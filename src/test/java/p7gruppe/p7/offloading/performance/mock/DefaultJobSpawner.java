@@ -11,6 +11,8 @@ public class DefaultJobSpawner implements JobSpawner {
 
     private long nextJobTime;
 
+    private int REQUESTED_WORKERS = 2;
+
     private Random random;
 
     public DefaultJobSpawner(int averageJobComputeTime, long randomSeed) {
@@ -26,13 +28,16 @@ public class DefaultJobSpawner implements JobSpawner {
 
     @Override
     public Optional<MockJob> pollJob() {
-        if (System.currentTimeMillis() >= nextJobTime)
-            return Optional.of(createNewJob());
-        return Optional.empty();
+        if (System.currentTimeMillis() < nextJobTime)
+            return Optional.empty();
+
+        int deviation = random.nextInt(maximumJobIntervalDeviationMillis * 2) - maximumJobIntervalDeviationMillis;
+        nextJobTime += System.currentTimeMillis() + averageJobIntervalMillis +  deviation;
+        return Optional.of(createNewJob());
     }
 
     private MockJob createNewJob() {
-        int jobComputationTime = averageJobComputeTime + random.nextInt(maximumJobIntervalDeviationMillis);
-        return new MockJob(jobComputationTime, 2);
+        int deviation = random.nextInt(averageJobComputeTime) - (averageJobComputeTime / 2);
+        return new MockJob(averageJobComputeTime + deviation, REQUESTED_WORKERS);
     }
 }
