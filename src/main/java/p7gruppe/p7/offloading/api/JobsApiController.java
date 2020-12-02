@@ -58,7 +58,7 @@ public class JobsApiController implements JobsApi {
             return ResponseEntity.badRequest().build();
         }
         try {
-            byte[] decoded = JobFileManager.decodeJobByte64(body);
+            byte[] decoded = JobFileManager.decodeFromBase64(body);
             String path = jobFileManager.saveJob(userCredentials.getUsername(), decoded);
             System.out.println("Job saved...");
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());

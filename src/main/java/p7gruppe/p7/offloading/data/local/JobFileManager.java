@@ -80,7 +80,7 @@ public class JobFileManager {
         return Base64.encodeBase64(fileBytes);
     }
 
-    public static byte[] decodeJobByte64(byte[] fileBytes){
+    public static byte[] decodeFromBase64(byte[] fileBytes){
         return Base64.decodeBase64(fileBytes);
     }
 

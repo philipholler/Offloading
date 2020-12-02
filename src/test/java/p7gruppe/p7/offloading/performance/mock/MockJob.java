@@ -27,7 +27,7 @@ public class MockJob {
     }
 
     public static int base64BytesToComputationTime(byte[] encoded){
-        return ByteUtils.bytesToInt(JobFileManager.decodeJobByte64(encoded));
+        return ByteUtils.bytesToInt(JobFileManager.decodeFromBase64(encoded));
     }
 
     public int getJobID() {

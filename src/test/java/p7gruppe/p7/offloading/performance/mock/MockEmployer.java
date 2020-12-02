@@ -25,11 +25,6 @@ public class MockEmployer {
         optionalJob.ifPresent(this::uploadJob);
     }
 
-    private void login(){
-        // LoginController
-        throw new NotImplementedException();
-    }
-
     private void uploadJob(MockJob mockJob){
         // JobController
         throw new NotImplementedException();

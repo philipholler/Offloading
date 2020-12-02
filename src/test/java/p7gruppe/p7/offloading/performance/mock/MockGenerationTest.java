@@ -99,6 +99,18 @@ public class MockGenerationTest {
     }
 
     @Test
+    void workerLogin_devicesRegisteredInServer() {
+        MockWorkerGenerator workerGenerator = new MockWorkerGenerator(apiSupplier);
+        MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
+
+        List<MockUser> users = userGenerator.generateUsers(100, RANDOM_SEED);
+        List<MockWorker> workers = workerGenerator.generateWorkers(200, users, RANDOM_SEED);
+
+        for (MockWorker worker : workers) {
+        }
+    }
+
+    @Test
     void generateEmployers_allUsersAreEmployers() {
         long randomSeed = 123456L;
 
