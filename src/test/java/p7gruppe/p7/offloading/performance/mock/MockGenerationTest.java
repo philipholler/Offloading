@@ -13,6 +13,7 @@ import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.APISupplier;
+import p7gruppe.p7.offloading.testutils.IteratorUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,12 +41,12 @@ public class MockGenerationTest {
     private APISupplier apiSupplier;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         apiSupplier = new APISupplier(usersApiController, assignmentsApiController, jobsApiController);
     }
 
     @BeforeEach
-    void resetRepositories(){
+    void resetRepositories() {
         deviceRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -91,7 +92,7 @@ public class MockGenerationTest {
             String username = worker.owner.userCredentials.getUsername();
             if (userToDeviceCount.containsKey(username)) {
                 userToDeviceCount.put(username, userToDeviceCount.get(username) + 1);
-            }else {
+            } else {
                 userToDeviceCount.put(username, 1);
             }
         }
@@ -132,13 +133,11 @@ public class MockGenerationTest {
 
     @Test
     void generateEmployers_allUsersAreEmployers() {
-        long randomSeed = 123456L;
-
         MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
         MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
 
-        List<MockUser> users = userGenerator.generateUsers(100, randomSeed);
-        List<MockEmployer> employers = employerGenerator.generateEmployers(users.size(), users, randomSeed);
+        List<MockUser> users = userGenerator.generateUsers(100, RANDOM_SEED);
+        List<MockEmployer> employers = employerGenerator.generateEmployers(users.size(), users, RANDOM_SEED);
 
         HashSet<String> employerUsers = new HashSet<>();
         for (MockEmployer employer : employers) {
@@ -159,6 +158,20 @@ public class MockGenerationTest {
         byte[] encodedCpuTimeBytes = mockJob.getComputationTimeAsBase64Bytes();
         long decodedComputationTime = MockJob.base64BytesToComputationTime(encodedCpuTimeBytes);
         assertEquals(computationTime, decodedComputationTime);
+    }
+
+    @Test
+    void generateUserBase_allRegistered() {
+        int userCount = 100, workerCount = 150, employerCount = 70;
+        UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier);
+        UserBase userBase = userBaseFactory.generateDefaultUserBase(RANDOM_SEED, userCount, workerCount, employerCount);
+        userBase.initializeUserBase(apiSupplier);
+
+        int registeredUsers = IteratorUtils.countLength(userRepository.findAll());
+        int registeredDevices = IteratorUtils.countLength(deviceRepository.findAll());
+
+        assertEquals(userCount, registeredUsers);
+        assertEquals(workerCount, registeredDevices);
     }
 
 
