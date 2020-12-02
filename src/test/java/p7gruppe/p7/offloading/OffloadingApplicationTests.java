@@ -33,8 +33,9 @@ class OffloadingApplicationTests {
 	    long randomSeed = 123456789L;
 	    double proportionMalicious = 0.1d;
         APISupplier apiSupplier = new APISupplier(usersApiController, assignmentsApiController, jobsApiController);
-        MockUserGenerator userGenerator = new MockUserGenerator(randomSeed, proportionMalicious);
-        List<MockUser> users = userGenerator.generateUsers(100, apiSupplier);
+        MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
+        userGenerator.setProportionOfMaliciousUsers(proportionMalicious);
+        List<MockUser> users = userGenerator.generateUsers(100, randomSeed);
 
         int amountOfMaliciousUsers = 0;
         for (MockUser mockUser : users) if (mockUser.isMalicious) amountOfMaliciousUsers += 1;

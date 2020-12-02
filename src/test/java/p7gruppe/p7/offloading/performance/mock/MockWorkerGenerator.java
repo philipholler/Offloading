@@ -11,11 +11,15 @@ import java.util.Random;
 
 public class MockWorkerGenerator {
 
-    private long randomSeed = 0L;
+    private final APISupplier apiSupplier;
+
+    public MockWorkerGenerator(APISupplier apiSupplier) {
+        this.apiSupplier = apiSupplier;
+    }
 
     private DistributionSupplier<Double> cpuDistributionSupplier = new ArbitraryCPUDistributionSupplier();
 
-    public List<MockWorker> generateWorkers(int amountOfWorkers, List<MockUser> users, APISupplier apiSupplier){
+    public List<MockWorker> generateWorkers(int amountOfWorkers, List<MockUser> users, long randomSeed){
         List<Double> cpuTimeFactor = cpuDistributionSupplier.getDistribution(randomSeed, amountOfWorkers);
         List<MockWorker> mockWorkers = new ArrayList<>();
         for (int i = 0; i < amountOfWorkers; i++){
@@ -26,10 +30,6 @@ public class MockWorkerGenerator {
 
         Collections.shuffle(mockWorkers, new Random(randomSeed));
         return mockWorkers;
-    }
-
-    public void setRandomSeed(long randomSeed) {
-        this.randomSeed = randomSeed;
     }
 
     public void setCpuDistributionSupplier(DistributionSupplier<Double> cpuDistributionSupplier) {

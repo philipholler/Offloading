@@ -7,9 +7,10 @@ import java.util.Optional;
 
 public class MockEmployer {
 
-    private final MockUser mockUser;
-    private final APISupplier apiSupplier;
+    public final MockUser mockUser;
+
     private final JobSpawner jobSpawner;
+    private final APISupplier apiSupplier;
 
     private long lastUpdateTime = 0L;
 

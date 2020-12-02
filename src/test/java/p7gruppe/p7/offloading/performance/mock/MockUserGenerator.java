@@ -10,17 +10,14 @@ import java.util.Random;
 
 public class MockUserGenerator {
 
-    private long randomSeed = 0L;
     private double proportionOfMaliciousUsers = 0.0;
+    private final APISupplier apiSupplier;
 
-    public MockUserGenerator() {}
-
-    public MockUserGenerator(long randomSeed, double proportionOfMaliciousUsers) {
-        this.randomSeed = randomSeed;
-        this.proportionOfMaliciousUsers = proportionOfMaliciousUsers;
+    public MockUserGenerator(APISupplier apiSupplier) {
+        this.apiSupplier = apiSupplier;
     }
 
-    public List<MockUser> generateUsers(int amountOfUsers, APISupplier apiSupplier){
+    public List<MockUser> generateUsers(int amountOfUsers, long randomSeed){
         int amountOfMaliciousUsers = (int) Math.round(amountOfUsers * proportionOfMaliciousUsers);
         List<MockUser> users = new ArrayList<>();
 
@@ -34,11 +31,7 @@ public class MockUserGenerator {
         return users;
     }
 
-    public void setRandomSeed(long randomSeed) {
-        this.randomSeed = randomSeed;
-    }
-
-    public void setProportionOfMaliciousUsers(float proportionOfMaliciousUsers) {
+    public void setProportionOfMaliciousUsers(double proportionOfMaliciousUsers) {
         this.proportionOfMaliciousUsers = proportionOfMaliciousUsers;
     }
 }
