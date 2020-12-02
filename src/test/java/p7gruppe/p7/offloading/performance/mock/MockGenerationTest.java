@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import p7gruppe.p7.offloading.api.AssignmentsApiController;
 import p7gruppe.p7.offloading.api.JobsApiController;
 import p7gruppe.p7.offloading.api.UsersApiController;
+import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
+import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.APISupplier;
 
@@ -28,8 +30,11 @@ public class MockGenerationTest {
     JobsApiController jobsApiController;
     @Autowired
     AssignmentsApiController assignmentsApiController;
+
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    DeviceRepository deviceRepository;
 
     static final long RANDOM_SEED = 123456789L;
     private APISupplier apiSupplier;
@@ -41,6 +46,7 @@ public class MockGenerationTest {
 
     @BeforeEach
     void resetRepositories(){
+        deviceRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -99,15 +105,29 @@ public class MockGenerationTest {
     }
 
     @Test
-    void workerLogin_devicesRegisteredInServer() {
+    void workerLogin_devicesRegisteredInServer() throws InterruptedException {
         MockWorkerGenerator workerGenerator = new MockWorkerGenerator(apiSupplier);
         MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
 
         List<MockUser> users = userGenerator.generateUsers(100, RANDOM_SEED);
         List<MockWorker> workers = workerGenerator.generateWorkers(200, users, RANDOM_SEED);
 
-        for (MockWorker worker : workers) {
+        for (MockUser user : users) {
+            user.register();
         }
+
+        HashSet<String> mockWorkerIDs = new HashSet<>();
+        for (MockWorker worker : workers) {
+            worker.login();
+            mockWorkerIDs.add(worker.deviceId.getImei());
+        }
+
+        HashSet<String> serverWorkerIDs = new HashSet<>();
+        for (DeviceEntity device : deviceRepository.findAll()) {
+            serverWorkerIDs.add(device.getImei());
+        }
+
+        assertEquals(mockWorkerIDs, serverWorkerIDs);
     }
 
     @Test

@@ -1,5 +1,7 @@
 package p7gruppe.p7.offloading.performance.mock;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import p7gruppe.p7.offloading.api.UsersApi;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.performance.APISupplier;
@@ -19,7 +21,11 @@ public class MockUser {
     }
 
     public void register(){
-        apiSupplier.usersApi.createUser(userCredentials);
+        ResponseEntity<UserCredentials> response = apiSupplier.usersApi.createUser(userCredentials);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("User registration failed for " + userCredentials.toString());
+        }
+
     }
 
     @Override
