@@ -3,7 +3,7 @@ package p7gruppe.p7.offloading.performance.mock;
 import java.util.Optional;
 import java.util.Random;
 
-public class DefaultJobSpawner implements JobSpawner {
+public class RandomIntervalJobSpawner implements JobSpawner {
 
     private final int averageJobComputeTime;
     private final int averageJobIntervalMillis;
@@ -15,7 +15,7 @@ public class DefaultJobSpawner implements JobSpawner {
 
     private Random random;
 
-    public DefaultJobSpawner(int averageJobComputeTime, long randomSeed) {
+    public RandomIntervalJobSpawner(int averageJobComputeTime, long randomSeed) {
         this.averageJobComputeTime = averageJobComputeTime;
         averageJobIntervalMillis = averageJobComputeTime;
         maximumJobIntervalDeviationMillis = averageJobIntervalMillis / 2;

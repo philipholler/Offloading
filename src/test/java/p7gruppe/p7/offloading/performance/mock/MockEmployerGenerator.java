@@ -4,13 +4,12 @@ import p7gruppe.p7.offloading.performance.APISupplier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Function;
 
 public class MockEmployerGenerator {
 
     private final APISupplier apiSupplier;
-    private Function<Long, JobSpawner> jobSpawnerSupplier = (randomSeed) -> new DefaultJobSpawner(30000, randomSeed);
+    private Function<Long, JobSpawner> jobSpawnerSupplier = (randomSeed) -> new RandomIntervalJobSpawner(30000, randomSeed);
 
     public MockEmployerGenerator(APISupplier apiSupplier) {
         this.apiSupplier = apiSupplier;

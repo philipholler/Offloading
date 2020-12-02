@@ -6,18 +6,18 @@ import p7gruppe.p7.offloading.util.ByteUtils;
 public class MockJob {
 
     public final int computationTimeMillis;
-    public final int requestedWorkers;
+    public final int answersNeeded;
 
     private int jobID = -1;
 
-    public MockJob(int computationTimeMillis, int requestedWorkers) {
+    public MockJob(int computationTimeMillis, int answersNeeded) {
         if (computationTimeMillis < 0)
             throw new IllegalArgumentException("Job must have positive calculation time");
-        if (requestedWorkers <= 0)
+        if (answersNeeded <= 0)
             throw new IllegalArgumentException("Job must have at least 1 requested worker");
 
         this.computationTimeMillis = computationTimeMillis;
-        this.requestedWorkers = requestedWorkers;
+        this.answersNeeded = answersNeeded;
     }
 
     /** Mock job data bytes represent the simulated cpu time of the job **/
