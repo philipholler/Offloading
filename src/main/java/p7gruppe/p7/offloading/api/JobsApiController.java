@@ -43,7 +43,8 @@ public class JobsApiController implements JobsApi {
 
     private final NativeWebRequest request;
 
-    JobFileManager jobFileManager = new JobFileManager();
+    @Autowired
+    JobFileManager jobFileManager;
 
     @Autowired
     public JobsApiController(NativeWebRequest request) {

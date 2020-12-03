@@ -64,7 +64,7 @@ private fun getFileToHashMap(file: File): MutableMap<String, String> {
 
         val hash = hasher.hash(data.toString());
 
-        resultMap.put(key = filePath.substring(filePath.indexOf("/") + 1), value = hash)
+        resultMap.put(key = filePath, value = hash)
 
         zipEntry = zipStream.nextEntry
     }

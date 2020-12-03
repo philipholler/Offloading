@@ -46,7 +46,8 @@ public class AssignmentsApiController implements AssignmentsApi {
     @Autowired
     JobRepository jobRepository;
 
-    JobFileManager jobFileManager = new JobFileManager();
+    @Autowired
+    JobFileManager jobFileManager;
 
     @Override
     public ResponseEntity<JobFiles> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
@@ -155,9 +156,6 @@ public class AssignmentsApiController implements AssignmentsApi {
             System.err.println("Attempted result upload. Invalid user credentials " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
         }
-
-        // TODO: 19/11/2020 Check status of all others doing the same job. If all are done, then combine results. - Philip
-        // Possibly do hash of zip files and check equality
 
         // Check that job is still present
         Optional<JobEntity> job = jobRepository.findById(jobId);
