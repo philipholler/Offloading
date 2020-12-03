@@ -1,6 +1,7 @@
 package p7gruppe.p7.offloading.performance;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,9 +14,7 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.mock.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@Tag("performance")
 @SpringBootTest
 public class PerformanceTest {
 

@@ -83,7 +83,7 @@ public class MockWorker implements Updatable {
         if (jobResponse.getStatusCode() == HttpStatus.OK) {
             currentJob = jobResponse.getBody();
             isWorkingJob = true;
-            int jobCPUTime = ByteUtils.bytesToInt(JobFileManager.decodeFromBase64(currentJob.getData()));
+            int jobCPUTime = ByteUtils.bytesToInt(currentJob.getData());
             jobCPUTime *= CPU_FACTOR;
             currentJobFinishTime = System.currentTimeMillis() + jobCPUTime;
         }

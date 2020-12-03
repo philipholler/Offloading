@@ -14,7 +14,7 @@ import java.util.List;
 public interface JobRepository extends CrudRepository<JobEntity, Long> {
     @Query(value = "SELECT * " +
             "FROM job_entity " +
-            "WHERE workers_assigned < workers_requested " +
+            "WHERE workers_assigned < answers_needed " +
             "ORDER BY upload_time ASC " +
             "LIMIT 1 ",
             nativeQuery = true)
