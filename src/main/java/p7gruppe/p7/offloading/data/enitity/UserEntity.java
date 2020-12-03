@@ -9,16 +9,16 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long userId;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private String userName;
-
 
 
     private String password;
 
-    public int cpuTime;
+    private long cpuTime;
 
-    protected UserEntity(){}
+    protected UserEntity() {
+    }
 
     public UserEntity(String userName, String password) {
         this.userName = userName;
@@ -37,7 +37,11 @@ public class UserEntity {
         return password;
     }
 
+    public long getCpuTime() {
+        return cpuTime;
+    }
 
-
-
+    public void setCpuTime(long cpuTime) {
+        this.cpuTime = cpuTime;
+    }
 }

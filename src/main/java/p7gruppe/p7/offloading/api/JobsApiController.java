@@ -11,6 +11,7 @@ import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.data.managers.PrioritizationManager;
+import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Job;
@@ -37,6 +38,9 @@ public class JobsApiController implements JobsApi {
 
     @Autowired
     JobRepository jobRepository;
+
+    @Autowired
+    AssignmentRepository assignmentRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -67,8 +71,8 @@ public class JobsApiController implements JobsApi {
             JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, workersRequested, timeout));
             System.out.println("Job entity saved...");
             //updates user cpu time and sets job priority
-            PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository);
-            prioritizationManager.calculateJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
+            PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository, assignmentRepository);
+            prioritizationManager.calculateInitialJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
 
             return ResponseEntity.ok().build();
         } catch (IOException e) {

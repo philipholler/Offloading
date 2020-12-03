@@ -11,7 +11,6 @@ public class JobEntity {
 
     @ManyToOne
     public UserEntity employer;
-
     private String name;
     public String jobPath;
     public long uploadTime;
