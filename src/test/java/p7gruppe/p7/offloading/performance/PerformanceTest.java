@@ -52,24 +52,21 @@ public class PerformanceTest {
     }
 
     @Test
-    void scheduler_performance1() {
-        long randomSeed = 123456L;
-        MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
-        List<MockUser> users = userGenerator.generateUsers(100, randomSeed);
+    void performanceTest_defaultUserBase() {
+        int userCount = 150, deviceCount = 165, employerCount = 80;
+        UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier);
+        UserBase userBase = userBaseFactory.generateDefaultUserBase(RANDOM_SEED, userCount, deviceCount, employerCount);
+        userBase.initializeUserBase();
 
-        MockWorkerGenerator workerGenerator = new MockWorkerGenerator(apiSupplier);
-        List<MockWorker> workers = workerGenerator.generateWorkers(150, users, randomSeed);
+        long testDurationMillis = 30L * 1000L;
+        long endTime = System.currentTimeMillis() + testDurationMillis;
+        while (System.currentTimeMillis() < endTime) {
+            userBase.update();
+        }
+    }
 
-        MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
-        List<MockEmployer> employers = employerGenerator.generateEmployers(50, users, randomSeed);
-
-        for (MockUser user : users) user.register();
-        for (MockWorker worker : workers) worker.login();
-
-        List<Updatable> systemEntities = new ArrayList<>();
-        systemEntities.addAll(workers);
-        systemEntities.addAll(employers);
-
+    @Test
+    void performanceTest_jobOverload(){
 
     }
 

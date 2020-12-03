@@ -165,7 +165,7 @@ public class MockGenerationTest {
         int userCount = 100, workerCount = 150, employerCount = 70;
         UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier);
         UserBase userBase = userBaseFactory.generateDefaultUserBase(RANDOM_SEED, userCount, workerCount, employerCount);
-        userBase.initializeUserBase(apiSupplier);
+        userBase.initializeUserBase();
 
         int registeredUsers = IteratorUtils.countLength(userRepository.findAll());
         int registeredDevices = IteratorUtils.countLength(deviceRepository.findAll());

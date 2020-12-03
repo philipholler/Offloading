@@ -22,7 +22,7 @@ public class UserBase {
         clients.addAll(employers);
     }
 
-    public void initializeUserBase(APISupplier apiSupplier){
+    public void initializeUserBase(){
         for (MockUser user : users) user.register();
         for (MockWorker worker : workers) worker.login();
     }
