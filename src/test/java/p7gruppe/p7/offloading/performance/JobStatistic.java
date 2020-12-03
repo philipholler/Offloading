@@ -1,6 +1,7 @@
 package p7gruppe.p7.offloading.performance;
 
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
+import p7gruppe.p7.offloading.performance.mock.MockUser;
 
 public class JobStatistic {
 
@@ -12,19 +13,21 @@ public class JobStatistic {
     private boolean hasFinished = false;
 
     private final int expectedCPUTime;
+    public final MockUser user;
     private boolean resultCorrect = true;
     private JobEntity.JobStatus status = null;
 
     private boolean assignedToAnyUser = false;
     private long assignmentTime = 0L;
 
-    public JobStatistic(String jobName, int expectedCPUTime) {
+    public JobStatistic(String jobName, int expectedCPUTime, MockUser user) {
         this.jobName = jobName;
         this.expectedCPUTime = expectedCPUTime;
+        this.user = user;
     }
 
     public void registerStatus(JobEntity.JobStatus newStatus, long timeStampMillis){
-        if (status == null || status.equals(newStatus)) return; // no update necessary
+        if (status != null && status.equals(newStatus)) return; // no update necessary
 
         switch (newStatus) {
             case WAITING:
@@ -34,13 +37,14 @@ public class JobStatistic {
                 registerAssignment(timeStampMillis);
                 break;
             case DONE:
-                registerAsFinished(timeStampMillis);
-                break;
             case DONE_CONFLICTING_RESULTS:
+                registerAsFinished(timeStampMillis);
                 break;
             default:
                 throw new RuntimeException("No logic for handling job status update: "  + newStatus.name());
         }
+
+        status = newStatus;
     }
 
     public void registerUpload(long uploadTime){
@@ -65,7 +69,6 @@ public class JobStatistic {
 
     public void registerAsFinished(long finishTime) {
         hasFinished = true;
-        this.resultCorrect = resultCorrect;
         this.finishTime = finishTime;
         this.statisticEndTime = finishTime;
     }
@@ -97,6 +100,7 @@ public class JobStatistic {
         return assignmentTime - uploadTime;
     }
 
-
-
+    public boolean isJobCompleted() {
+        return hasFinished;
+    }
 }

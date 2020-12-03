@@ -7,7 +7,6 @@ import p7gruppe.p7.offloading.data.enitity.JobEntity.JobStatus;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.JobFiles;
-import p7gruppe.p7.offloading.model.Jobresult;
 import p7gruppe.p7.offloading.performance.APISupplier;
 import p7gruppe.p7.offloading.performance.JobStatistic;
 import p7gruppe.p7.offloading.util.ByteUtils;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.lang.System.currentTimeMillis;
+import static java.lang.System.setErr;
 import static p7gruppe.p7.offloading.performance.mock.MockWorker.CORRECT_RESULT;
 import static p7gruppe.p7.offloading.performance.mock.MockWorker.MALICIOUS_RESULT;
 
@@ -29,10 +29,9 @@ public class MockEmployer implements Updatable {
     private final JobSpawner jobSpawner;
     private final APISupplier apiSupplier;
 
-    private long lastUpdateTime = 0L;
     private JobsApi jobsApi;
 
-    private long requestIntervalMillis = 2L * 1000L;
+    private final long REQUEST_INTERVAL_MILLIS = 2L * 1000L;
     private long nextRequestTime = 0L;
 
     private int jobsPosted = 0;
@@ -51,15 +50,15 @@ public class MockEmployer implements Updatable {
         Optional<MockJob> optionalJob = jobSpawner.pollJob();
         optionalJob.ifPresent(this::uploadJob);
 
-        if (nextRequestTime < currentTimeMillis()) {
-            // todo : performance tweak: only getJobStatuses if employer has undownloaded jobs
-            getJobStatuses();
+        if (System.currentTimeMillis() > nextRequestTime) {
+            getJobStatuses(); // todo : performance tweak: only getJobStatuses if employer has undownloaded jobs
+            nextRequestTime = System.currentTimeMillis() + REQUEST_INTERVAL_MILLIS;
         }
     }
 
     private void uploadJob(MockJob mockJob){
         String jobName = String.valueOf(jobsPosted);
-        JobStatistic jobStatistic = new JobStatistic(jobName, mockJob.computationTimeMillis);
+        JobStatistic jobStatistic = new JobStatistic(jobName, mockJob.computationTimeMillis, this.mockUser);
         hasDownloadedResult.put(jobName, false);
 
         System.out.println("MockEmployer_uploadJob: Uploading job : " + jobsPosted + " from " + mockUser.userCredentials.getUsername());
@@ -67,6 +66,7 @@ public class MockEmployer implements Updatable {
         if (responseEntity.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Could not upload job from mock employer : " + mockUser.userCredentials);
         }
+
         postedJobs.add(jobStatistic);
         jobsPosted++;
     }
@@ -83,13 +83,11 @@ public class MockEmployer implements Updatable {
             JobStatus updatedJobStatus = JobStatus.valueOf(job.getStatus());
             jobStat.registerStatus(updatedJobStatus, System.currentTimeMillis());
 
-            boolean finishedProcessing = (updatedJobStatus == JobStatus.DONE || updatedJobStatus == JobStatus.DONE_CONFLICTING_RESULTS);
+            boolean finishedProcessing = (updatedJobStatus.equals(JobStatus.DONE) || updatedJobStatus.equals(JobStatus.DONE_CONFLICTING_RESULTS));
             if (finishedProcessing && !hasDownloadedResult.get(job.getName())) {
                 downloadResult(job.getId(), jobStat);
             }
         }
-
-        throw new NotImplementedException();
     }
 
     private JobStatistic getJobStat(String name){
@@ -106,7 +104,7 @@ public class MockEmployer implements Updatable {
         if (response.getStatusCode() != HttpStatus.OK)
             throw new RuntimeException("Got error when attempting to download the result files");
 
-        int result = ByteUtils.bytesToInt(JobFileManager.decodeFromBase64(response.getBody().getData()));
+        int result = ByteUtils.bytesToInt(response.getBody().getData());
         if (result == CORRECT_RESULT) {
             jobStatistic.registerResultCorrectness(true);
         } else if (result == MALICIOUS_RESULT) {
@@ -116,7 +114,6 @@ public class MockEmployer implements Updatable {
         }
 
         hasDownloadedResult.put(jobStatistic.jobName, true);
-        throw new NotImplementedException();
     }
 
     public List<JobStatistic> getJobsStatistics() {

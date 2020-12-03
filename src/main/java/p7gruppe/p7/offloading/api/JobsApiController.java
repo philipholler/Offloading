@@ -152,7 +152,6 @@ public class JobsApiController implements JobsApi {
 
         // Try to fetch result files
         try {
-            System.out.println("Trying to get result file");
             File file = jobFileManager.getResultFile(job.get().jobPath);
             JobFiles resultFiles = new JobFiles();
             resultFiles.setJobid(jobId);

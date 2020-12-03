@@ -14,6 +14,8 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.mock.*;
 
+import java.util.List;
+
 @Tag("performance")
 @SpringBootTest
 public class PerformanceTest {
@@ -57,10 +59,16 @@ public class PerformanceTest {
         UserBase userBase = userBaseFactory.generateDefaultUserBase(RANDOM_SEED, userCount, deviceCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 30L * 1000L;
+        long testDurationMillis = 10L * 1000L;
         long endTime = System.currentTimeMillis() + testDurationMillis;
         while (System.currentTimeMillis() < endTime) {
             userBase.update();
+        }
+
+        List<JobStatistic> jobStatistics = userBase.getJobStatistics();
+        for (JobStatistic job : jobStatistics) {
+            System.out.println(job.isJobCompleted());
+            if (job.isJobCompleted()) System.out.println("Correct result: " + job.isResultCorrect());
         }
     }
 

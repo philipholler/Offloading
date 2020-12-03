@@ -26,7 +26,7 @@ public class MockWorker implements Updatable {
     private long currentJobFinishTime;
     private boolean isLoggedIn = false;
 
-    private final long serverRequestIntervalMillis = 5000L;
+    private final long serverRequestIntervalMillis = 1000L;
     private long lastGetRequestTimeMillis = 0L;
 
     // Default activation policy is that it is always active
@@ -90,6 +90,7 @@ public class MockWorker implements Updatable {
     }
 
     private void submitResult() {
+        System.out.println("Submitting result for job " + this.currentJob.getJobid());
         int result;
         if (isMalicious()) {
             result = MALICIOUS_RESULT;
