@@ -4,11 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import p7gruppe.p7.offloading.api.JobsApi;
 import p7gruppe.p7.offloading.data.enitity.JobEntity.JobStatus;
+import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.JobFiles;
 import p7gruppe.p7.offloading.model.Jobresult;
 import p7gruppe.p7.offloading.performance.APISupplier;
 import p7gruppe.p7.offloading.performance.JobStatistic;
+import p7gruppe.p7.offloading.util.ByteUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
@@ -17,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.lang.System.currentTimeMillis;
+import static p7gruppe.p7.offloading.performance.mock.MockWorker.CORRECT_RESULT;
+import static p7gruppe.p7.offloading.performance.mock.MockWorker.MALICIOUS_RESULT;
 
 public class MockEmployer implements Updatable {
 
@@ -48,6 +52,7 @@ public class MockEmployer implements Updatable {
         optionalJob.ifPresent(this::uploadJob);
 
         if (nextRequestTime < currentTimeMillis()) {
+            // todo : performance tweak: only getJobStatuses if employer has undownloaded jobs
             getJobStatuses();
         }
     }
@@ -80,9 +85,8 @@ public class MockEmployer implements Updatable {
 
             boolean finishedProcessing = (updatedJobStatus == JobStatus.DONE || updatedJobStatus == JobStatus.DONE_CONFLICTING_RESULTS);
             if (finishedProcessing && !hasDownloadedResult.get(job.getName())) {
-                downloadResult(job.getId());
+                downloadResult(job.getId(), jobStat);
             }
-
         }
 
         throw new NotImplementedException();
@@ -96,14 +100,26 @@ public class MockEmployer implements Updatable {
         return optJobStats.get();
     }
 
-    private void downloadResult(long jobID){
+    private void downloadResult(long jobID, JobStatistic jobStatistic){
         ResponseEntity<JobFiles> response = apiSupplier.jobsApi.getJobResult(jobID, mockUser.userCredentials);
 
-        // todo : register correctness
+        if (response.getStatusCode() != HttpStatus.OK)
+            throw new RuntimeException("Got error when attempting to download the result files");
+
+        int result = ByteUtils.bytesToInt(JobFileManager.decodeFromBase64(response.getBody().getData()));
+        if (result == CORRECT_RESULT) {
+            jobStatistic.registerResultCorrectness(true);
+        } else if (result == MALICIOUS_RESULT) {
+            jobStatistic.registerResultCorrectness(false);
+        } else {
+            throw new RuntimeException("Job result does not match correct/malicious test format");
+        }
+
+        hasDownloadedResult.put(jobStatistic.jobName, true);
         throw new NotImplementedException();
     }
 
-    public List<JobStatistic> getPostedJobs() {
+    public List<JobStatistic> getJobsStatistics() {
         return postedJobs;
     }
 }
