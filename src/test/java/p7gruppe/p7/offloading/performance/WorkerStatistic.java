@@ -4,13 +4,13 @@ import p7gruppe.p7.offloading.performance.mock.MockUser;
 
 public class WorkerStatistic extends Statistic{
 
-    private long lastRegisteredTime = 0L;
+    private long lastStatusUpdateTime = 0L;
+    boolean isIdle = true;
     private long idleTime = 0;
     private long processingTime = 0;
 
-    boolean isIdle = true;
-
     private final MockUser owner;
+
     public WorkerStatistic(MockUser owner) {
         this.owner = owner;
     }
@@ -18,7 +18,7 @@ public class WorkerStatistic extends Statistic{
     @Override
     public void startRecording(long startTime){
         super.startRecording(startTime);
-        lastRegisteredTime = startTime;
+        lastStatusUpdateTime = startTime;
     }
 
     @Override
@@ -34,13 +34,13 @@ public class WorkerStatistic extends Statistic{
     }
 
     private void updateStatusTime(long newRegisterTime){
-        long difference = newRegisterTime - lastRegisteredTime;
+        long difference = newRegisterTime - lastStatusUpdateTime;
         if (isIdle) {
            idleTime += difference;
         } else {
             processingTime += difference;
         }
-        lastRegisteredTime = newRegisterTime;
+        lastStatusUpdateTime = newRegisterTime;
     }
 
     public long getIdleTime(){
