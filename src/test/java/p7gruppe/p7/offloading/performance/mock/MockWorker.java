@@ -105,14 +105,14 @@ public class MockWorker implements Simulatable {
 
     private void submitResult() {
         System.out.println("Submitting result for job " + this.currentJob.getJobid() + " by user " + owner.userCredentials.toString());
-        int result;
+        byte[] result;
         if (isMalicious()) {
-            result = MALICIOUS_RESULT;
+            result = MockJobData.getMaliciousBytes();
         } else {
-            result = CORRECT_RESULT;
+            result = MockJobData.getCorrectResultBytes();
         }
 
-        byte[] resultBytes = JobFileManager.encodeJobBytes(ByteUtils.intToBytes(result));
+        byte[] resultBytes = JobFileManager.encodeJobBytes(result);
         Jobresult jobresult = new Jobresult().result(new JobFiles().data(resultBytes));
         apiSupplier.assignmentsApi.uploadJobResult(owner.userCredentials, deviceId, currentJob.getJobid(), jobresult);
         isWorkingJob = false;

@@ -106,10 +106,10 @@ public class MockEmployer implements Simulatable {
         if (response.getStatusCode() != HttpStatus.OK)
             throw new RuntimeException("Got error when attempting to download the result files");
 
-        int result = ByteUtils.bytesToInt(response.getBody().getData());
-        if (result == CORRECT_RESULT) {
+        byte[] result = response.getBody().getData();
+        if (result == MockJobData.getCorrectResultBytes()) {
             jobStatistic.registerResultCorrectness(true);
-        } else if (result == MALICIOUS_RESULT) {
+        } else if (result == MockJobData.getMaliciousBytes()) {
             jobStatistic.registerResultCorrectness(false);
         } else {
             throw new RuntimeException("Job result does not match correct/malicious test format");
