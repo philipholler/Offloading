@@ -4,21 +4,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import p7gruppe.p7.offloading.api.JobsApi;
 import p7gruppe.p7.offloading.data.enitity.JobEntity.JobStatus;
-import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.JobFiles;
 import p7gruppe.p7.offloading.performance.APISupplier;
 import p7gruppe.p7.offloading.performance.JobStatistic;
 import p7gruppe.p7.offloading.util.ByteUtils;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.System.currentTimeMillis;
-import static java.lang.System.setErr;
 import static p7gruppe.p7.offloading.performance.mock.MockWorker.CORRECT_RESULT;
 import static p7gruppe.p7.offloading.performance.mock.MockWorker.MALICIOUS_RESULT;
 

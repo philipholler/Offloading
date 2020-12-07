@@ -39,6 +39,9 @@ public class JobsApiController implements JobsApi {
     JobRepository jobRepository;
 
     @Autowired
+    AssignmentRepository assignmentRepository;
+
+    @Autowired
     UserRepository userRepository;
 
     private final NativeWebRequest request;
@@ -66,9 +69,9 @@ public class JobsApiController implements JobsApi {
             System.out.println("Username pulled");
             JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, workersRequested, timeout));
             System.out.println("Job entity saved...");
-            // updates user cpu time and sets job priority
-            PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository);
-            prioritizationManager.calculateJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
+            //updates user cpu time and sets job priority
+            PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository, assignmentRepository);
+            prioritizationManager.calculateInitialJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
 
             return ResponseEntity.ok().build();
         } catch (IOException e) {
