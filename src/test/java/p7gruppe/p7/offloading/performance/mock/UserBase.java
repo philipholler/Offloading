@@ -1,6 +1,5 @@
 package p7gruppe.p7.offloading.performance.mock;
 
-import p7gruppe.p7.offloading.performance.APISupplier;
 import p7gruppe.p7.offloading.performance.JobStatistic;
 
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ public class UserBase {
     private final List<MockEmployer> employers;
     private final List<MockWorker> workers;
 
-    private final List<Updatable> clients;
+    private final List<Simulatable> clients;
 
     public UserBase(List<MockUser> users, List<MockEmployer> employers, List<MockWorker> workers) {
         this.users = users;
@@ -28,8 +27,16 @@ public class UserBase {
         for (MockWorker worker : workers) worker.login();
     }
 
+    public void startSimulation(){
+        for (Simulatable simulatedClient : clients) simulatedClient.start();
+    }
+
     public void update(){
-        for (Updatable simulatedClient : clients) simulatedClient.update();
+        for (Simulatable simulatedClient : clients) simulatedClient.update();
+    }
+
+    public void stopSimulation(){
+        for (Simulatable simulatedClient : clients) simulatedClient.stop();
     }
 
     public List<JobStatistic> getJobStatistics() {

@@ -7,11 +7,12 @@ import p7gruppe.p7.offloading.model.DeviceId;
 import p7gruppe.p7.offloading.model.JobFiles;
 import p7gruppe.p7.offloading.model.Jobresult;
 import p7gruppe.p7.offloading.performance.APISupplier;
+import p7gruppe.p7.offloading.performance.WorkerStatistic;
 import p7gruppe.p7.offloading.util.ByteUtils;
 
 import java.util.function.Function;
 
-public class MockWorker implements Updatable {
+public class MockWorker implements Simulatable {
 
     public static final int MALICIOUS_RESULT = 0;
     public static final int CORRECT_RESULT = 1;
@@ -32,6 +33,8 @@ public class MockWorker implements Updatable {
     // Default activation policy is that it is always active
     private Function<Long, Boolean> activationPolicy = (time) -> true;
 
+    private final WorkerStatistic statistic;
+
     public void setActivationPolicy(Function<Long, Boolean> activationPolicy) {
         this.activationPolicy = activationPolicy;
     }
@@ -41,6 +44,12 @@ public class MockWorker implements Updatable {
         this.owner = mockUser;
         this.deviceId = new DeviceId().imei(deviceID);
         this.apiSupplier = apiSupplier;
+        statistic = new WorkerStatistic(mockUser);
+    }
+
+    @Override
+    public void start() {
+        statistic.startRecording(System.currentTimeMillis());
     }
 
     public void update() {
@@ -67,6 +76,11 @@ public class MockWorker implements Updatable {
                 lastGetRequestTimeMillis = System.currentTimeMillis();
             }
         }
+    }
+
+    @Override
+    public void stop() {
+        statistic.stopRecording(System.currentTimeMillis());
     }
 
     public boolean isMalicious() {

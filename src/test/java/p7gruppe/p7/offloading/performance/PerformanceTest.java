@@ -61,9 +61,11 @@ public class PerformanceTest {
 
         long testDurationMillis = 10L * 1000L;
         long endTime = System.currentTimeMillis() + testDurationMillis;
+        userBase.startSimulation();
         while (System.currentTimeMillis() < endTime) {
             userBase.update();
         }
+        userBase.stopSimulation();
 
         List<JobStatistic> jobStatistics = userBase.getJobStatistics();
         for (JobStatistic job : jobStatistics) {

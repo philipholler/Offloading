@@ -18,7 +18,7 @@ import java.util.Optional;
 import static p7gruppe.p7.offloading.performance.mock.MockWorker.CORRECT_RESULT;
 import static p7gruppe.p7.offloading.performance.mock.MockWorker.MALICIOUS_RESULT;
 
-public class MockEmployer implements Updatable {
+public class MockEmployer implements Simulatable {
 
     public final MockUser mockUser;
 
@@ -42,6 +42,9 @@ public class MockEmployer implements Updatable {
         this.jobsApi = apiSupplier.jobsApi;
     }
 
+    @Override
+    public void start() { }
+
     public void update(){
         Optional<MockJob> optionalJob = jobSpawner.pollJob();
         optionalJob.ifPresent(this::uploadJob);
@@ -51,6 +54,9 @@ public class MockEmployer implements Updatable {
             nextRequestTime = System.currentTimeMillis() + REQUEST_INTERVAL_MILLIS;
         }
     }
+
+    @Override
+    public void stop() { }
 
     private void uploadJob(MockJob mockJob){
         String jobName = String.valueOf(jobsPosted);
