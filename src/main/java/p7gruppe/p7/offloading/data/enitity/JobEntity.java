@@ -20,6 +20,7 @@ public class JobEntity {
     public JobStatus jobStatus;
     public int timeoutInMinutes;
     public int priority;
+    public double confidenceLevel;
 
 
     public JobEntity(UserEntity employer, String jobPath, String name, int answersNeeded, int timeoutInMinutes) {
@@ -80,5 +81,13 @@ public class JobEntity {
 
     public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    public double getConfidenceLevel() {
+        return confidenceLevel;
+    }
+
+    public void setConfidenceLevel(double confidenceLevel) {
+        this.confidenceLevel = confidenceLevel;
     }
 }

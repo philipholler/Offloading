@@ -9,6 +9,33 @@ import java.util.zip.ZipOutputStream
 
 val hasher: Hasher = Hasher()
 
+fun getConfidenceLevel(fileList: List<File>) : javafx.util.Pair<File, Double>{
+    // Map from hash of contents to files having this hash
+    var resultMap: MutableMap<String, MutableList<String>> = mutableMapOf();
+
+    for(file: File in fileList){
+        var fileMap = getFileToHashMap(file)
+        if(hasher.hash(fileMap.toString()) !in resultMap.keys){
+            resultMap[hasher.hash(fileMap.toString())] = mutableListOf()
+        }
+
+        resultMap[hasher.hash(fileMap.toString())]!!.add(file.absolutePath);
+    }
+
+    // Find biggest number of entries agreeing
+    var highestNumberOfResults = 0;
+    var highestNumberHash = "";
+    for (key in resultMap.keys){
+        var list = resultMap[key]
+        if(list!!.size > highestNumberOfResults){
+            highestNumberOfResults = list.size
+            highestNumberHash = key
+        }
+    }
+
+    return javafx.util.Pair(File(resultMap[highestNumberHash]!!.get(0)), highestNumberOfResults.toDouble() / fileList.size.toDouble());
+}
+
 fun checkZipFilesEquality(file1: File, file2: File): Boolean{
     var file1Map = getFileToHashMap(file1)
     var file2Map = getFileToHashMap(file2)
@@ -29,7 +56,7 @@ fun checkZipFilesEquality(file1: File, file2: File): Boolean{
     return true
 }
 
-private fun getFileToHashMap(file: File): MutableMap<String, String> {
+public fun getFileToHashMap(file: File): MutableMap<String, String> {
     // Result map from file path to hash value
     var resultMap: MutableMap<String, String> = mutableMapOf();
 

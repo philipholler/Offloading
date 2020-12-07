@@ -1,6 +1,7 @@
 package p7gruppe.p7.offloading.converters;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.Arrays;

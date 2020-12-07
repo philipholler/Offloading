@@ -1,5 +1,6 @@
 package p7gruppe.p7.offloading.api;
 
+import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -59,7 +60,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
 
         long userID = userRepository.getUserID(userCredentials.getUsername());
-        // Check if device belongs to user
+            // Check if device belongs to user
         if(!deviceRepository.doesDeviceBelongToUser(deviceId.getImei(), userID)){
             System.out.println("GET_ASSIGNMENT - Device does not belong to user: " + deviceId + " " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
@@ -202,10 +203,14 @@ public class AssignmentsApiController implements AssignmentsApi {
 
             // If all assignments done, check equality of results
             if(allAssignmentsDone){
-                boolean resultsAreEqual = checkResultFilesAreEqual(jobValue.getJobPath());
+                Pair<File, Double> confidenceLevelAndBestFile = getConfidenceLevelAndBestFile(jobValue.getJobPath());
 
-                if(resultsAreEqual){
+                double delta = 0.001;
+
+                // If the confidence is 1.0
+                if(Math.abs(confidenceLevelAndBestFile.getValue() - 1.0) < delta){
                     jobValue.setJobStatus(JobEntity.JobStatus.DONE);
+                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.getValue());
                     for(AssignmentEntity assig : assignmentsForJob){
                         assig.setStatus(AssignmentEntity.Status.DONE);
                         assignmentRepository.save(assig);
@@ -215,10 +220,13 @@ public class AssignmentsApiController implements AssignmentsApi {
                 }
                 else {
                     jobValue.setJobStatus(JobEntity.JobStatus.DONE_CONFLICTING_RESULTS);
+                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.getValue());
                     for(AssignmentEntity assig : assignmentsForJob){
                         assig.setStatus(AssignmentEntity.Status.DONE_MAYBE_WRONG);
                         assignmentRepository.save(assig);
                     }
+                    // Save the file with the highest confidence level as final result
+                    jobFileManager.saveFinalResultFromIntermediaConfidence(confidenceLevelAndBestFile.getKey().getAbsolutePath(),jobValue.getJobPath());
                     jobRepository.save(jobValue);
                 }
             }
@@ -238,7 +246,9 @@ public class AssignmentsApiController implements AssignmentsApi {
         return Optional.ofNullable(request);
     }
 
-    public boolean checkResultFilesAreEqual(String pathToJobDir){
+
+
+    public Pair<File, Double> getConfidenceLevelAndBestFile(String pathToJobDir){
         ArrayList<File> resultFiles = new ArrayList<>();
 
         File directoryFile = new File(pathToJobDir + File.separator + "results" + File.separator);
@@ -247,13 +257,8 @@ public class AssignmentsApiController implements AssignmentsApi {
         }
 
         // If only 1 result
-        if (resultFiles.size() == 1) return true;
+        if (resultFiles.size() == 1) return new Pair(resultFiles.get(0), 1.0);
 
-        File lastFile = resultFiles.get(0);
-        for(int i = 1; i < resultFiles.size(); i++){
-            if (!FileUtilsKt.checkZipFilesEquality(lastFile, resultFiles.get(i))) return false;
-        }
-
-        return true;
+        return FileUtilsKt.getConfidenceLevel(resultFiles);
     }
 }
