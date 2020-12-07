@@ -1,11 +1,13 @@
 package p7gruppe.p7.offloading.performance.mock;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.io.IOException;
 
-public class MockJobData {
+@SpringBootTest
+public class MockResultData {
 
     private static byte[] maliciousBytes;
     private static byte[] correctBytes;
@@ -25,7 +27,7 @@ public class MockJobData {
     }
 
     private static byte[] getMockResultBytes(String fileName){
-        File file = new File(MockJobData.class.getResource("mockresults" + File.separator + fileName).getFile());
+        File file = new File(MockResultData.class.getResource(File.separator + "mockresults" + File.separator + fileName).getFile());
         try {
             return maliciousBytes = FileUtils.readFileToByteArray(file);
         } catch (IOException e) {

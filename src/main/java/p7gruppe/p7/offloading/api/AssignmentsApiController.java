@@ -1,6 +1,6 @@
 package p7gruppe.p7.offloading.api;
 
-import javafx.util.Pair;
+import kotlin.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -208,9 +208,9 @@ public class AssignmentsApiController implements AssignmentsApi {
                 double delta = 0.001;
 
                 // If the confidence is 1.0
-                if(Math.abs(confidenceLevelAndBestFile.getValue() - 1.0) < delta){
+                if(Math.abs(confidenceLevelAndBestFile.component2() - 1.0) < delta){
                     jobValue.setJobStatus(JobEntity.JobStatus.DONE);
-                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.getValue());
+                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.component2());
                     for(AssignmentEntity assig : assignmentsForJob){
                         assig.setStatus(AssignmentEntity.Status.DONE);
                         assignmentRepository.save(assig);
@@ -220,13 +220,13 @@ public class AssignmentsApiController implements AssignmentsApi {
                 }
                 else {
                     jobValue.setJobStatus(JobEntity.JobStatus.DONE_CONFLICTING_RESULTS);
-                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.getValue());
+                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.component2());
                     for(AssignmentEntity assig : assignmentsForJob){
                         assig.setStatus(AssignmentEntity.Status.DONE_MAYBE_WRONG);
                         assignmentRepository.save(assig);
                     }
                     // Save the file with the highest confidence level as final result
-                    jobFileManager.saveFinalResultFromIntermediaConfidence(confidenceLevelAndBestFile.getKey().getAbsolutePath(),jobValue.getJobPath());
+                    jobFileManager.saveFinalResultFromIntermediaConfidence(confidenceLevelAndBestFile.component1().getAbsolutePath(),jobValue.getJobPath());
                     jobRepository.save(jobValue);
                 }
             }

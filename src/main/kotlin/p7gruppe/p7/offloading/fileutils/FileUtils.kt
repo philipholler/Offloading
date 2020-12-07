@@ -9,7 +9,7 @@ import java.util.zip.ZipOutputStream
 
 val hasher: Hasher = Hasher()
 
-fun getConfidenceLevel(fileList: List<File>) : javafx.util.Pair<File, Double>{
+fun getConfidenceLevel(fileList: List<File>) : Pair<File, Double>{
     // Map from hash of contents to files having this hash
     var resultMap: MutableMap<String, MutableList<String>> = mutableMapOf();
 
@@ -33,7 +33,7 @@ fun getConfidenceLevel(fileList: List<File>) : javafx.util.Pair<File, Double>{
         }
     }
 
-    return javafx.util.Pair(File(resultMap[highestNumberHash]!!.get(0)), highestNumberOfResults.toDouble() / fileList.size.toDouble());
+    return Pair(File(resultMap[highestNumberHash]!!.get(0)), highestNumberOfResults.toDouble() / fileList.size.toDouble());
 }
 
 fun checkZipFilesEquality(file1: File, file2: File): Boolean{

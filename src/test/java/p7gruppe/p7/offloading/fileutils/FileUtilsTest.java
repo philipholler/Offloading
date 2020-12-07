@@ -1,6 +1,6 @@
 package p7gruppe.p7.offloading.fileutils;
 
-import javafx.util.Pair;
+import kotlin.Pair;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ public class FileUtilsTest {
 
         double delta = 0.001;
 
-        assertTrue(Math.abs(result.getValue() - 0.5) < delta);
+        assertTrue(Math.abs(result.component2() - 0.5) < delta);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class FileUtilsTest {
 
         double delta = 0.001;
 
-        assertTrue(Math.abs(result.getValue() - 1.0) < delta);
+        assertTrue(Math.abs(result.component2() - 1.0) < delta);
     }
 
     @Test
