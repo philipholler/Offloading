@@ -66,7 +66,7 @@ public class JobsApiController implements JobsApi {
             System.out.println("Username pulled");
             JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, workersRequested, timeout));
             System.out.println("Job entity saved...");
-            //updates user cpu time and sets job priority
+            // updates user cpu time and sets job priority
             PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository);
             prioritizationManager.calculateJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
 
@@ -183,6 +183,7 @@ public class JobsApiController implements JobsApi {
             job.setName(jobEntity.getName());
             job.answersNeeded(jobEntity.answersNeeded);
             job.setWorkersAssigned(jobEntity.workersAssigned);
+            job.setConfidenceLevel(jobEntity.confidenceLevel);
 
             listOfJobs.add(job);
         }

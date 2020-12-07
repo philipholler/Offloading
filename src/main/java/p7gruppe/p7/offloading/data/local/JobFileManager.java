@@ -40,6 +40,19 @@ public class JobFileManager {
         return resultDirectoryPath;
     }
 
+    public void saveFinalResultFromIntermediaConfidence(String pathToBestFile, String jobPath){
+        String resultDirectoryPath = pathResolver.generateNewResultFolder(jobPath);
+        File bestFile = new File(pathToBestFile);
+
+        File finalResultFile = new File(jobPath + File.separator + RESULT_FILE_NAME);
+
+        try {
+            FileUtils.copyFile(bestFile, finalResultFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void saveFinalResultFromIntermediate(String jobPath) {
         String resultDirectoryPath = pathResolver.generateNewResultFolder(jobPath);
         File f = new File(resultDirectoryPath + File.separator);

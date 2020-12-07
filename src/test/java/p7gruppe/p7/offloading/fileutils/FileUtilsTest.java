@@ -1,5 +1,6 @@
 package p7gruppe.p7.offloading.fileutils;
 
+import javafx.util.Pair;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -10,9 +11,9 @@ import p7gruppe.p7.offloading.data.local.PathResolver;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class FileUtilsTest {
@@ -31,6 +32,60 @@ public class FileUtilsTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void getConfidenceLevelTest01(){
+        // Result dir to put the zipped files
+        String resultDir = pathResolver.generateNewResultFolder(pathToWorkingDir);
+
+        // Get File handle for test files
+        File folderToZip = new File(pathToStartingData + File.separator + "identical");
+        File folderToZip2 = new File(pathToStartingData + File.separator + "notidentical");
+
+        File zipFile1 = new File(resultDir + File.separator + "zipfile1.zip");
+        File zipFile2 = new File(resultDir + File.separator + "zipfile2.zip");
+
+        // Zip both files
+        FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
+        FileUtilsKt.zipDir(folderToZip2.getAbsolutePath(), zipFile2.getAbsolutePath());
+
+        ArrayList<File> zipFiles = new ArrayList<>();
+        zipFiles.add(zipFile1);
+        zipFiles.add(zipFile2);
+
+        Pair<File, Double> result = FileUtilsKt.getConfidenceLevel(zipFiles);
+
+        double delta = 0.001;
+
+        assertTrue(Math.abs(result.getValue() - 0.5) < delta);
+    }
+
+    @Test
+    public void getConfidenceLevelTest02(){
+        // Result dir to put the zipped files
+        String resultDir = pathResolver.generateNewResultFolder(pathToWorkingDir);
+
+        // Get File handle for test files
+        File folderToZip = new File(pathToStartingData + File.separator + "identical");
+        File folderToZip2 = new File(pathToStartingData + File.separator + "identical");
+
+        File zipFile1 = new File(resultDir + File.separator + "zipfile1.zip");
+        File zipFile2 = new File(resultDir + File.separator + "zipfile2.zip");
+
+        // Zip both files
+        FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
+        FileUtilsKt.zipDir(folderToZip2.getAbsolutePath(), zipFile2.getAbsolutePath());
+
+        ArrayList<File> zipFiles = new ArrayList<>();
+        zipFiles.add(zipFile1);
+        zipFiles.add(zipFile2);
+
+        Pair<File, Double> result = FileUtilsKt.getConfidenceLevel(zipFiles);
+
+        double delta = 0.001;
+
+        assertTrue(Math.abs(result.getValue() - 1.0) < delta);
     }
 
     @Test
@@ -53,13 +108,14 @@ public class FileUtilsTest {
 
     @Test
     public void checkZipFilesEquality2(){
-        // Zip two identical files
+        // Result dir to put the zipped files
         String resultDir = pathResolver.generateNewResultFolder(pathToWorkingDir);
 
-        // Folder to zip (it is the same for both, then the result should be, that they are equal
+        // Get File handle for test files
         File folderToZip = new File(pathToStartingData + File.separator + "identical");
         File folderToZip2 = new File(pathToStartingData + File.separator + "notidentical");
 
+        // Create file handle for zipped files
         File zipFile1 = new File(resultDir + File.separator + "zipfile1.zip");
         File zipFile2 = new File(resultDir + File.separator + "zipfile2.zip");
 
@@ -67,6 +123,7 @@ public class FileUtilsTest {
         FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
         FileUtilsKt.zipDir(folderToZip2.getAbsolutePath(), zipFile2.getAbsolutePath());
 
+        // Assert that the checkZipFilesEquality throws exception, that they are not equal.
         assertThrows(ZipFilesNotEqualException.class, () -> FileUtilsKt.checkZipFilesEquality(zipFile1, zipFile2));
     }
 
@@ -90,13 +147,14 @@ public class FileUtilsTest {
 
     @Test
     public void checkZipFilesEquality4(){
-        // Zip two identical files
+        // Result dir to put the zipped files
         String resultDir = pathResolver.generateNewResultFolder(pathToWorkingDir);
 
-        // Folder to zip (it is the same for both, then the result should be, that they are equal
+        // Get File handle for test files
         File folderToZip = new File(pathToStartingData + File.separator + "identicalinner");
         File folderToZip2 = new File(pathToStartingData + File.separator + "notidenticalinner");
 
+        // Create file handle for zipped files
         File zipFile1 = new File(resultDir + File.separator + "zipfile1.zip");
         File zipFile2 = new File(resultDir + File.separator + "zipfile2.zip");
 
@@ -104,6 +162,7 @@ public class FileUtilsTest {
         FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
         FileUtilsKt.zipDir(folderToZip2.getAbsolutePath(), zipFile2.getAbsolutePath());
 
+        // Assert that the files differ, since the path to the two files in the zip files are switched.
         assertThrows(ZipFilesNotEqualException.class, () -> FileUtilsKt.checkZipFilesEquality(zipFile1, zipFile2));
     }
 }
