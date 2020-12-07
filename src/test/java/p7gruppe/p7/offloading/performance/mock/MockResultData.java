@@ -29,7 +29,7 @@ public class MockResultData {
     private static byte[] getMockResultBytes(String fileName){
         File file = new File(MockResultData.class.getResource(File.separator + "mockresults" + File.separator + fileName).getFile());
         try {
-            return maliciousBytes = FileUtils.readFileToByteArray(file);
+            return FileUtils.readFileToByteArray(file);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Could not convert mock result file to byte");

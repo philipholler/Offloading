@@ -52,12 +52,6 @@ public class JobStatistic {
         status = JobEntity.JobStatus.WAITING;
     }
 
-    public long getFinishTime() {
-        if (!hasFinished)
-            throw new RuntimeException("Called getFinishTime() on job that did not finish");
-        return finishTime;
-    }
-
     public long getProcessingTime() {
         if (hasFinished) return finishTime - uploadTime;
         return statisticEndTime - uploadTime;

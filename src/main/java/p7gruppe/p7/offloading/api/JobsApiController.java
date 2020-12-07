@@ -58,18 +58,17 @@ public class JobsApiController implements JobsApi {
 
     @Override
     public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
-        System.out.println("Posting job....");
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
         try {
             byte[] decoded = JobFileManager.decodeFromBase64(body);
             String path = jobFileManager.saveJob(userCredentials.getUsername(), decoded);
-            System.out.println("Job saved...");
+            //System.out.println("Job saved...");
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
-            System.out.println("Username pulled");
+            //System.out.println("Username pulled");
             JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, workersRequested, timeout));
-            System.out.println("Job entity saved...");
+            //System.out.println("Job entity saved...");
             //updates user cpu time and sets job priority
             PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository, assignmentRepository);
             prioritizationManager.calculateInitialJobPriority(userCredentials.getUsername(), jobEntity.getJobId());

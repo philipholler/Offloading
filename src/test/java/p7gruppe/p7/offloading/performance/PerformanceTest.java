@@ -14,8 +14,6 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.mock.*;
 
-import java.util.List;
-
 @Tag("performance")
 @SpringBootTest
 public class PerformanceTest {
@@ -67,11 +65,10 @@ public class PerformanceTest {
         }
         userBase.stopSimulation();
 
-        List<JobStatistic> jobStatistics = userBase.getJobStatistics();
-        for (JobStatistic job : jobStatistics) {
-            System.out.println(job.isJobCompleted());
-            if (job.isJobCompleted()) System.out.println("Correct result: " + job.isResultCorrect());
-        }
+        StatisticsSummary summary = new StatisticsSummary(userBase);
+        System.out.println("MAX compute time : " + summary.getMaximumTimeFromUploadTillProcessedMillis() / 1000);
+        System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
+        System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults());
     }
 
     @Test

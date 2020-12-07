@@ -50,19 +50,23 @@ public class MockEmployer implements Simulatable {
     }
 
     @Override
-    public void stop() { }
+    public void stop() {
+        for (JobStatistic jobStatistic : postedJobs) {
+            if (!jobStatistic.isJobCompleted()) jobStatistic.registerAsFinished(System.currentTimeMillis());
+        }
+    }
 
     private void uploadJob(MockJob mockJob){
         String jobName = String.valueOf(jobsPosted);
         JobStatistic jobStatistic = new JobStatistic(jobName, mockJob.computationTimeMillis, this.mockUser);
         hasDownloadedResult.put(jobName, false);
 
-        System.out.println("MockEmployer_uploadJob: Uploading job : " + jobsPosted + " from " + mockUser.userCredentials.getUsername());
         ResponseEntity<Void> responseEntity = apiSupplier.jobsApi.postJob(mockUser.userCredentials, mockJob.answersNeeded, String.valueOf(jobsPosted), Integer.MAX_VALUE, mockJob.getComputationTimeAsBase64Bytes());
         if (responseEntity.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Could not upload job from mock employer : " + mockUser.userCredentials);
         }
 
+        jobStatistic.registerUpload(System.currentTimeMillis());
         postedJobs.add(jobStatistic);
         jobsPosted++;
     }
@@ -106,6 +110,9 @@ public class MockEmployer implements Simulatable {
         } else if (Arrays.equals(result, MockResultData.getMaliciousBytes())) {
             jobStatistic.registerResultCorrectness(false);
         } else {
+            System.out.println(Arrays.toString(result));
+            System.out.println(Arrays.toString(MockResultData.getCorrectResultBytes()));
+            System.out.println(Arrays.toString(MockResultData.getMaliciousBytes()));
             throw new RuntimeException("Job result does not match correct/malicious test format");
         }
 

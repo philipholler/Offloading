@@ -27,4 +27,9 @@ public class InnerCircleScheduler implements JobScheduler {
         if (newJob != null) return Optional.of(newJob);
         return Optional.empty();
     }
+
+    @Override
+    public boolean shouldContinue(long assignmentID) {
+        return true;
+    }
 }

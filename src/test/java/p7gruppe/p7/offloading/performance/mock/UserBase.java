@@ -44,4 +44,16 @@ public class UserBase {
         for (MockEmployer mockEmployer : employers) statistics.addAll(mockEmployer.getJobsStatistics());
         return statistics;
     }
+
+    public List<MockUser> getUsers() {
+        return users;
+    }
+
+    public List<MockEmployer> getEmployers() {
+        return employers;
+    }
+
+    public List<MockWorker> getWorkers() {
+        return workers;
+    }
 }
