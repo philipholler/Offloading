@@ -1,6 +1,5 @@
 package p7gruppe.p7.offloading.configurations;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,13 +10,14 @@ import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
+import p7gruppe.p7.offloading.scheduling.CpuTimeoutScheduler;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 import p7gruppe.p7.offloading.scheduling.SampleScheduler;
 
 @Configuration
-@Profile("default-test")
+@Profile("cpu-time-test")
 @EnableJpaRepositories("p7gruppe.p7.offloading.data.repository")
-public class DefaultConfiguration {
+public class CPUTimeSchedulerConfiguration {
 
     @Autowired
     JobRepository jobRepository;
@@ -30,12 +30,12 @@ public class DefaultConfiguration {
 
     @Bean
     JobScheduler getJobScheduler(){
-        return new SampleScheduler();
+        return new CpuTimeoutScheduler(jobRepository);
     }
 
     @Bean
     PathResolver getPathResolver() {
         return new PathResolver("test_data");
     }
-}
 
+}

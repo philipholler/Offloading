@@ -28,7 +28,7 @@ public class PrioritizationManager {
     public void calculateInitialJobPriority(String userName, long jobID) {
         UserEntity userEntity = userRepository.getUserByUsername(userName);
         JobEntity jobEntity = jobRepository.getJobByID(jobID);
-        jobEntity.priority = (int) (userEntity.getCpuTime() - jobEntity.timeoutInMinutes * Math.ceil(jobEntity.anwsersNeeded * workerMultiplyFactor));
+        jobEntity.priority = (int) (userEntity.getCpuTime() - jobEntity.timeoutInMinutes * Math.ceil(jobEntity.answersNeeded * workerMultiplyFactor));
 
         if (jobEntity.priority < 1) {
             jobEntity.priority = 0;

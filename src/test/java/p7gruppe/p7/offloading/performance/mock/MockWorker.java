@@ -90,7 +90,7 @@ public class MockWorker implements Updatable {
     }
 
     private void submitResult() {
-        System.out.println("Submitting result for job " + this.currentJob.getJobid());
+        System.out.println("Submitting result for job " + this.currentJob.getJobid() + " by user " + owner.userCredentials.toString());
         int result;
         if (isMalicious()) {
             result = MALICIOUS_RESULT;

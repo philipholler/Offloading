@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Performance Fifo Test" type="MavenRunConfiguration" factoryName="Maven">
+  <configuration default="false" name="Performance CpuTime Test" type="MavenRunConfiguration" factoryName="Maven">
     <MavenSettings>
       <option name="myGeneralSettings" />
       <option name="myRunnerSettings" />
@@ -12,7 +12,7 @@
             <list>
               <option value="clean" />
               <option value="test" />
-              <option value="-Dspring.profiles.active=fifo-test" />
+              <option value="-Dspring.profiles.active=cpu-time-test" />
               <option value="-Dgroups=performance" />
             </list>
           </option>
