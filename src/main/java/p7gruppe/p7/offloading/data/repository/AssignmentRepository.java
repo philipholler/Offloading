@@ -6,6 +6,7 @@ import p7gruppe.p7.offloading.data.enitity.AssignmentEntity;
 import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.data.enitity.UserEntity;
+import p7gruppe.p7.offloading.model.DeviceId;
 
 import java.util.Optional;
 
@@ -18,8 +19,10 @@ public interface AssignmentRepository extends CrudRepository<AssignmentEntity, L
     Optional<Long> getAverageOfAssignedJobTime(long jobID);
 
     @Query(value = "SELECT * FROM assignment_entity WHERE job_job_id = ?1", nativeQuery = true)
-    Iterable<AssignmentEntity> getAssignmentForJob(long jobID);
+    Iterable<AssignmentEntity> getAssignmentForJob(Long jobId);
 
     @Query(value = "SELECT COUNT FROM assignment_entity WHERE job_job_id = ?1", nativeQuery = true)
     Integer getNumberOfAssignmentsForJob(long jobId);
+    @Query(value = "SELECT COUNT FROM assignment_entity WHERE job_job_id = ?1 AND worker = ?2", nativeQuery = true)
+    AssignmentEntity getAssignmentForJob(Long jobId, long deviceId);
 }

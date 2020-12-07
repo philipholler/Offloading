@@ -386,6 +386,38 @@ paths:
       responses:
         '200':
           description: Upload successful
+
+    patch:
+      tags:
+        - assignment
+      description: Notify the server that the worker is still working on the job
+      operationId: pingAssignment
+      parameters:
+        - name: userCredentials
+          in: path
+          description: User authentication from worker
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserCredentials'
+        - name: deviceId
+          in: path
+          description: Identification for device
+          required: true
+          schema:
+            $ref: '#/components/schemas/DeviceId'
+        - name: jobId
+          in: path
+          description: Job that the device is currently processing
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Continue
+        '410':
+          description: Assignment aborted
+
     delete:
       tags:
         - assignment

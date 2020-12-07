@@ -2,6 +2,7 @@ package p7gruppe.p7.offloading.api;
 
 import kotlin.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +50,17 @@ public class AssignmentsApiController implements AssignmentsApi {
 
     @Autowired
     JobFileManager jobFileManager;
+
+    @Override
+    public ResponseEntity<Void> pingAssignment(UserCredentials userCredentials, DeviceId deviceId, Long jobId) {
+        DeviceEntity deviceEntity = deviceRepository.getDeviceByIMEI(deviceId.getImei());
+        AssignmentEntity assignmentEntity = assignmentRepository.getAssignmentForJob(jobId, deviceEntity.getDeviceId());
+
+        boolean shouldContinue = jobScheduler.shouldContinue(assignmentEntity.getAssignmentId());
+
+        if (shouldContinue) return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.GONE).build();
+    }
 
     @Override
     public ResponseEntity<JobFiles> getJobForDevice(UserCredentials userCredentials, DeviceId deviceId) {
