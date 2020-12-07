@@ -18,14 +18,15 @@ public class AssignmentEntity {
     @Enumerated(EnumType.STRING)
     public Status status;
 
-    public long timeOfAssignment;
+    public long timeOfAssignmentInMs;
 
-    public long timeOfCompletion;
+    public long timeOfCompletionInMs;
 
     public AssignmentEntity(Status status, DeviceEntity worker, JobEntity job) {
         this.status = status;
         this.worker = worker;
         this.job = job;
+        this.timeOfAssignmentInMs = System.currentTimeMillis();
     }
 
     protected AssignmentEntity() {}
@@ -54,20 +55,20 @@ public class AssignmentEntity {
         this.status = status;
     }
 
-    public long getTimeOfAssignment() {
-        return timeOfAssignment;
+    public long getTimeOfAssignmentInMs() {
+        return timeOfAssignmentInMs;
     }
 
-    public long getTimeOfCompletion() {
-        return timeOfCompletion;
+    public long getTimeOfCompletionInMs() {
+        return timeOfCompletionInMs;
     }
 
-    public void setTimeOfAssignment(long assignmentTime) {
-        this.timeOfAssignment = assignmentTime;
+    public void setTimeOfAssignmentInMs(long assignmentTime) {
+        this.timeOfAssignmentInMs = assignmentTime;
     }
 
-    public void setTimeOfCompletion(long completedTime) {
-        this.timeOfCompletion = completedTime;
+    public void setTimeOfCompletionInMs(long completedTime) {
+        this.timeOfCompletionInMs = completedTime;
     }
 
     public Status getStatus() {

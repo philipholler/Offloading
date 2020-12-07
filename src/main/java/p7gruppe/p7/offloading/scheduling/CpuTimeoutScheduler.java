@@ -25,4 +25,9 @@ public class CpuTimeoutScheduler implements JobScheduler{
     public Optional<JobEntity> assignJob(DeviceEntity device, JobFilter jobFilter) {
         return Optional.empty();
     }
+
+    @Override
+    public boolean shouldContinue(long assignmentID) {
+        return true;
+    }
 }

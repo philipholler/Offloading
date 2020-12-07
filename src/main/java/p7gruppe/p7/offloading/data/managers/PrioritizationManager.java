@@ -25,6 +25,8 @@ public class PrioritizationManager {
         this.assignmentRepository = assignmentRepository;
     }
 
+    /*
+
     public void calculateInitialJobPriority(String userName, long jobID) {
         UserEntity userEntity = userRepository.getUserByUsername(userName);
         JobEntity jobEntity = jobRepository.getJobByID(jobID);
@@ -37,13 +39,14 @@ public class PrioritizationManager {
         jobRepository.save(jobEntity);
         userRepository.save(userEntity);
 
-    }
+    }*/
 
     private long getWorkerCreditEarned(long jobID) {
        Optional<Long> assignmentEntity = assignmentRepository.getAverageOfAssignedJobTime(jobID);
         return  assignmentEntity.get();
     }
 
+    /*
     public void calculateUpdatedJobPriority(String userName, long jobID) {
         JobEntity job = jobRepository.getOldestJobByUserName(userName);
         UserEntity userEntity = userRepository.getUserByUsername(userName);
@@ -51,6 +54,6 @@ public class PrioritizationManager {
         job.priority += getWorkerCreditEarned(jobID);
         userRepository.save(userEntity);
         jobRepository.save(job);
-    }
+    }*/
 
 }
