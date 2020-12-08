@@ -1,5 +1,7 @@
 package p7gruppe.p7.offloading.data.enitity;
 
+import p7gruppe.p7.offloading.statistics.ServerStatistic;
+
 import javax.persistence.*;
 
 @Entity
@@ -23,13 +25,11 @@ public class UserEntity {
 
     public UserEntity(String userName, String password) {
         this.userName = userName;
-
         this.password = password;
 
         this.cpuTimeContributedInMs = 0;
         this.cpuTimeSpentInMs = 0;
     }
-
 
     public String getUserName() {
         return userName;
@@ -45,6 +45,7 @@ public class UserEntity {
 
     public void setCpuTimeContributedInMs(long cpuTimeContributed) {
         this.cpuTimeContributedInMs = cpuTimeContributed;
+        ServerStatistic.addCPUTimeDataPoint(cpuTimeContributed, userName);
     }
 
     public long getCpuTimeSpentInMs() {

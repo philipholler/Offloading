@@ -1,4 +1,4 @@
-package p7gruppe.p7.offloading.performance.statistics;
+package p7gruppe.p7.offloading.statistics;
 
 public class DataPoint<T> {
 
@@ -12,6 +12,6 @@ public class DataPoint<T> {
 
     @Override
     public String toString() {
-        return "(" + value + ", " + timestamp + ")";
+        return "(" + timestamp + ", " + value + ")";
     }
 }

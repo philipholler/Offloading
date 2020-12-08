@@ -28,7 +28,7 @@ public class MockEmployer implements Simulatable {
     private int jobsPosted = 0;
     private final List<JobStatistic> postedJobs = new ArrayList<>();
 
-    private HashMap<String, Boolean> hasDownloadedResult = new HashMap<>();
+    private final HashMap<String, Boolean> hasDownloadedResult = new HashMap<>();
 
     public MockEmployer(MockUser mockUser, APISupplier apiSupplier, JobSpawner jobSpawner) {
         this.mockUser = mockUser;

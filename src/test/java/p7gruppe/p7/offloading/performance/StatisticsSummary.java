@@ -1,17 +1,14 @@
 package p7gruppe.p7.offloading.performance;
 
-import org.mockito.internal.util.collections.ListUtil;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
-import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.performance.mock.MockEmployer;
 import p7gruppe.p7.offloading.performance.mock.UserBase;
-import p7gruppe.p7.offloading.performance.statistics.DataPoint;
+import p7gruppe.p7.offloading.statistics.DataPoint;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class StatisticsSummary {
@@ -137,7 +134,7 @@ public class StatisticsSummary {
         long endTime = correctFullConfidenceJobs.get(correctFullConfidenceJobs.size() - 1).getUploadTime();
 
         int length = (int) ((endTime - startTime) / timeStepMillis);
-        length += ((int) ((endTime - startTime) / timeStepMillis) > 0) ? 1 : 0;
+        length += ((int) ((endTime - startTime) % timeStepMillis) > 0) ? 1 : 0;
         int[] throughputValues = new int[length];
 
         for (JobStatistic jobStat : correctFullConfidenceJobs) {

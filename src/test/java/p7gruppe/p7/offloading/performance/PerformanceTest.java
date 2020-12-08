@@ -13,9 +13,11 @@ import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.mock.*;
-import p7gruppe.p7.offloading.performance.statistics.DataPoint;
+import p7gruppe.p7.offloading.statistics.DataPoint;
+import p7gruppe.p7.offloading.statistics.ServerStatistic;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Tag("performance")
 @SpringBootTest
@@ -53,6 +55,7 @@ public class PerformanceTest {
         jobRepository.deleteAll();
         assignmentRepository.deleteAll();
         userRepository.deleteAll();
+        ServerStatistic.reset();
     }
 
     @Test
@@ -74,16 +77,18 @@ public class PerformanceTest {
 
         System.out.println("MAX compute time : " + summary.getMaximumTimeFromUploadTillProcessedMillis() / 1000);
         System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
-        System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults() + "\n");
+        System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults());
         System.out.println("Average confidence : " + summary.averageConfidence());
-
         System.out.println("Total Throughput : " + summary.getTotalThroughput());
         System.out.println(Arrays.toString(summary.getThroughputOverTime(1000)));
-
         System.out.println("Confidence over time: ");
         for (DataPoint<Double> dataPoint : summary.confidenceDataPoints()) {
-            System.out.println("(" + dataPoint.timestamp / 1000 + ", " + dataPoint.value + ")");
+            System.out.print("(" + dataPoint.timestamp / 1000 + ", " + dataPoint.value + "), ");
         }
+        System.out.println();
+
+        List<DataPoint<Long>> userCPUTime = ServerStatistic.getCPUTimeDataPoints("user1");
+        System.out.println("User cpu time: " + Arrays.toString(userCPUTime.toArray()));
     }
 
     @Test
