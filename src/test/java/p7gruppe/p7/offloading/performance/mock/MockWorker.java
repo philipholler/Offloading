@@ -14,9 +14,6 @@ import java.util.function.Function;
 
 public class MockWorker implements Simulatable {
 
-    public static final int MALICIOUS_RESULT = 0;
-    public static final int CORRECT_RESULT = 1;
-
     public final double CPU_FACTOR;
     public final DeviceId deviceId;
     public final MockUser owner;
@@ -104,7 +101,6 @@ public class MockWorker implements Simulatable {
     }
 
     private void submitResult() {
-        System.out.println("Submitting result for job " + this.currentJob.getJobid() + " by user " + owner.userCredentials.toString());
         byte[] result;
         if (isMalicious()) {
             result = MockResultData.getMaliciousBytes();

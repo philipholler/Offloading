@@ -13,8 +13,7 @@ import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.mock.*;
-
-import java.util.List;
+import p7gruppe.p7.offloading.performance.statistics.DataPoint;
 
 @Tag("performance")
 @SpringBootTest
@@ -38,10 +37,12 @@ public class PerformanceTest {
 
     static final long RANDOM_SEED = 123456789L;
     private APISupplier apiSupplier;
+    private RepositorySupplier repositorySupplier;
 
     @BeforeEach
     void setup() {
         apiSupplier = new APISupplier(usersApiController, assignmentsApiController, jobsApiController);
+        repositorySupplier = new RepositorySupplier(assignmentRepository, jobRepository, userRepository, deviceRepository);
     }
 
     @BeforeEach
@@ -67,10 +68,16 @@ public class PerformanceTest {
         }
         userBase.stopSimulation();
 
-        List<JobStatistic> jobStatistics = userBase.getJobStatistics();
-        for (JobStatistic job : jobStatistics) {
-            System.out.println(job.isJobCompleted());
-            if (job.isJobCompleted()) System.out.println("Correct result: " + job.isResultCorrect());
+        StatisticsSummary summary = new StatisticsSummary(userBase, repositorySupplier);
+
+        System.out.println("MAX compute time : " + summary.getMaximumTimeFromUploadTillProcessedMillis() / 1000);
+        System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
+        System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults() + "\n");
+        System.out.println("Average confidence : " + summary.averageConfidence());
+
+        System.out.println("Confidence over time: ");
+        for (DataPoint<Double> dataPoint : summary.confidenceDataPoints()) {
+            System.out.println("(" + dataPoint.timestamp / 1000 + ", " + dataPoint.value + ")");
         }
     }
 

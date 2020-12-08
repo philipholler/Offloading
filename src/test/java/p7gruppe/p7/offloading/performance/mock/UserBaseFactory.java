@@ -17,6 +17,7 @@ public class UserBaseFactory {
             throw new IllegalArgumentException("Cannot generate more employers than users");
 
         MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
+        userGenerator.setProportionOfMaliciousUsers(0.9);
         MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
         MockWorkerGenerator workerGenerator = new MockWorkerGenerator(apiSupplier);
 

@@ -88,6 +88,13 @@ components:
         imei:
           type: string
 
+    JobId:
+      type: object
+      properties:
+        jobID:
+          type: integer
+          format: int64
+
 paths:
   # Users
   /users/{userCredentials}:
@@ -201,6 +208,12 @@ paths:
       responses:
         '200':
           description: Computed job
+          content:
+            text/plain:
+              schema:
+                type: integer
+                format: int64
+
 
     get:
       tags:

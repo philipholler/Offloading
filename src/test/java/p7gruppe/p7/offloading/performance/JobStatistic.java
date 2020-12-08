@@ -20,10 +20,13 @@ public class JobStatistic {
     private boolean assignedToAnyUser = false;
     private long assignmentTime = 0L;
 
-    public JobStatistic(String jobName, int expectedCPUTime, MockUser user) {
+    public final long jobID;
+
+    public JobStatistic(String jobName, int expectedCPUTime, MockUser user, long jobID) {
         this.jobName = jobName;
         this.expectedCPUTime = expectedCPUTime;
         this.user = user;
+        this.jobID = jobID;
     }
 
     public void registerStatus(JobEntity.JobStatus newStatus, long timeStampMillis){
@@ -50,12 +53,6 @@ public class JobStatistic {
     public void registerUpload(long uploadTime){
         this.uploadTime = uploadTime;
         status = JobEntity.JobStatus.WAITING;
-    }
-
-    public long getFinishTime() {
-        if (!hasFinished)
-            throw new RuntimeException("Called getFinishTime() on job that did not finish");
-        return finishTime;
     }
 
     public long getProcessingTime() {
@@ -102,5 +99,9 @@ public class JobStatistic {
 
     public boolean isJobCompleted() {
         return hasFinished;
+    }
+
+    public long getUploadTime() {
+        return uploadTime;
     }
 }

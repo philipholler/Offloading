@@ -15,6 +15,7 @@ import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.JobFiles;
+import p7gruppe.p7.offloading.model.JobId;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
@@ -55,22 +56,19 @@ public class JobsApiController implements JobsApi {
 
     }
 
+
     @Override
-    public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
-        System.out.println("Posting job....");
+    public ResponseEntity<Long> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
         try {
             byte[] decoded = JobFileManager.decodeFromBase64(body);
             String path = jobFileManager.saveJob(userCredentials.getUsername(), decoded);
-            System.out.println("Job saved...");
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
-            System.out.println("Username pulled");
             JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, workersRequested, timeout));
-            System.out.println("Job entity saved...");
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(jobEntity.getJobId());
         } catch (IOException e) {
             // Fatal server io error // todo add error logging
             return ResponseEntity.status(500).build();
