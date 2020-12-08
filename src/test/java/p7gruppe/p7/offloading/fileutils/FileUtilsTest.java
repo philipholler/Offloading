@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
+import p7gruppe.p7.offloading.api.dataclasses.ConfidenceResult;
 import p7gruppe.p7.offloading.data.local.PathResolver;
 
 import java.io.File;
@@ -43,8 +44,8 @@ public class FileUtilsTest {
         File folderToZip = new File(pathToStartingData + File.separator + "identical");
         File folderToZip2 = new File(pathToStartingData + File.separator + "notidentical");
 
-        File zipFile1 = new File(resultDir + File.separator + "zipfile1.zip");
-        File zipFile2 = new File(resultDir + File.separator + "zipfile2.zip");
+        File zipFile1 = new File(resultDir + File.separator + "result_file_15.zip");
+        File zipFile2 = new File(resultDir + File.separator + "result_file_10.zip");
 
         // Zip both files
         FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
@@ -54,11 +55,11 @@ public class FileUtilsTest {
         zipFiles.add(zipFile1);
         zipFiles.add(zipFile2);
 
-        Pair<File, Double> result = FileUtilsKt.getConfidenceLevel(zipFiles);
+        ConfidenceResult result = FileUtilsKt.getConfidenceLevel(zipFiles);
 
         double delta = 0.001;
 
-        assertTrue(Math.abs(result.getSecond() - 0.5) < delta);
+        assertTrue(Math.abs(result.getConfidenceLevel() - 0.5) < delta);
     }
 
     @Test
@@ -70,8 +71,8 @@ public class FileUtilsTest {
         File folderToZip = new File(pathToStartingData + File.separator + "identical");
         File folderToZip2 = new File(pathToStartingData + File.separator + "identical");
 
-        File zipFile1 = new File(resultDir + File.separator + "zipfile1.zip");
-        File zipFile2 = new File(resultDir + File.separator + "zipfile2.zip");
+        File zipFile1 = new File(resultDir + File.separator + "result_file_15.zip");
+        File zipFile2 = new File(resultDir + File.separator + "result_file_10.zip");
 
         // Zip both files
         FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
@@ -81,11 +82,11 @@ public class FileUtilsTest {
         zipFiles.add(zipFile1);
         zipFiles.add(zipFile2);
 
-        Pair<File, Double> result = FileUtilsKt.getConfidenceLevel(zipFiles);
+        ConfidenceResult result = FileUtilsKt.getConfidenceLevel(zipFiles);
 
         double delta = 0.001;
 
-        assertTrue(Math.abs(result.getSecond() - 1.0) < delta);
+        assertTrue(Math.abs(result.getConfidenceLevel() - 1.0) < delta);
     }
 
     @Test

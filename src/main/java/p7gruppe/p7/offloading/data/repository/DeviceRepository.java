@@ -15,5 +15,4 @@ public interface DeviceRepository extends CrudRepository<DeviceEntity, Long> {
     @Query(value = "SELECT * FROM device_entity WHERE imei = ?1", nativeQuery = true)
     DeviceEntity getDeviceByIMEI(String imei);
 
-
 }

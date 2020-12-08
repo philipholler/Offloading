@@ -15,10 +15,14 @@ public class DeviceEntity {
 
     @ManyToOne
     private UserEntity owner;
+    private int assignmentsFinished;
+    private int assignmentsFinishedCorrectResult;
 
     public DeviceEntity(UserEntity owner, String imei) {
         this.owner = owner;
         this.imei = imei;
+        this.assignmentsFinished = 0;
+        this.assignmentsFinishedCorrectResult = 0;
     }
 
     public UserEntity getOwner() {
@@ -41,6 +45,16 @@ public class DeviceEntity {
                 "deviceId=" + deviceId +
                 ", imei='" + imei + '\'' +
                 ", owner=" + owner +
+                ", assignmentsFinished=" + assignmentsFinished +
+                ", assignmentsFinishedCorrectResult=" + assignmentsFinishedCorrectResult +
                 '}';
+    }
+
+    public void incrementAssignmentsFinished(){
+        this.assignmentsFinished++;
+    }
+
+    public void incrementAssignmentsFinishedCorrectResult(){
+        this.assignmentsFinishedCorrectResult++;
     }
 }
