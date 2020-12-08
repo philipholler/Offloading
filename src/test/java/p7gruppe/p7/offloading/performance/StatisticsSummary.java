@@ -8,6 +8,7 @@ import p7gruppe.p7.offloading.performance.mock.UserBase;
 import p7gruppe.p7.offloading.performance.statistics.DataPoint;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -84,14 +85,14 @@ public class StatisticsSummary {
         return jobs;
     }
 
-    private List<JobStatistic> allCompletedJobs(){
+    private List<JobStatistic> allCompletedJobs() {
         return allJobs().stream().filter(JobStatistic::isJobCompleted).collect(Collectors.toList());
     }
 
     public List<DataPoint<Double>> confidenceDataPoints() {
         List<DataPoint<Double>> dataPoints = new ArrayList<>();
 
-        for(JobStatistic job : allCompletedJobs()){
+        for (JobStatistic job : allCompletedJobs()) {
             Optional<JobEntity> jobEntityOptional = repositorySupplier.jobRepository.findById(job.jobID);
             if (!jobEntityOptional.isPresent())
                 throw new RuntimeException("Job with id " + job.jobID + " present in statistics not server database");
@@ -106,7 +107,7 @@ public class StatisticsSummary {
         double total = 0;
         int dataPoints = 0;
 
-        for(JobStatistic job : allCompletedJobs()){
+        for (JobStatistic job : allCompletedJobs()) {
             Optional<JobEntity> jobEntityOptional = repositorySupplier.jobRepository.findById(job.jobID);
             if (!jobEntityOptional.isPresent())
                 throw new RuntimeException("Job with id " + job.jobID + " present in statistics not server database");
@@ -116,6 +117,35 @@ public class StatisticsSummary {
         }
 
         return total / (double) dataPoints;
+    }
+
+
+    public int[] getThroughputOverTime(int timeStepMillis) {
+        List<DataPoint<Double>> throughputOverTime = new ArrayList<>();
+
+        List<JobStatistic> correctFullConfidenceJobs = allCompletedJobs().stream().filter((job) -> {
+            Optional<JobEntity> jobEntityOptional = repositorySupplier.jobRepository.findById(job.jobID);
+            double confidence = jobEntityOptional.get().confidenceLevel;
+            return confidence >= 0.99d && job.isResultCorrect();
+        }).sorted(Comparator.comparingLong(JobStatistic::getUploadTime)).collect(Collectors.toList());
+
+        if (correctFullConfidenceJobs.size() <= 10) {
+            throw new RuntimeException("Dataset too small to perform throughput analysis");
+        }
+
+        long startTime = correctFullConfidenceJobs.get(0).getUploadTime();
+        long endTime = correctFullConfidenceJobs.get(correctFullConfidenceJobs.size() - 1).getUploadTime();
+
+        int length = (int) ((endTime - startTime) / timeStepMillis);
+        length += ((int) ((endTime - startTime) / timeStepMillis) > 0) ? 1 : 0;
+        int[] throughputValues = new int[length];
+
+        for (JobStatistic jobStat : correctFullConfidenceJobs) {
+            int index = (int) ((jobStat.getUploadTime() - startTime) / timeStepMillis);
+            throughputValues[index] += 1;
+        }
+
+        return throughputValues;
     }
 
 }

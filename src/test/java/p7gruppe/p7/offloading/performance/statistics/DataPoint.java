@@ -10,4 +10,8 @@ public class DataPoint<T> {
         this.value = value;
     }
 
+    @Override
+    public String toString() {
+        return "(" + value + ", " + timestamp + ")";
+    }
 }

@@ -15,6 +15,8 @@ import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.mock.*;
 import p7gruppe.p7.offloading.performance.statistics.DataPoint;
 
+import java.util.Arrays;
+
 @Tag("performance")
 @SpringBootTest
 public class PerformanceTest {
@@ -54,7 +56,7 @@ public class PerformanceTest {
     }
 
     @Test
-    void performanceTest_defaultUserBase() {
+    void performanceTest_shortTermTest() {
         int userCount = 150, deviceCount = 165, employerCount = 80;
         UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier);
         UserBase userBase = userBaseFactory.generateDefaultUserBase(RANDOM_SEED, userCount, deviceCount, employerCount);
@@ -74,6 +76,7 @@ public class PerformanceTest {
         System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
         System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults() + "\n");
         System.out.println("Average confidence : " + summary.averageConfidence());
+        System.out.println(Arrays.toString(summary.getThroughputOverTime(1000)));
 
         System.out.println("Confidence over time: ");
         for (DataPoint<Double> dataPoint : summary.confidenceDataPoints()) {
