@@ -90,4 +90,12 @@ public class JobEntity {
     public void setConfidenceLevel(double confidenceLevel) {
         this.confidenceLevel = confidenceLevel;
     }
+
+    public UserEntity getEmployer() {
+        return employer;
+    }
+
+    public int getTimeoutInMinutes() {
+        return timeoutInMinutes;
+    }
 }

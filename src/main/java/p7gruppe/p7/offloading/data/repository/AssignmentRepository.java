@@ -23,6 +23,7 @@ public interface AssignmentRepository extends CrudRepository<AssignmentEntity, L
 
     @Query(value = "SELECT COUNT FROM assignment_entity WHERE job_job_id = ?1", nativeQuery = true)
     Integer getNumberOfAssignmentsForJob(long jobId);
+
     @Query(value = "SELECT COUNT FROM assignment_entity WHERE job_job_id = ?1 AND worker = ?2", nativeQuery = true)
     AssignmentEntity getAssignmentForJob(Long jobId, long deviceId);
 }

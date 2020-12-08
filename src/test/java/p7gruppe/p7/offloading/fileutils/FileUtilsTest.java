@@ -58,7 +58,7 @@ public class FileUtilsTest {
 
         double delta = 0.001;
 
-        assertTrue(Math.abs(result.component2() - 0.5) < delta);
+        assertTrue(Math.abs(result.getSecond() - 0.5) < delta);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class FileUtilsTest {
 
         double delta = 0.001;
 
-        assertTrue(Math.abs(result.component2() - 1.0) < delta);
+        assertTrue(Math.abs(result.getSecond() - 1.0) < delta);
     }
 
     @Test

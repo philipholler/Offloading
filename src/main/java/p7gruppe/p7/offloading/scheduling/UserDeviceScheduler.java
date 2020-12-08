@@ -29,5 +29,4 @@ public class UserDeviceScheduler implements JobScheduler {
     public boolean shouldContinue(long assignmentID) {
         return true;
     }
-
 }

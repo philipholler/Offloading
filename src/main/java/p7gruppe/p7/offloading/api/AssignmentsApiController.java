@@ -11,6 +11,7 @@ import p7gruppe.p7.offloading.converters.FileStringConverter;
 import p7gruppe.p7.offloading.data.enitity.AssignmentEntity;
 import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
+import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
@@ -59,6 +60,17 @@ public class AssignmentsApiController implements AssignmentsApi {
         boolean shouldContinue = jobScheduler.shouldContinue(assignmentEntity.getAssignmentId());
 
         if (shouldContinue) return ResponseEntity.ok().build();
+
+        // Reward workers even though the job is quit. Do not reward users for calculating their own jobs
+        JobEntity job = jobRepository.getJobByID(jobId);
+        if(job.getEmployer().getUserId() != deviceEntity.getOwner().getUserId()){
+            UserEntity workerUser = deviceEntity.getOwner();
+            long cpuTimeReward = System.currentTimeMillis() - assignmentEntity.timeOfAssignmentInMs;
+            workerUser.setCpuTimeContributedInMs(workerUser.getCpuTimeContributedInMs() + cpuTimeReward);
+            userRepository.save(workerUser);
+        }
+
+
         return ResponseEntity.status(HttpStatus.GONE).build();
     }
 
@@ -120,6 +132,15 @@ public class AssignmentsApiController implements AssignmentsApi {
             jobValue.workersAssigned++;
             // Set status to Proccesing (it might already be, but then it doesn't make a difference)
             jobValue.jobStatus = JobEntity.JobStatus.PROCESSING;
+
+            // Increase cpu time spent by timeout for employer. This decreases his priority
+            // Only if the job and device is not his own
+            if(device.getOwner().getUserId() != jobValue.getEmployer().getUserId()){
+                UserEntity employer = jobValue.getEmployer();
+                employer.setCpuTimeSpentInMs(employer.getCpuTimeSpentInMs() + jobValue.timeoutInMinutes * 60 * 1000);
+                userRepository.save(employer);
+            }
+
             // Save the job changes
             jobRepository.save(jobValue);
             assignmentRepository.save(assignmentEntity);
@@ -154,6 +175,14 @@ public class AssignmentsApiController implements AssignmentsApi {
             jobValue.workersAssigned -= 1;
             jobRepository.save(jobValue);
 
+            // Reinsert cpu time spent to employer, if a worker quits. This increases his priority.
+            // Do not increase the cpu time, if the job was his own.
+            UserEntity employer = jobValue.getEmployer();
+            if(quittingDevice.getOwner().getUserId() != employer.getUserId()){
+                employer.setCpuTimeSpentInMs(employer.getCpuTimeSpentInMs() + jobValue.timeoutInMinutes * 60 * 1000);
+                userRepository.save(employer);
+            }
+
             return ResponseEntity.ok().build();
         }
         else {
@@ -182,6 +211,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             jobValue = job.get();
         }
 
+
         // Update assignment to set as done
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
         Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
@@ -191,7 +221,22 @@ public class AssignmentsApiController implements AssignmentsApi {
         }
         AssignmentEntity assignment = possibleAssignment.get();
         assignment.setStatus(AssignmentEntity.Status.DONE_NOT_CHECKED);
+        assignment.setTimeOfCompletionInMs(System.currentTimeMillis());
         assignmentRepository.save(assignment);
+
+        // Give worker reward for contributing, if the worker and employer is not the same user
+        UserEntity userContributing = device.getOwner();
+        UserEntity employer = jobValue.getEmployer();
+        if(userContributing.getUserId() != employer.getUserId()){
+            long timeSpendOnAssignment = assignment.getTimeOfCompletionInMs() - assignment.getTimeOfAssignmentInMs();
+            userContributing.setCpuTimeContributedInMs(userContributing.getCpuTimeContributedInMs() + timeSpendOnAssignment);
+            userRepository.save(userContributing);
+
+            // Take "payment" from the employer. Update his cpu time spent.
+            long originalTimeoutInMs = jobValue.getTimeoutInMinutes() * 60 * 1000;
+            long newCpuTimeSpent = employer.getCpuTimeSpentInMs() + originalTimeoutInMs - timeSpendOnAssignment;
+            userRepository.save(employer);
+        }
 
         // If present upload file
         try {
@@ -220,9 +265,9 @@ public class AssignmentsApiController implements AssignmentsApi {
                 double delta = 0.001;
 
                 // If the confidence is 1.0
-                if(Math.abs(confidenceLevelAndBestFile.component2() - 1.0) < delta){
+                if(Math.abs(confidenceLevelAndBestFile.getSecond() - 1.0) < delta){
                     jobValue.setJobStatus(JobEntity.JobStatus.DONE);
-                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.component2());
+                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.getSecond());
                     for(AssignmentEntity assig : assignmentsForJob){
                         assig.setStatus(AssignmentEntity.Status.DONE);
                         assignmentRepository.save(assig);
@@ -232,13 +277,13 @@ public class AssignmentsApiController implements AssignmentsApi {
                 }
                 else {
                     jobValue.setJobStatus(JobEntity.JobStatus.DONE_CONFLICTING_RESULTS);
-                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.component2());
+                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.getSecond());
                     for(AssignmentEntity assig : assignmentsForJob){
                         assig.setStatus(AssignmentEntity.Status.DONE_MAYBE_WRONG);
                         assignmentRepository.save(assig);
                     }
                     // Save the file with the highest confidence level as final result
-                    jobFileManager.saveFinalResultFromIntermediaConfidence(confidenceLevelAndBestFile.component1().getAbsolutePath(),jobValue.getJobPath());
+                    jobFileManager.saveFinalResultFromIntermediaConfidence(confidenceLevelAndBestFile.getFirst().getAbsolutePath(),jobValue.getJobPath());
                     jobRepository.save(jobValue);
                 }
             }

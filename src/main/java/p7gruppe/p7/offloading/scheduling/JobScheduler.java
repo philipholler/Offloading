@@ -9,7 +9,5 @@ import java.util.Optional;
 public interface JobScheduler {
     Optional<JobEntity> assignJob(DeviceEntity device);
     Optional<JobEntity> assignJob(DeviceEntity device, JobFilter jobFilter);
-
-
     boolean shouldContinue(long assignmentID);
 }

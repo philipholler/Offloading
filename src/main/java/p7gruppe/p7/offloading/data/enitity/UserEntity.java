@@ -15,7 +15,8 @@ public class UserEntity {
 
     private String password;
 
-    private long cpuTime;
+    private long cpuTimeContributedInMs;
+    private long cpuTimeSpentInMs;
 
     protected UserEntity() {
     }
@@ -25,7 +26,8 @@ public class UserEntity {
 
         this.password = password;
 
-        this.cpuTime = 0;
+        this.cpuTimeContributedInMs = 0;
+        this.cpuTimeSpentInMs = 0;
     }
 
 
@@ -37,11 +39,23 @@ public class UserEntity {
         return password;
     }
 
-    public long getCpuTime() {
-        return cpuTime;
+    public long getCpuTimeContributedInMs() {
+        return cpuTimeContributedInMs;
     }
 
-    public void setCpuTime(long cpuTime) {
-        this.cpuTime = cpuTime;
+    public void setCpuTimeContributedInMs(long cpuTimeContributed) {
+        this.cpuTimeContributedInMs = cpuTimeContributed;
+    }
+
+    public long getCpuTimeSpentInMs() {
+        return cpuTimeSpentInMs;
+    }
+
+    public void setCpuTimeSpentInMs(long cpuTimeSpent) {
+        this.cpuTimeSpentInMs = cpuTimeSpent;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 }
