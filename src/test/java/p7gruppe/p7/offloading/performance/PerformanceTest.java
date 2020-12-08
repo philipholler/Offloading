@@ -36,10 +36,12 @@ public class PerformanceTest {
 
     static final long RANDOM_SEED = 123456789L;
     private APISupplier apiSupplier;
+    private RepositorySupplier repositorySupplier;
 
     @BeforeEach
     void setup() {
         apiSupplier = new APISupplier(usersApiController, assignmentsApiController, jobsApiController);
+        repositorySupplier = new RepositorySupplier(assignmentRepository, jobRepository, userRepository, deviceRepository);
     }
 
     @BeforeEach
@@ -65,7 +67,7 @@ public class PerformanceTest {
         }
         userBase.stopSimulation();
 
-        StatisticsSummary summary = new StatisticsSummary(userBase);
+        StatisticsSummary summary = new StatisticsSummary(userBase, repositorySupplier);
         System.out.println("MAX compute time : " + summary.getMaximumTimeFromUploadTillProcessedMillis() / 1000);
         System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
         System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults());

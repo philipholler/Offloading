@@ -1,16 +1,22 @@
 package p7gruppe.p7.offloading.performance;
 
+import org.mockito.internal.util.collections.ListUtil;
 import p7gruppe.p7.offloading.performance.mock.MockEmployer;
 import p7gruppe.p7.offloading.performance.mock.UserBase;
+import p7gruppe.p7.offloading.performance.statistics.DataPoint;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class StatisticsSummary {
 
     private UserBase userBase;
+    private RepositorySupplier repositorySupplier;
 
-    public StatisticsSummary(UserBase userBase) {
+    public StatisticsSummary(UserBase userBase, RepositorySupplier repositorySupplier) {
         this.userBase = userBase;
+        this.repositorySupplier = repositorySupplier;
     }
 
     public long getMaximumTimeFromUploadTillProcessedMillis() {
@@ -24,7 +30,7 @@ public class StatisticsSummary {
         return maximumProcessingTime;
     }
 
-    public long getAverageJobTimeForFinishedJobsMillis(){
+    public long getAverageJobTimeForFinishedJobsMillis() {
         long totalJobTime = 0L;
         int totalJobs = 0;
         for (MockEmployer employer : userBase.getEmployers()) {
@@ -40,7 +46,7 @@ public class StatisticsSummary {
         return (long) ((double) totalJobTime / (double) totalJobs);
     }
 
-    public int getAmountOfResults(){
+    public int getAmountOfResults() {
         int count = 0;
         for (MockEmployer employer : userBase.getEmployers()) {
             List<JobStatistic> jobs = employer.getJobsStatistics();
@@ -53,7 +59,7 @@ public class StatisticsSummary {
         return count;
     }
 
-    public int getAmountOfMaliciousResults(){
+    public int getAmountOfMaliciousResults() {
         int count = 0;
         for (MockEmployer employer : userBase.getEmployers()) {
             List<JobStatistic> jobs = employer.getJobsStatistics();
@@ -65,6 +71,22 @@ public class StatisticsSummary {
         }
         return count;
     }
+
+    private List<JobStatistic> allJobs() {
+        List<JobStatistic> jobs = new ArrayList<>();
+        for (MockEmployer employer : userBase.getEmployers()) {
+            jobs.addAll(employer.getJobsStatistics());
+        }
+        return jobs;
+    }
+
+    /*public List<DataPoint<Double>> confidenceDataPoints() {
+        List<DataPoint<Double>> dataPoints = new ArrayList<>();
+
+        allJobs().stream().filter(JobStatistic::isJobCompleted).forEach((job) -> {
+
+        });
+    }*/
 
 
 }
