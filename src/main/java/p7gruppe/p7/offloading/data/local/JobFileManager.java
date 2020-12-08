@@ -26,7 +26,6 @@ public class JobFileManager {
     // Saves a job to a directory that is generated from the given username
     // Returns the directory where job files are located
     public String saveJob(String username, byte[] fileBytes) throws IOException {
-        System.out.println("PathResolver: " + pathResolver);
         String directoryPath = pathResolver.generateNewJobFolder(username);
         File f = new File(directoryPath + File.separator + JOB_FILE_NAME);
         FileUtils.writeByteArrayToFile(f, fileBytes);

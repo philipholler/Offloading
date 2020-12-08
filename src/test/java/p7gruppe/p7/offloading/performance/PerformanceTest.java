@@ -73,6 +73,7 @@ public class PerformanceTest {
         System.out.println("MAX compute time : " + summary.getMaximumTimeFromUploadTillProcessedMillis() / 1000);
         System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
         System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults() + "\n");
+        System.out.println("Average confidence : " + summary.averageConfidence());
 
         System.out.println("Confidence over time: ");
         for (DataPoint<Double> dataPoint : summary.confidenceDataPoints()) {
