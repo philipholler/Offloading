@@ -76,6 +76,8 @@ public class PerformanceTest {
         System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
         System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults() + "\n");
         System.out.println("Average confidence : " + summary.averageConfidence());
+
+        System.out.println("Total Throughput : " + summary.getTotalThroughput());
         System.out.println(Arrays.toString(summary.getThroughputOverTime(1000)));
 
         System.out.println("Confidence over time: ");

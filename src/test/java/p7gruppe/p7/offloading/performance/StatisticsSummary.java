@@ -148,4 +148,12 @@ public class StatisticsSummary {
         return throughputValues;
     }
 
+    // Throughput is defined as correct 100% confidence results
+    public long getTotalThroughput() {
+        return allCompletedJobs().stream().filter((job) -> {
+            Optional<JobEntity> jobEntityOptional = repositorySupplier.jobRepository.findById(job.jobID);
+            double confidence = jobEntityOptional.get().confidenceLevel;
+            return confidence >= 0.99d && job.isResultCorrect();
+        }).count();
+    }
 }
