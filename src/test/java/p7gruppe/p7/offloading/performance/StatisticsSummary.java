@@ -1,12 +1,14 @@
 package p7gruppe.p7.offloading.performance;
 
 import org.mockito.internal.util.collections.ListUtil;
+import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.performance.mock.MockEmployer;
 import p7gruppe.p7.offloading.performance.mock.UserBase;
 import p7gruppe.p7.offloading.performance.statistics.DataPoint;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class StatisticsSummary {
@@ -80,13 +82,20 @@ public class StatisticsSummary {
         return jobs;
     }
 
-    /*public List<DataPoint<Double>> confidenceDataPoints() {
+    public List<DataPoint<Double>> confidenceDataPoints() {
         List<DataPoint<Double>> dataPoints = new ArrayList<>();
 
         allJobs().stream().filter(JobStatistic::isJobCompleted).forEach((job) -> {
+            Optional<JobEntity> jobEntityOptional = repositorySupplier.jobRepository.findById(job.jobID);
 
+            if (!jobEntityOptional.isPresent())
+                throw new RuntimeException("Job with id " + job.jobID + " present in statistics not server database");
+
+            dataPoints.add(new DataPoint<Double>(job.getUploadTime(), jobEntityOptional.get().confidenceLevel));
         });
-    }*/
+
+        return dataPoints;
+    }
 
 
 }

@@ -100,4 +100,8 @@ public class JobStatistic {
     public boolean isJobCompleted() {
         return hasFinished;
     }
+
+    public long getUploadTime() {
+        return uploadTime;
+    }
 }

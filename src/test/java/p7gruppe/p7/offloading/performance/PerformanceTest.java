@@ -13,6 +13,7 @@ import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.mock.*;
+import p7gruppe.p7.offloading.performance.statistics.DataPoint;
 
 @Tag("performance")
 @SpringBootTest
@@ -68,9 +69,15 @@ public class PerformanceTest {
         userBase.stopSimulation();
 
         StatisticsSummary summary = new StatisticsSummary(userBase, repositorySupplier);
+
         System.out.println("MAX compute time : " + summary.getMaximumTimeFromUploadTillProcessedMillis() / 1000);
         System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
-        System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults());
+        System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults() + "\n");
+
+        System.out.println("Confidence over time: ");
+        for (DataPoint<Double> dataPoint : summary.confidenceDataPoints()) {
+            System.out.println("(" + dataPoint.timestamp / 1000 + ", " + dataPoint.value + ")");
+        }
     }
 
     @Test
