@@ -58,7 +58,7 @@ public class JobsApiController implements JobsApi {
 
 
     @Override
-    public ResponseEntity<JobId> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
+    public ResponseEntity<Long> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
@@ -74,7 +74,7 @@ public class JobsApiController implements JobsApi {
             // PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository, assignmentRepository);
             // prioritizationManager.calculateInitialJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
 
-            return ResponseEntity.ok(new JobId().jobID(jobEntity.getJobId()));
+            return ResponseEntity.ok(jobEntity.getJobId());
         } catch (IOException e) {
             // Fatal server io error // todo add error logging
             return ResponseEntity.status(500).build();

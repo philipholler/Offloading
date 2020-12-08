@@ -22,10 +22,11 @@ public class JobStatistic {
 
     public final long jobID;
 
-    public JobStatistic(String jobName, int expectedCPUTime, MockUser user) {
+    public JobStatistic(String jobName, int expectedCPUTime, MockUser user, long jobID) {
         this.jobName = jobName;
         this.expectedCPUTime = expectedCPUTime;
         this.user = user;
+        this.jobID = jobID;
     }
 
     public void registerStatus(JobEntity.JobStatus newStatus, long timeStampMillis){

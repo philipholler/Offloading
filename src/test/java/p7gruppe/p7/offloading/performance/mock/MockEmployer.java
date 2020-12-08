@@ -7,6 +7,7 @@ import p7gruppe.p7.offloading.data.enitity.JobEntity.JobStatus;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.JobFiles;
+import p7gruppe.p7.offloading.model.JobId;
 import p7gruppe.p7.offloading.performance.APISupplier;
 import p7gruppe.p7.offloading.performance.JobStatistic;
 
@@ -58,13 +59,15 @@ public class MockEmployer implements Simulatable {
 
     private void uploadJob(MockJob mockJob){
         String jobName = String.valueOf(jobsPosted);
-        JobStatistic jobStatistic = new JobStatistic(jobName, mockJob.computationTimeMillis, this.mockUser);
+
         hasDownloadedResult.put(jobName, false);
 
-        ResponseEntity<Void> responseEntity = apiSupplier.jobsApi.postJob(mockUser.userCredentials, mockJob.answersNeeded, String.valueOf(jobsPosted), Integer.MAX_VALUE, mockJob.getComputationTimeAsBase64Bytes());
+        ResponseEntity<Long> responseEntity = apiSupplier.jobsApi.postJob(mockUser.userCredentials, mockJob.answersNeeded, String.valueOf(jobsPosted), Integer.MAX_VALUE, mockJob.getComputationTimeAsBase64Bytes());
         if (responseEntity.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Could not upload job from mock employer : " + mockUser.userCredentials);
         }
+
+        JobStatistic jobStatistic = new JobStatistic(jobName, mockJob.computationTimeMillis, this.mockUser, responseEntity.getBody());
 
         jobStatistic.registerUpload(System.currentTimeMillis());
         postedJobs.add(jobStatistic);

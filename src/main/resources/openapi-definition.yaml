@@ -209,9 +209,10 @@ paths:
         '200':
           description: Computed job
           content:
-            aplication/json:
+            text/plain:
               schema:
-                $ref: '#/components/schemas/JobId'
+                type: integer
+                format: int64
 
 
     get:
