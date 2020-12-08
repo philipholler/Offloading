@@ -212,7 +212,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         }
 
 
-        // Update assignment to set as done
+        // Update assignment to set as done. The assignment might be set as done, if the employers own worker has uploaded result
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
         Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
         if (!possibleAssignment.isPresent()){
@@ -227,7 +227,8 @@ public class AssignmentsApiController implements AssignmentsApi {
         // Give worker reward for contributing, if the worker and employer is not the same user
         UserEntity userContributing = device.getOwner();
         UserEntity employer = jobValue.getEmployer();
-        if(userContributing.getUserId() != employer.getUserId()){
+        boolean isUsersOwnDevice = userContributing.getUserId() == employer.getUserId();
+        if(!isUsersOwnDevice){
             long timeSpendOnAssignment = assignment.getTimeOfCompletionInMs() - assignment.getTimeOfAssignmentInMs();
             userContributing.setCpuTimeContributedInMs(userContributing.getCpuTimeContributedInMs() + timeSpendOnAssignment);
             userRepository.save(userContributing);
@@ -247,8 +248,26 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         Iterable<AssignmentEntity> assignmentsForJob = assignmentRepository.getAssignmentForJob(jobValue.getJobId());
 
-        // Check that enough assignments have been made
-        if(jobValue.workersAssigned == jobValue.answersNeeded){
+        // If the device belongs to the user, we assume the answer to be correct.
+        if(isUsersOwnDevice){
+            // Set all assignments for job to done
+            // This causes the scheduler to make them stop the job when pinging
+            for(AssignmentEntity a : assignmentsForJob){
+                a.setStatus(AssignmentEntity.Status.DONE);
+                assignmentRepository.save(a);
+            }
+
+            // Save correct result file, i.e. the result from the users own worker
+            jobFileManager.saveFinalResultFromSpecificAssignment(assignment.getAssignmentId(), jobValue.getJobPath());
+
+            // Set job to done and confidence to 1.0, since it was the employers own worker
+            jobValue.setJobStatus(JobEntity.JobStatus.DONE);
+            jobValue.setConfidenceLevel(1.0);
+            jobRepository.save(jobValue);
+        }
+        // If worker does not belong to user, check that all assignments are done
+        // If done update statuses and extract the best result file.
+        else if(jobValue.workersAssigned == jobValue.answersNeeded){
             // Check that all assignments are done
             boolean allAssignmentsDone = true;
             for (AssignmentEntity assig : assignmentsForJob){
@@ -273,6 +292,7 @@ public class AssignmentsApiController implements AssignmentsApi {
                         assignmentRepository.save(assig);
                     }
                     jobRepository.save(jobValue);
+                    // Simply take any intermediate file, since they all agree
                     jobFileManager.saveFinalResultFromIntermediate(jobValue.getJobPath());
                 }
                 else {
@@ -283,7 +303,7 @@ public class AssignmentsApiController implements AssignmentsApi {
                         assignmentRepository.save(assig);
                     }
                     // Save the file with the highest confidence level as final result
-                    jobFileManager.saveFinalResultFromIntermediaConfidence(confidenceLevelAndBestFile.getFirst().getAbsolutePath(),jobValue.getJobPath());
+                    jobFileManager.saveFinalResultFromIntermediateWithConfidence(confidenceLevelAndBestFile.getFirst().getAbsolutePath(),jobValue.getJobPath());
                     jobRepository.save(jobValue);
                 }
             }

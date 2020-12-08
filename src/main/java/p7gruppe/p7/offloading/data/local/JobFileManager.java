@@ -33,6 +33,19 @@ public class JobFileManager {
         return directoryPath;
     }
 
+    public void saveFinalResultFromSpecificAssignment(long assignmentId, String jobPath){
+        String resultDirectoryPath = pathResolver.generateNewResultFolder(jobPath);
+        File f = new File(resultDirectoryPath + File.separator + INTERMEDIATE_RESULT_FILE_NAME + assignmentId + ".zip");
+
+        File finalResultFile = new File(jobPath + File.separator + RESULT_FILE_NAME);
+
+        try {
+            FileUtils.copyFile(f, finalResultFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public String saveResult(String path, byte[] fileBytes, long assignmentId) throws IOException {
         String resultDirectoryPath = pathResolver.generateNewResultFolder(path);
         File f = new File(resultDirectoryPath + File.separator + INTERMEDIATE_RESULT_FILE_NAME + assignmentId + ".zip");
@@ -40,7 +53,7 @@ public class JobFileManager {
         return resultDirectoryPath;
     }
 
-    public void saveFinalResultFromIntermediaConfidence(String pathToBestFile, String jobPath){
+    public void saveFinalResultFromIntermediateWithConfidence(String pathToBestFile, String jobPath){
         String resultDirectoryPath = pathResolver.generateNewResultFolder(jobPath);
         File bestFile = new File(pathToBestFile);
 
