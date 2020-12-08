@@ -20,6 +20,8 @@ public class JobStatistic {
     private boolean assignedToAnyUser = false;
     private long assignmentTime = 0L;
 
+    public final long jobID;
+
     public JobStatistic(String jobName, int expectedCPUTime, MockUser user) {
         this.jobName = jobName;
         this.expectedCPUTime = expectedCPUTime;

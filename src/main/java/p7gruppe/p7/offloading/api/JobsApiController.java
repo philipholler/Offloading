@@ -10,12 +10,12 @@ import p7gruppe.p7.offloading.converters.FileStringConverter;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.local.JobFileManager;
-import p7gruppe.p7.offloading.data.managers.PrioritizationManager;
 import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.JobFiles;
+import p7gruppe.p7.offloading.model.JobId;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
@@ -56,8 +56,9 @@ public class JobsApiController implements JobsApi {
 
     }
 
+
     @Override
-    public ResponseEntity<Void> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
+    public ResponseEntity<JobId> postJob(UserCredentials userCredentials, @NotNull @Valid Integer workersRequested, @NotNull @Valid String jobname, @NotNull @Valid Integer timeout, @Valid byte[] body) {
         if (!userRepository.isPasswordCorrect(userCredentials.getUsername(), userCredentials.getPassword())) {
             return ResponseEntity.badRequest().build();
         }
@@ -73,7 +74,7 @@ public class JobsApiController implements JobsApi {
             // PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository, assignmentRepository);
             // prioritizationManager.calculateInitialJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(new JobId().jobID(jobEntity.getJobId()));
         } catch (IOException e) {
             // Fatal server io error // todo add error logging
             return ResponseEntity.status(500).build();
