@@ -1,6 +1,5 @@
 package p7gruppe.p7.offloading.api;
 
-import kotlin.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -85,7 +84,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
 
         long userID = userRepository.getUserID(userCredentials.getUsername());
-            // Check if device belongs to user
+        // Check if device belongs to user
         if(!deviceRepository.doesDeviceBelongToUser(deviceId.getImei(), userID)){
             System.out.println("GET_ASSIGNMENT - Device does not belong to user: " + deviceId + " " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
@@ -127,12 +126,20 @@ public class AssignmentsApiController implements AssignmentsApi {
             } catch (IOException e) {
                 return ResponseEntity.status(500).build();
             }
-            // create assignment entity to save in the database
-            AssignmentEntity assignmentEntity = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, device, job.get());
-            // Update workers assigned
-            jobValue.workersAssigned++;
-            // Set status to Proccesing (it might already be, but then it doesn't make a difference)
-            jobValue.jobStatus = JobEntity.JobStatus.PROCESSING;
+
+            AssignmentEntity assignmentEntity = null;
+            if(jobScheduler.usingTestAssignments() && !jobScheduler.shouldTrustDevice(device)){
+                // The worker is not trusted, but gets the assignment anyway to get a chance
+                // His answer is not counted, but his trustscore can increase, if his answer is correct
+                assignmentEntity = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, device, job.get(), true);
+            } else {
+                // create assignment entity to save in the database
+                assignmentEntity = new AssignmentEntity(AssignmentEntity.Status.PROCESSING, device, job.get(), false);
+                // Update workers assigned
+                jobValue.workersAssigned++;
+                // Set status to Proccesing (it might already be, but then it doesn't make a difference)
+                jobValue.jobStatus = JobEntity.JobStatus.PROCESSING;
+            }
 
             // Increase cpu time spent by timeout for employer. This decreases his priority
             // Only if the job and device is not his own
@@ -248,7 +255,10 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         // If present upload file
         try {
-            jobFileManager.saveResult(jobValue.jobPath, jobFileManager.decodeFromBase64(jobresult.getResult().getData()), assignment.getAssignmentId());
+            jobFileManager.saveResult(jobValue.jobPath,
+                    jobFileManager.decodeFromBase64(jobresult.getResult().getData()),
+                    assignment.getAssignmentId(),
+                    assignment.isTrustTestAssignment);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -275,10 +285,11 @@ public class AssignmentsApiController implements AssignmentsApi {
         // If worker does not belong to user, check that all assignments are done
         // If done update statuses and extract the best result file.
         else if(jobValue.workersAssigned == jobValue.answersNeeded){
-            // Check that all assignments are done
+            // Check that all assignments are done, that are not test assigments
             boolean allAssignmentsDone = true;
             for (AssignmentEntity assig : assignmentsForJob){
-                if(assig.getStatus() != AssignmentEntity.Status.DONE_NOT_CHECKED){
+                // Only count if real workers are not done. Ignore test assignments
+                if(assig.getStatus() != AssignmentEntity.Status.DONE_NOT_CHECKED && !assig.isTrustTestAssignment){
                     allAssignmentsDone = false;
                     break;
                 }
@@ -290,13 +301,21 @@ public class AssignmentsApiController implements AssignmentsApi {
 
                 // Update assignment status and reward worker according to result
                 for(AssignmentEntity assig : assignmentsForJob){
+                    // Just kill test assignments by setting them done if all other "real" workers are done
+                    if(assig.isTrustTestAssignment){
+                        assig.setTimeOfCompletionInMs(System.currentTimeMillis());
+                    }
                     assig.setStatus(AssignmentEntity.Status.DONE);
                     assignmentRepository.save(assig);
                     // increment assignments done
                     DeviceEntity worker = assig.worker;
                     // If the device was in the majority with results, increment the finishedAssignments correct.
-                    if(confidenceData.getCorrectDevices().contains(worker.getDeviceId())){
+                    if(confidenceData.getCorrectWorkers().contains(worker.getDeviceId())
+                        || confidenceData.getCorrectTestWorkers().contains(worker.getDeviceId())){
                         worker.incrementAssignmentsFinishedCorrectResult();
+                        worker.updateTrustScore(true);
+                    } else {
+                        worker.updateTrustScore(false);
                     }
                     deviceRepository.save(worker);
                 }
@@ -320,7 +339,6 @@ public class AssignmentsApiController implements AssignmentsApi {
             }
 
         }
-
         return ResponseEntity.ok().build();
     }
 

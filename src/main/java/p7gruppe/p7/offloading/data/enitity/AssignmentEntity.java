@@ -22,11 +22,14 @@ public class AssignmentEntity {
 
     public long timeOfCompletionInMs;
 
-    public AssignmentEntity(Status status, DeviceEntity worker, JobEntity job) {
+    public boolean isTrustTestAssignment;
+
+    public AssignmentEntity(Status status, DeviceEntity worker, JobEntity job, boolean trustTestAssignment) {
         this.status = status;
         this.worker = worker;
         this.job = job;
         this.timeOfAssignmentInMs = System.currentTimeMillis();
+        this.isTrustTestAssignment = trustTestAssignment;
     }
 
     protected AssignmentEntity() {}
