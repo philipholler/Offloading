@@ -17,12 +17,14 @@ public class DeviceEntity {
     private UserEntity owner;
     private int assignmentsFinished;
     private int assignmentsFinishedCorrectResult;
+    public double trustScore;
 
     public DeviceEntity(UserEntity owner, String imei) {
         this.owner = owner;
         this.imei = imei;
         this.assignmentsFinished = 0;
         this.assignmentsFinishedCorrectResult = 0;
+        this.trustScore = 0.5;
     }
 
     public UserEntity getOwner() {
@@ -56,5 +58,14 @@ public class DeviceEntity {
 
     public void incrementAssignmentsFinishedCorrectResult(){
         this.assignmentsFinishedCorrectResult++;
+    }
+
+    public void updateTrustScore(boolean correctResult){
+        if(correctResult){
+            this.trustScore = Math.min(1.0, this.trustScore + 0.05);
+        }
+        else {
+            this.trustScore = this.trustScore / 2;
+        }
     }
 }

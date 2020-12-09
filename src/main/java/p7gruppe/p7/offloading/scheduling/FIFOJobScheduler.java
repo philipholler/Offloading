@@ -35,4 +35,14 @@ public class FIFOJobScheduler implements JobScheduler{
     public boolean shouldContinue(long assignmentID) {
         return true;
     }
+
+    @Override
+    public boolean usingTestAssignments() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldTrustDevice(DeviceEntity device) {
+        return true;
+    }
 }

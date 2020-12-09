@@ -15,20 +15,20 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
     // Map from hash of contents to files having this hash
     var resultMap: MutableMap<String, MutableList<String>> = mutableMapOf();
 
+
     for(file: File in fileList){
         var fileMap = getFileToHashMap(file)
         if(hasher.hash(fileMap.toString()) !in resultMap.keys){
             resultMap[hasher.hash(fileMap.toString())] = mutableListOf()
         }
-
-        resultMap[hasher.hash(fileMap.toString())]!!.add(file.absolutePath);
     }
 
     // Find biggest number of entries agreeing
     var highestNumberOfResults = 0;
     var highestNumberHash = "";
     for (key in resultMap.keys){
-        var list = resultMap[key]
+        // Filter to remove test assignments, which have the name _testAssig.zip at the end
+        var list = resultMap[key]!!.filter{ Regex(".*/result_file_([0-9]*).zip").containsMatchIn(it) };
         if(list!!.size > highestNumberOfResults){
             highestNumberOfResults = list.size
             highestNumberHash = key
@@ -40,9 +40,18 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
     // /Users/philipholler/IdeaProjects/Offloading/test_data/result_test/results/result_file_15.zip
     // Where 15 is the deviceid of the worker that completede the job
     for(f in resultMap[highestNumberHash]!!){
-        var matches = Regex(".*/result_file_([0-9]*).zip").find(f)!!
-        var workerId: Int = matches.groups.get(1)!!.value.toInt();
-        confidenceResultData.correctDevices.add(workerId);
+        if(Regex(".*/result_file_([0-9]*).zip").containsMatchIn(f)){
+            var matches = Regex(".*/result_file_([0-9]*).zip").find(f)!!
+            var workerId: Int = matches.groups.get(1)!!.value.toInt();
+            confidenceResultData.correctWorkers.add(workerId);
+        }
+        // Still give credit to test workers
+        else if(Regex(".*/result_file_([0-9]*)_testAssig.zip").containsMatchIn(f)){
+            var matches = Regex(".*/result_file_([0-9]*)_testAssig.zip").find(f)!!
+            var workerId: Int = matches.groups.get(1)!!.value.toInt();
+            confidenceResultData.correctTestWorkers.add(workerId)
+        }
+
     }
 
     confidenceResultData.bestFilePath = resultMap[highestNumberHash]!!.get(0)

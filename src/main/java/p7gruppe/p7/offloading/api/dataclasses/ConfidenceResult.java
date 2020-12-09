@@ -5,15 +5,17 @@ import java.util.ArrayList;
 public class ConfidenceResult{
     private double confidenceLevel;
     private String bestFilePath;
-    private ArrayList<Integer> correctDevices = new ArrayList<>();
+    private ArrayList<Integer> correctWorkers = new ArrayList<>();
+    private ArrayList<Integer> correctTestWorkers = new ArrayList<>();
 
     public ConfidenceResult() {
     }
 
-    public ConfidenceResult(double confidenceLevel, String bestFilePath, ArrayList<Integer> correctDevices) {
+    public ConfidenceResult(double confidenceLevel, String bestFilePath, ArrayList<Integer> correctWorkers, ArrayList<Integer> correctTestWorkers) {
         this.confidenceLevel = confidenceLevel;
         this.bestFilePath = bestFilePath;
-        this.correctDevices = correctDevices;
+        this.correctWorkers = correctWorkers;
+        this.correctTestWorkers = correctTestWorkers;
     }
 
     public double getConfidenceLevel() {
@@ -32,12 +34,16 @@ public class ConfidenceResult{
         this.bestFilePath = bestFilePath;
     }
 
-    public ArrayList<Integer> getCorrectDevices() {
-        return correctDevices;
+    public ArrayList<Integer> getCorrectWorkers() {
+        return correctWorkers;
     }
 
-    public void setCorrectDevices(ArrayList<Integer> correctDevices) {
-        this.correctDevices = correctDevices;
+    public void setCorrectWorkers(ArrayList<Integer> correctWorkers) {
+        this.correctWorkers = correctWorkers;
+    }
+
+    public ArrayList<Integer> getCorrectTestWorkers() {
+        return correctTestWorkers;
     }
 
     @Override
@@ -45,7 +51,7 @@ public class ConfidenceResult{
         return "ConfidenceResult{" +
                 "confidenceLevel=" + confidenceLevel +
                 ", bestFilePath='" + bestFilePath + '\'' +
-                ", correctDevices=" + correctDevices +
+                ", correctDevices=" + correctWorkers +
                 '}';
     }
 }

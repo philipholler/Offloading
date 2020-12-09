@@ -45,9 +45,12 @@ public class JobFileManager {
         }
     }
 
-    public String saveResult(String path, byte[] fileBytes, long assignmentId) throws IOException {
+    public String saveResult(String path, byte[] fileBytes, long assignmentId, boolean testAssignment) throws IOException {
         String resultDirectoryPath = pathResolver.generateNewResultFolder(path);
-        File f = new File(resultDirectoryPath + File.separator + INTERMEDIATE_RESULT_FILE_NAME + assignmentId + ".zip");
+        String resultpath = testAssignment
+                ? resultDirectoryPath + File.separator + INTERMEDIATE_RESULT_FILE_NAME + assignmentId + "_testAssig" + ".zip"
+                : resultDirectoryPath + File.separator + INTERMEDIATE_RESULT_FILE_NAME + assignmentId + ".zip";
+        File f = new File(resultpath);
         FileUtils.writeByteArrayToFile(f, fileBytes);
         return resultDirectoryPath;
     }
@@ -68,7 +71,8 @@ public class JobFileManager {
     public void saveFinalResultFromIntermediate(String jobPath) {
         String resultDirectoryPath = pathResolver.generateNewResultFolder(jobPath);
         File f = new File(resultDirectoryPath + File.separator);
-        File firstResult = f.listFiles()[0];
+        // Get first file, that is not a test assignment file
+        File firstResult = (File) Arrays.stream(f.listFiles()).filter(it -> !it.getAbsolutePath().endsWith("_testAssig.zip")).toArray()[0];
 
         File finalResultFile = new File(jobPath + File.separator + RESULT_FILE_NAME);
         try {

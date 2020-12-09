@@ -10,4 +10,6 @@ public interface JobScheduler {
     Optional<JobEntity> assignJob(DeviceEntity device);
     Optional<JobEntity> assignJob(DeviceEntity device, JobFilter jobFilter);
     boolean shouldContinue(long assignmentID);
+    boolean usingTestAssignments();
+    boolean shouldTrustDevice(DeviceEntity device);
 }
