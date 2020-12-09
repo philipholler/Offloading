@@ -30,7 +30,7 @@ public class MockWorker implements Simulatable {
     // Default activation policy is that it is always active
     private Function<Long, Boolean> activationPolicy = (time) -> true;
 
-    private final WorkerStatistic statistic;
+    public final WorkerStatistic statistic;
 
     public void setActivationPolicy(Function<Long, Boolean> activationPolicy) {
         this.activationPolicy = activationPolicy;
@@ -55,6 +55,8 @@ public class MockWorker implements Simulatable {
 
         long now = System.currentTimeMillis();
         boolean isActive = activationPolicy.apply(now);
+
+        statistic.registerActiveStatus(System.currentTimeMillis(), isActive);
 
         if (!isActive) {
             if (isWorkingJob) {

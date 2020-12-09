@@ -1,13 +1,19 @@
 package p7gruppe.p7.offloading.performance;
 
 import p7gruppe.p7.offloading.performance.mock.MockUser;
+import p7gruppe.p7.offloading.statistics.DataPoint;
 
-public class WorkerStatistic extends Statistic{
+import java.util.ArrayList;
+import java.util.List;
+
+public class WorkerStatistic extends Statistic {
 
     private long lastStatusUpdateTime = 0L;
-    boolean isIdle = true;
+    boolean currentIsActiveStatus = false;
     private long idleTime = 0;
     private long processingTime = 0;
+
+    private List<DataPoint<Long>> contributionOverTime = new ArrayList<>();
 
     private final MockUser owner;
 
@@ -16,48 +22,54 @@ public class WorkerStatistic extends Statistic{
     }
 
     @Override
-    public void startRecording(long startTime){
+    public void startRecording(long startTime) {
         super.startRecording(startTime);
+        contributionOverTime.add(new DataPoint<>(startTime, 0L));
         lastStatusUpdateTime = startTime;
     }
 
+    public List<DataPoint<Long>> getContributionOverTime() {
+        return contributionOverTime;
+    }
+
     @Override
-    public void stopRecording(long stopTime){
+    public void stopRecording(long stopTime) {
         super.stopRecording(stopTime);
         updateStatusTime(stopTime);
     }
 
-    protected void registerIdleStatus(long time, boolean updatedIsIdle) {
+    public void registerActiveStatus(long time, boolean newIsActive) {
         assertRecording("registerIdleStatus()");
+        if (newIsActive == currentIsActiveStatus) return;
         updateStatusTime(time);
-        isIdle = updatedIsIdle;
+        currentIsActiveStatus = newIsActive;
     }
 
-    private void updateStatusTime(long newRegisterTime){
+    private void updateStatusTime(long newRegisterTime) {
         long difference = newRegisterTime - lastStatusUpdateTime;
-        if (isIdle) {
-           idleTime += difference;
-        } else {
-            processingTime += difference;
-        }
+
+        if (currentIsActiveStatus) { processingTime += difference; }
+        else { idleTime += difference; }
+
+        contributionOverTime.add(new DataPoint<>(newRegisterTime, processingTime));
         lastStatusUpdateTime = newRegisterTime;
     }
 
-    public long getIdleTime(){
+    public long getIdleTime() {
         assertStopped("getIdleTime()");
         return idleTime;
     }
 
-    public long getProcessingTime(){
+    public long getProcessingTime() {
         assertStopped("getProcessingTime()");
         return processingTime;
     }
 
-    public MockUser getOwner(){
+    public MockUser getOwner() {
         return owner;
     }
 
-    public boolean isMalicious(){
+    public boolean isMalicious() {
         return owner.isMalicious;
     }
 }

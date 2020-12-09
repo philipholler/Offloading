@@ -32,7 +32,7 @@ public class RandomIntervalJobSpawner implements JobSpawner {
             return Optional.empty();
 
         int deviation = random.nextInt(maximumJobIntervalDeviationMillis * 2) - maximumJobIntervalDeviationMillis;
-        nextJobTime += System.currentTimeMillis() + averageJobIntervalMillis +  deviation;
+        nextJobTime = System.currentTimeMillis() + averageJobIntervalMillis +  deviation;
         return Optional.of(createNewJob());
     }
 

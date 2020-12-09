@@ -22,6 +22,7 @@ public class MockWorkerGenerator {
     public List<MockWorker> generateWorkers(int amountOfWorkers, List<MockUser> users, long randomSeed){
         List<Double> cpuTimeFactor = cpuDistributionSupplier.getDistribution(randomSeed, amountOfWorkers);
         List<MockWorker> mockWorkers = new ArrayList<>();
+
         for (int i = 0; i < amountOfWorkers; i++){
             MockUser user = users.get(i % users.size());
             String deviceID = String.valueOf(i);

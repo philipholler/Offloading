@@ -88,7 +88,8 @@ public class PerformanceTest {
         System.out.println();
 
         List<DataPoint<Long>> userCPUTime = ServerStatistic.getCPUTimeDataPoints("user1");
-        System.out.println("User cpu time: " + Arrays.toString(userCPUTime.toArray()));
+        System.out.println("Server view of user cpu contribution: " + Arrays.toString(userCPUTime.toArray()));
+        System.out.println("Worker activation time: " + summary.getActivationOverTime("1"));
     }
 
     @Test

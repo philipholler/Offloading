@@ -2,6 +2,8 @@ package p7gruppe.p7.offloading.performance;
 
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.performance.mock.MockEmployer;
+import p7gruppe.p7.offloading.performance.mock.MockUser;
+import p7gruppe.p7.offloading.performance.mock.MockWorker;
 import p7gruppe.p7.offloading.performance.mock.UserBase;
 import p7gruppe.p7.offloading.statistics.DataPoint;
 
@@ -152,5 +154,15 @@ public class StatisticsSummary {
             double confidence = jobEntityOptional.get().confidenceLevel;
             return confidence >= 0.99d && job.isResultCorrect();
         }).count();
+    }
+
+    // Sum activation of all devices for a given user over time
+    public List<DataPoint<Long>> getActivationOverTime(String deviceImei) {
+        for (MockWorker worker : userBase.getWorkers()) {
+            if (worker.deviceId.getImei().equals(deviceImei)) {
+                return worker.statistic.getContributionOverTime();
+            }
+        }
+        throw new RuntimeException("No user with name " + deviceImei);
     }
 }
