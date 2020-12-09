@@ -16,7 +16,7 @@ public class CpuTimeoutScheduler implements JobScheduler{
 
     @Override
     public Optional<JobEntity> assignJob(DeviceEntity device) {
-        JobEntity newJob = jobRepository.getJobWithHighestPriority();
+        JobEntity newJob = jobRepository.getJobWithHighestUserPriority();
         if (newJob != null) return Optional.of(newJob);
         return Optional.empty();
     }
