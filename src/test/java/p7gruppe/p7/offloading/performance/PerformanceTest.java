@@ -110,8 +110,19 @@ public class PerformanceTest {
         ExcelWriter excelWriter = new ExcelWriter();
         excelWriter.writeDataPoints("test" + File.separator + "singleDataSet.xlsx", userCPUTime, "x", "y");
 
-        excelWriter.writeMultiDataPoints("test" + File.separator + "multiDataSet.xlsx", Arrays.asList(userCPUTime, summary.getActivationOverTime("1")), new String[]{"", "", ""});
+        excelWriter.writeMultiDataPoints("test" + File.separator + "Activation_time_vs_banked_time.xlsx",
+                Arrays.asList(userCPUTime, summary.getActivationOverTime("1")), new String[]{"x", "Activation Time", "Banked Time"});
 
+        List<StatPoint> statPoints = new ArrayList<>();
+
+
+        statPoints.add(new StatPoint("Amount of completed jobs", String.valueOf(summary.getAmountOfResults())));
+        statPoints.add(new StatPoint("Amount of incorrect results", String.valueOf(summary.getAmountOfMaliciousResults())));
+        statPoints.add(new StatPoint("Correct 100% confidence results (Throughput)", String.valueOf(summary.getTotalThroughput())));
+
+        statPoints.add(new StatPoint("Average confidence", String.valueOf(summary.averageConfidence())));
+        statPoints.add(new StatPoint("Average job completion time", String.valueOf(summary.getAverageJobTimeForFinishedJobsMillis())));
+        statPoints.add(new StatPoint("Maximum job completion time", String.valueOf(summary.getMaximumTimeFromUploadTillProcessedMillis())));
 
 
 
