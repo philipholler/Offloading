@@ -65,14 +65,8 @@ public class JobsApiController implements JobsApi {
         try {
             byte[] decoded = JobFileManager.decodeFromBase64(body);
             String path = jobFileManager.saveJob(userCredentials.getUsername(), decoded);
-            //System.out.println("Job saved...");
             UserEntity userEntity = userRepository.getUserByUsername(userCredentials.getUsername());
-            //System.out.println("Username pulled");
             JobEntity jobEntity = jobRepository.save(new JobEntity(userEntity, path, jobname, workersRequested, timeout));
-            //System.out.println("Job entity saved...");
-            //updates user cpu time and sets job priority
-            // PrioritizationManager prioritizationManager = new PrioritizationManager(userRepository, jobRepository, assignmentRepository);
-            // prioritizationManager.calculateInitialJobPriority(userCredentials.getUsername(), jobEntity.getJobId());
 
             return ResponseEntity.ok(jobEntity.getJobId());
         } catch (IOException e) {
@@ -117,9 +111,8 @@ public class JobsApiController implements JobsApi {
         File file = jobFileManager.getJobFile(job.get().jobPath);
 
         try {
-            byte[] bytes = FileStringConverter.fileToBytes(file); // These bytes ARE correct.
+            byte[] bytes = FileStringConverter.fileToBytes(file);
 
-            // byte[] encoded = Base64.getEncoder().encodeToString(bytes).getBytes(); // These are WRONG.
             JobFiles jobfiles = new JobFiles();
             jobfiles.setData(bytes);
             jobfiles.jobid(jobId);

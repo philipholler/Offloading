@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.NativeWebRequest;
+import p7gruppe.p7.offloading.api.dataclasses.ConfidenceResult;
 import p7gruppe.p7.offloading.converters.FileStringConverter;
 import p7gruppe.p7.offloading.data.enitity.AssignmentEntity;
 import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
@@ -211,8 +212,9 @@ public class AssignmentsApiController implements AssignmentsApi {
             jobValue = job.get();
         }
 
-
-        // Update assignment to set as done
+        /*
+        Update the assignment status, if it is present in the database
+         */
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
         Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
         if (!possibleAssignment.isPresent()){
@@ -227,7 +229,9 @@ public class AssignmentsApiController implements AssignmentsApi {
         // Give worker reward for contributing, if the worker and employer is not the same user
         UserEntity userContributing = device.getOwner();
         UserEntity employer = jobValue.getEmployer();
-        if(userContributing.getUserId() != employer.getUserId()){
+        boolean isUsersOwnDevice = userContributing.getUserId() == employer.getUserId();
+        if(!isUsersOwnDevice){
+            // Reward the user
             long timeSpendOnAssignment = assignment.getTimeOfCompletionInMs() - assignment.getTimeOfAssignmentInMs();
             userContributing.setCpuTimeContributedInMs(userContributing.getCpuTimeContributedInMs() + timeSpendOnAssignment);
             userRepository.save(userContributing);
@@ -236,6 +240,10 @@ public class AssignmentsApiController implements AssignmentsApi {
             long originalTimeoutInMs = jobValue.getTimeoutInMinutes() * 60 * 1000;
             long newCpuTimeSpent = employer.getCpuTimeSpentInMs() + originalTimeoutInMs - timeSpendOnAssignment;
             userRepository.save(employer);
+
+            // Reward the device for finishing
+            device.incrementAssignmentsFinished();
+            deviceRepository.save(device);
         }
 
         // If present upload file
@@ -247,8 +255,26 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         Iterable<AssignmentEntity> assignmentsForJob = assignmentRepository.getAssignmentForJob(jobValue.getJobId());
 
-        // Check that enough assignments have been made
-        if(jobValue.workersAssigned == jobValue.answersNeeded){
+        // If the device belongs to the user, we assume the answer to be correct.
+        if(isUsersOwnDevice){
+            // Set all assignments for job to done
+            // This causes the scheduler to make them stop the job when pinging
+            for(AssignmentEntity a : assignmentsForJob){
+                a.setStatus(AssignmentEntity.Status.DONE);
+                assignmentRepository.save(a);
+            }
+
+            // Save correct result file, i.e. the result from the users own worker
+            jobFileManager.saveFinalResultFromSpecificAssignment(assignment.getAssignmentId(), jobValue.getJobPath());
+
+            // Set job to done and confidence to 1.0, since it was the employers own worker
+            jobValue.setJobStatus(JobEntity.JobStatus.DONE);
+            jobValue.setConfidenceLevel(1.0);
+            jobRepository.save(jobValue);
+        }
+        // If worker does not belong to user, check that all assignments are done
+        // If done update statuses and extract the best result file.
+        else if(jobValue.workersAssigned == jobValue.answersNeeded){
             // Check that all assignments are done
             boolean allAssignmentsDone = true;
             for (AssignmentEntity assig : assignmentsForJob){
@@ -260,30 +286,35 @@ public class AssignmentsApiController implements AssignmentsApi {
 
             // If all assignments done, check equality of results
             if(allAssignmentsDone){
-                Pair<File, Double> confidenceLevelAndBestFile = getConfidenceLevelAndBestFile(jobValue.getJobPath());
+                ConfidenceResult confidenceData = getConfidenceLevelAndBestFile(jobValue.getJobPath());
+
+                // Update assignment status and reward worker according to result
+                for(AssignmentEntity assig : assignmentsForJob){
+                    assig.setStatus(AssignmentEntity.Status.DONE);
+                    assignmentRepository.save(assig);
+                    // increment assignments done
+                    DeviceEntity worker = assig.worker;
+                    // If the device was in the majority with results, increment the finishedAssignments correct.
+                    if(confidenceData.getCorrectDevices().contains(worker.getDeviceId())){
+                        worker.incrementAssignmentsFinishedCorrectResult();
+                    }
+                    deviceRepository.save(worker);
+                }
 
                 double delta = 0.001;
-
-                // If the confidence is 1.0
-                if(Math.abs(confidenceLevelAndBestFile.getSecond() - 1.0) < delta){
+                // If the confidence is 1.0, all agree with the result
+                if(Math.abs(confidenceData.getConfidenceLevel() - 1.0) < delta){
                     jobValue.setJobStatus(JobEntity.JobStatus.DONE);
-                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.getSecond());
-                    for(AssignmentEntity assig : assignmentsForJob){
-                        assig.setStatus(AssignmentEntity.Status.DONE);
-                        assignmentRepository.save(assig);
-                    }
+                    jobValue.setConfidenceLevel(confidenceData.getConfidenceLevel());
                     jobRepository.save(jobValue);
+                    // Simply take any intermediate file, since they all agree
                     jobFileManager.saveFinalResultFromIntermediate(jobValue.getJobPath());
                 }
                 else {
                     jobValue.setJobStatus(JobEntity.JobStatus.DONE_CONFLICTING_RESULTS);
-                    jobValue.setConfidenceLevel(confidenceLevelAndBestFile.getSecond());
-                    for(AssignmentEntity assig : assignmentsForJob){
-                        assig.setStatus(AssignmentEntity.Status.DONE_MAYBE_WRONG);
-                        assignmentRepository.save(assig);
-                    }
+                    jobValue.setConfidenceLevel(confidenceData.getConfidenceLevel());
                     // Save the file with the highest confidence level as final result
-                    jobFileManager.saveFinalResultFromIntermediaConfidence(confidenceLevelAndBestFile.getFirst().getAbsolutePath(),jobValue.getJobPath());
+                    jobFileManager.saveFinalResultFromIntermediateWithConfidence(confidenceData.getBestFilePath(),jobValue.getJobPath());
                     jobRepository.save(jobValue);
                 }
             }
@@ -304,17 +335,13 @@ public class AssignmentsApiController implements AssignmentsApi {
     }
 
 
-
-    public Pair<File, Double> getConfidenceLevelAndBestFile(String pathToJobDir){
+    public ConfidenceResult getConfidenceLevelAndBestFile(String pathToJobDir){
         ArrayList<File> resultFiles = new ArrayList<>();
 
         File directoryFile = new File(pathToJobDir + File.separator + "results" + File.separator);
         for(File f : directoryFile.listFiles()){
             resultFiles.add(f);
         }
-
-        // If only 1 result
-        if (resultFiles.size() == 1) return new Pair(resultFiles.get(0), 1.0);
 
         return FileUtilsKt.getConfidenceLevel(resultFiles);
     }

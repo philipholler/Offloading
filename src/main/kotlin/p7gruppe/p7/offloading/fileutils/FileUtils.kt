@@ -1,5 +1,6 @@
 package p7gruppe.p7.offloading.fileutils;
 
+import p7gruppe.p7.offloading.api.dataclasses.ConfidenceResult
 import java.io.*
 import java.lang.StringBuilder
 import java.util.*
@@ -9,7 +10,8 @@ import java.util.zip.ZipOutputStream
 
 val hasher: Hasher = Hasher()
 
-fun getConfidenceLevel(fileList: List<File>) : Pair<File, Double>{
+fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
+    var confidenceResultData: ConfidenceResult = ConfidenceResult();
     // Map from hash of contents to files having this hash
     var resultMap: MutableMap<String, MutableList<String>> = mutableMapOf();
 
@@ -33,7 +35,20 @@ fun getConfidenceLevel(fileList: List<File>) : Pair<File, Double>{
         }
     }
 
-    return Pair(File(resultMap[highestNumberHash]!!.get(0)), highestNumberOfResults.toDouble() / fileList.size.toDouble());
+    // Add devices, that were in the majority result group
+    // Paths looke like this
+    // /Users/philipholler/IdeaProjects/Offloading/test_data/result_test/results/result_file_15.zip
+    // Where 15 is the deviceid of the worker that completede the job
+    for(f in resultMap[highestNumberHash]!!){
+        var matches = Regex(".*/result_file_([0-9]*).zip").find(f)!!
+        var workerId: Int = matches.groups.get(1)!!.value.toInt();
+        confidenceResultData.correctDevices.add(workerId);
+    }
+
+    confidenceResultData.bestFilePath = resultMap[highestNumberHash]!!.get(0)
+    confidenceResultData.confidenceLevel = highestNumberOfResults.toDouble() / fileList.size.toDouble()
+
+    return confidenceResultData;
 }
 
 fun checkZipFilesEquality(file1: File, file2: File): Boolean{
