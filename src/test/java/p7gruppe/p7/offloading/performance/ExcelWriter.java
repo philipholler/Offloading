@@ -48,7 +48,15 @@ public class ExcelWriter {
         for (DataPoint<T> dp : dataPoints) {
             Row row = sheet.createRow(i++);
             row.createCell(0).setCellValue(dp.timestamp);
-            row.createCell(1).setCellValue(String.valueOf(dp.value));
+            if(dp.value instanceof Long) {
+                row.createCell(1).setCellValue((Long) dp.value);
+            } else if (dp.value instanceof Double) {
+                row.createCell(1).setCellValue((Double) dp.value);
+            } else if (dp.value instanceof Integer) {
+                row.createCell(1).setCellValue((Integer) dp.value);
+            } else {
+                row.createCell(1).setCellValue(String.valueOf(dp.value));
+            }
         }
         resizeAllColumnSizes(new String[]{col1, col2}, sheet);
         saveWorkbook(workbook, path);
@@ -67,7 +75,15 @@ public class ExcelWriter {
             for (DataPoint<T> dataPoint : dataList) {
                 Row row = sheet.createRow(rowCount++);
                 row.createCell(0).setCellValue(dataPoint.timestamp);
-                row.createCell(columnCount).setCellValue(String.valueOf(dataPoint.value));
+                if(dataPoint.value instanceof Long) {
+                    row.createCell(columnCount).setCellValue((Long) dataPoint.value);
+                } else if (dataPoint.value instanceof Double) {
+                    row.createCell(columnCount).setCellValue((Double) dataPoint.value);
+                } else if (dataPoint.value instanceof Integer) {
+                    row.createCell(columnCount).setCellValue((Integer) dataPoint.value);
+                } else {
+                    row.createCell(columnCount).setCellValue(String.valueOf(dataPoint.value));
+                }
             }
             columnCount++;
         }

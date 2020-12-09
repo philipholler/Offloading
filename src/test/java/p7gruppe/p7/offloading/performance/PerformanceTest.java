@@ -108,9 +108,13 @@ public class PerformanceTest {
         System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.value)).toArray()));
 
         ExcelWriter excelWriter = new ExcelWriter();
-        excelWriter.writeDataPoints("test" + File.separator + "sinlgeDataSet.xlsx", userCPUTime, "x", "y");
-        ;
+        excelWriter.writeDataPoints("test" + File.separator + "singleDataSet.xlsx", userCPUTime, "x", "y");
+
         excelWriter.writeMultiDataPoints("test" + File.separator + "multiDataSet.xlsx", Arrays.asList(userCPUTime, summary.getActivationOverTime("1")), new String[]{"", "", ""});
+
+
+
+
     }
 
     @Test
