@@ -92,6 +92,21 @@ public class ExcelWriter {
         saveWorkbook(workbook, path);
     }
 
+    public void writeStatPoints(String relativePath, List<StatPoint> statPoints){
+        String path = getStatisticsPath(relativePath);
+        Workbook workbook = getOrCreateWorkbook(path);
+        Sheet sheet = getOrCreateSheet(workbook, "main");
+
+        int rowCount = 0;
+        for (StatPoint statPoint : statPoints) {
+            Row row = sheet.createRow(rowCount++);
+            row.createCell(0).setCellValue(statPoint.name);
+            row.createCell(1).setCellValue(statPoint.value);
+        }
+
+        saveWorkbook(workbook, path);
+    }
+
     private void createHeaders(Workbook workbook, Sheet sheet, String[] header) {
         // Create a Font for styling header cells
         Font headerFont = workbook.createFont();

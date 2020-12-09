@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import p7gruppe.p7.offloading.api.AssignmentsApiController;
 import p7gruppe.p7.offloading.api.JobsApiController;
 import p7gruppe.p7.offloading.api.UsersApiController;
@@ -40,6 +41,9 @@ public class PerformanceTest {
     JobRepository jobRepository;
     @Autowired
     AssignmentRepository assignmentRepository;
+
+    @Autowired
+    Environment environment;
 
     static final long RANDOM_SEED = 123456789L;
     private APISupplier apiSupplier;
@@ -82,7 +86,6 @@ public class PerformanceTest {
         System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults());
         System.out.println("Average confidence : " + summary.averageConfidence());
         System.out.println("Total Throughput : " + summary.getTotalThroughput());
-        System.out.println(Arrays.toString(summary.getThroughputOverTime(1000)));
         System.out.println("Confidence over time: ");
         for (DataPoint<Double> dataPoint : summary.confidenceDataPoints()) {
             System.out.print("(" + dataPoint.timestamp / 1000 + ", " + dataPoint.value + "), ");
@@ -107,14 +110,10 @@ public class PerformanceTest {
         System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.timestamp)).toArray()));
         System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.value)).toArray()));
 
-        ExcelWriter excelWriter = new ExcelWriter();
-        excelWriter.writeDataPoints("test" + File.separator + "singleDataSet.xlsx", userCPUTime, "x", "y");
-
-        excelWriter.writeMultiDataPoints("test" + File.separator + "Activation_time_vs_banked_time.xlsx",
-                Arrays.asList(userCPUTime, summary.getActivationOverTime("1")), new String[]{"x", "Activation Time", "Banked Time"});
 
         List<StatPoint> statPoints = new ArrayList<>();
 
+        String profile = environment.getActiveProfiles()[0];
 
         statPoints.add(new StatPoint("Amount of completed jobs", String.valueOf(summary.getAmountOfResults())));
         statPoints.add(new StatPoint("Amount of incorrect results", String.valueOf(summary.getAmountOfMaliciousResults())));
@@ -123,6 +122,12 @@ public class PerformanceTest {
         statPoints.add(new StatPoint("Average confidence", String.valueOf(summary.averageConfidence())));
         statPoints.add(new StatPoint("Average job completion time", String.valueOf(summary.getAverageJobTimeForFinishedJobsMillis())));
         statPoints.add(new StatPoint("Maximum job completion time", String.valueOf(summary.getMaximumTimeFromUploadTillProcessedMillis())));
+
+        ExcelWriter excelWriter = new ExcelWriter();
+        excelWriter.writeStatPoints(profile + File.separator + "overview.xlsx", statPoints);
+        excelWriter.writeDataPoints(profile + File.separator + "throughput.xlsx", summary.getThroughputOverTime(5000), "Millis since start", "100% Confidence jobs completed");
+        excelWriter.writeMultiDataPoints(profile + File.separator + "Activation_time_vs_banked_time.xlsx",
+                Arrays.asList(userCPUTime, summary.getActivationOverTime("1")), new String[]{"x", "Activation Time", "Banked Time"});
 
 
 

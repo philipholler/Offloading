@@ -119,8 +119,8 @@ public class StatisticsSummary {
     }
 
 
-    public int[] getThroughputOverTime(int timeStepMillis) {
-        List<DataPoint<Double>> throughputOverTime = new ArrayList<>();
+    public List<DataPoint<Integer>> getThroughputOverTime(int timeStepMillis) {
+        List<DataPoint<Integer>> throughputOverTime = new ArrayList<>();
 
         List<JobStatistic> correctFullConfidenceJobs = allCompletedJobs().stream().filter((job) -> {
             Optional<JobEntity> jobEntityOptional = repositorySupplier.jobRepository.findById(job.jobID);
@@ -144,7 +144,11 @@ public class StatisticsSummary {
             throughputValues[index] += 1;
         }
 
-        return throughputValues;
+        for (int i = 0; i < throughputValues.length; i++) {
+            throughputOverTime.add(new DataPoint<Integer>(i * timeStepMillis, throughputValues[i]));
+        }
+
+        return throughputOverTime;
     }
 
     // Throughput is defined as correct 100% confidence results
