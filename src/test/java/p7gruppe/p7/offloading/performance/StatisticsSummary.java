@@ -51,17 +51,12 @@ public class StatisticsSummary {
         return (long) ((double) totalJobTime / (double) totalJobs);
     }
 
-    public int getAmountOfResults() {
-        int count = 0;
-        for (MockEmployer employer : userBase.getEmployers()) {
-            List<JobStatistic> jobs = employer.getJobsStatistics();
-            for (JobStatistic jobStat : jobs) {
-                if (jobStat.isJobCompleted()) {
-                    count++;
-                }
-            }
-        }
-        return count;
+    public int getAmountOfPostedJobs() {
+        return allJobs().size();
+    }
+
+    public int getAmountOfCompletedJobs() {
+        return allCompletedJobs().size();
     }
 
     public int getAmountOfMaliciousResults() {

@@ -83,7 +83,7 @@ public class PerformanceTest {
 
         System.out.println("MAX compute time : " + summary.getMaximumTimeFromUploadTillProcessedMillis() / 1000);
         System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
-        System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfResults());
+        System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfCompletedJobs());
         System.out.println("Average confidence : " + summary.averageConfidence());
         System.out.println("Total Throughput : " + summary.getTotalThroughput());
         System.out.println("Confidence over time: ");
@@ -115,7 +115,8 @@ public class PerformanceTest {
 
         String profile = environment.getActiveProfiles()[0];
 
-        statPoints.add(new StatPoint("Amount of completed jobs", String.valueOf(summary.getAmountOfResults())));
+        statPoints.add(new StatPoint("Amount of posted jobs", String.valueOf(summary.getAmountOfPostedJobs())));
+        statPoints.add(new StatPoint("Amount of completed jobs", String.valueOf(summary.getAmountOfCompletedJobs())));
         statPoints.add(new StatPoint("Amount of incorrect results", String.valueOf(summary.getAmountOfMaliciousResults())));
         statPoints.add(new StatPoint("Correct 100% confidence results (Throughput)", String.valueOf(summary.getTotalThroughput())));
 

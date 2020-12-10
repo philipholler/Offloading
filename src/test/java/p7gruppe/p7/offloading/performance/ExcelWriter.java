@@ -58,7 +58,7 @@ public class ExcelWriter {
                 row.createCell(1).setCellValue(String.valueOf(dp.value));
             }
         }
-        resizeAllColumnSizes(new String[]{col1, col2}, sheet);
+        resizeAllColumnSizes(2, sheet);
         saveWorkbook(workbook, path);
     }
 
@@ -88,7 +88,7 @@ public class ExcelWriter {
             columnCount++;
         }
 
-        resizeAllColumnSizes(headers, sheet);
+        resizeAllColumnSizes(2, sheet);
         saveWorkbook(workbook, path);
     }
 
@@ -103,7 +103,7 @@ public class ExcelWriter {
             row.createCell(0).setCellValue(statPoint.name);
             row.createCell(1).setCellValue(statPoint.value);
         }
-
+        resizeAllColumnSizes(statPoints.size() * 2, sheet);
         saveWorkbook(workbook, path);
     }
 
@@ -136,9 +136,9 @@ public class ExcelWriter {
         return sheet;
     }
 
-    private void resizeAllColumnSizes(String[] header, Sheet sheet){
+    private void resizeAllColumnSizes(int columns, Sheet sheet){
         // Resize all columns to fit the content size
-        for(int i = 0; i < header.length; i++) {
+        for(int i = 0; i < columns; i++) {
             sheet.autoSizeColumn(i);
         }
     }

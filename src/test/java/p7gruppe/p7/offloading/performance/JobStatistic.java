@@ -70,9 +70,11 @@ public class JobStatistic {
         this.statisticEndTime = finishTime;
     }
 
-    public void registerAsUnfinished(long time) {
+    public void registerAsUnCompleted(long time) {
+        if (isJobCompleted())
+            throw new RuntimeException("Tried to register job as incomplete after registering it as completed");
         hasFinished = false;
-        statisticEndTime = finishTime;
+        statisticEndTime = time;
     }
 
     public boolean isResultCorrect(){

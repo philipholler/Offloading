@@ -4,10 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import p7gruppe.p7.offloading.api.JobsApi;
 import p7gruppe.p7.offloading.data.enitity.JobEntity.JobStatus;
-import p7gruppe.p7.offloading.data.local.JobFileManager;
 import p7gruppe.p7.offloading.model.Job;
 import p7gruppe.p7.offloading.model.JobFiles;
-import p7gruppe.p7.offloading.model.JobId;
 import p7gruppe.p7.offloading.performance.APISupplier;
 import p7gruppe.p7.offloading.performance.JobStatistic;
 
@@ -38,9 +36,10 @@ public class MockEmployer implements Simulatable {
     }
 
     @Override
-    public void start() { }
+    public void start() {
+    }
 
-    public void update(){
+    public void update() {
         Optional<MockJob> optionalJob = jobSpawner.pollJob();
         optionalJob.ifPresent(this::uploadJob);
 
@@ -52,14 +51,14 @@ public class MockEmployer implements Simulatable {
 
     @Override
     public void stop() {
+        getJobStatuses();
         for (JobStatistic jobStatistic : postedJobs) {
-            if (!jobStatistic.isJobCompleted()) jobStatistic.registerAsFinished(System.currentTimeMillis());
+            if (!jobStatistic.isJobCompleted()) jobStatistic.registerAsUnCompleted(System.currentTimeMillis());
         }
     }
 
-    private void uploadJob(MockJob mockJob){
+    private void uploadJob(MockJob mockJob) {
         String jobName = String.valueOf(jobsPosted);
-
         hasDownloadedResult.put(jobName, false);
 
         ResponseEntity<Long> responseEntity = apiSupplier.jobsApi.postJob(mockUser.userCredentials, mockJob.answersNeeded, String.valueOf(jobsPosted), Integer.MAX_VALUE, mockJob.getComputationTimeAsBase64Bytes());
@@ -74,7 +73,7 @@ public class MockEmployer implements Simulatable {
         jobsPosted++;
     }
 
-    private void getJobStatuses(){
+    private void getJobStatuses() {
         ResponseEntity<List<Job>> responseEntity = apiSupplier.jobsApi.getJobsForUser(mockUser.userCredentials);
 
         if (responseEntity.getStatusCode() != HttpStatus.OK) {
@@ -93,15 +92,14 @@ public class MockEmployer implements Simulatable {
         }
     }
 
-    private JobStatistic getJobStat(String name){
-        Optional<JobStatistic> optJobStats = postedJobs.stream().findFirst();
-        if (!optJobStats.isPresent())
-            throw new RuntimeException("Job " + name + " missing from JobStatistics");
-
-        return optJobStats.get();
+    private JobStatistic getJobStat(String name) {
+        for (JobStatistic jobStatistic : getJobsStatistics()) {
+            if (jobStatistic.jobName.equals(name)) return jobStatistic;
+        }
+        throw new RuntimeException("Job " + name + " missing from JobStatistics");
     }
 
-    private void downloadResult(long jobID, JobStatistic jobStatistic){
+    private void downloadResult(long jobID, JobStatistic jobStatistic) {
         ResponseEntity<JobFiles> response = apiSupplier.jobsApi.getJobResult(jobID, mockUser.userCredentials);
 
         if (response.getStatusCode() != HttpStatus.OK)

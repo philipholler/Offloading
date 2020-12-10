@@ -29,4 +29,14 @@ public class UserBaseFactory {
     }
 
 
+    /*
+    public UserBase generateBankTimeUserBase(){
+        MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
+        userGenerator.setProportionOfMaliciousUsers(0.1);
+        MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
+        MockWorkerGenerator workerGenerator = new MockWorkerGenerator(apiSupplier);
+
+    }*/
+
+
 }
