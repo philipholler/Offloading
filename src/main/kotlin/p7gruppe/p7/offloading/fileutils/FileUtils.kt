@@ -21,6 +21,8 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
         if(hasher.hash(fileMap.toString()) !in resultMap.keys){
             resultMap[hasher.hash(fileMap.toString())] = mutableListOf()
         }
+
+        resultMap[hasher.hash(fileMap.toString())]!!.add(file.absolutePath);
     }
 
     // Find biggest number of entries agreeing
@@ -29,6 +31,7 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
     for (key in resultMap.keys){
         // Filter to remove test assignments, which have the name _testAssig.zip at the end
         var list = resultMap[key]!!.filter{ Regex(".*/result_file_([0-9]*).zip").containsMatchIn(it) };
+
         if(list!!.size > highestNumberOfResults){
             highestNumberOfResults = list.size
             highestNumberHash = key
