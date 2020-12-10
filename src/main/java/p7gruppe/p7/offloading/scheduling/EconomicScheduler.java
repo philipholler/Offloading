@@ -16,7 +16,7 @@ public class EconomicScheduler implements JobScheduler {
     boolean usingTrust;
 
     public EconomicScheduler(JobRepository jobRepository, AssignmentRepository assignmentRepository,
-                             boolean usingTrust, DeviceRepository deviceRepository) {
+                             DeviceRepository deviceRepository, boolean usingTrust) {
         this.jobRepository = jobRepository;
         this.assignmentRepository = assignmentRepository;
         this.deviceRepository = deviceRepository;
@@ -81,6 +81,10 @@ public class EconomicScheduler implements JobScheduler {
         }
 
         double allDevicesAvgTrustScore = deviceRepository.getAvgTrustScore();
-        return !(device.trustScore < allDevicesAvgTrustScore / 2);
+
+        System.out.println("AVERAGE TRUST SCORE: " + allDevicesAvgTrustScore);
+
+        if(device.trustScore > 0.3) return true;
+        return !(device.trustScore < allDevicesAvgTrustScore / 3);
     }
 }

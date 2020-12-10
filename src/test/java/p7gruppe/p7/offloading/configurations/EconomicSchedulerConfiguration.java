@@ -10,6 +10,7 @@ import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
+import p7gruppe.p7.offloading.scheduling.EconomicScheduler;
 import p7gruppe.p7.offloading.scheduling.FIFOJobScheduler;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
@@ -35,6 +36,6 @@ public class EconomicSchedulerConfiguration {
 
     @Bean
     JobScheduler getJobScheduler(){
-        return new FIFOJobScheduler(assignmentRepository, jobRepository);
+        return new EconomicScheduler(jobRepository, assignmentRepository, deviceRepository, true);
     }
 }
