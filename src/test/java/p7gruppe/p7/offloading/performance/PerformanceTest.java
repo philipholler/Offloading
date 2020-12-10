@@ -127,13 +127,9 @@ public class PerformanceTest {
         excelWriter.writeStatPoints(profile + File.separator + "Overview.xlsx", statPoints);
         excelWriter.writeDataPoints(profile + File.separator + "Throughput.xlsx", summary.getThroughputOverTime(5000), "Millis since start", "100% Confidence jobs completed");
         excelWriter.writeDataPoints(profile + File.separator + "Confidence_over_time.xlsx", summary.confidenceDataPoints(), "Time", "Confidence");
-        excelWriter.writeDataPoints(profile + File.separator + "Banked_time_Completion_time", summary.getBankedTimeAndJobTime(), "Banked Time", "Job Completion Time");
+        excelWriter.writeDataPoints(profile + File.separator + "Banked_time_Completion_time.xlsx", summary.getBankedTimeAndJobTime(), "Banked Time", "Job Completion Time");
         excelWriter.writeMultiDataPoints(profile + File.separator + "Activation_time_vs_banked_time.xlsx",
                 Arrays.asList(serverCPUTime, summary.getActivationOverTime("1")), new String[]{"Time", "Banked Time", "Activation Time"});
-
-
-
-
     }
 
     @Test

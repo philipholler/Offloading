@@ -31,6 +31,14 @@ public class ServerStatistic {
     }
 
     public static Long getCPUTime(String  username, long timeStamp){
-        throw new NotImplementedException();
+        long cpuTimeAtTimeStamp = 0L;
+        if (userToCPUTimeDataPoints.containsKey(username)) {
+            List<DataPoint<Long>> cpuTimeDataPoints = userToCPUTimeDataPoints.get(username);
+            for (DataPoint<Long> dp : cpuTimeDataPoints) {
+                if (dp.timestamp > timeStamp) { break; }
+                cpuTimeAtTimeStamp = dp.value;
+            }
+        }
+        return cpuTimeAtTimeStamp;
     }
 }
