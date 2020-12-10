@@ -101,10 +101,10 @@ public class PerformanceTest {
             }
         }
 
-        List<DataPoint<Long>> userCPUTime = ServerStatistic.getCPUTimeDataPoints(targetUser);
+        List<DataPoint<Long>> serverCPUTime = ServerStatistic.getCPUTimeDataPoints(targetUser);
         System.out.println("User activation time: ");
-        System.out.println(Arrays.toString(userCPUTime.stream().map(((dp) -> dp.timestamp)).toArray()));
-        System.out.println(Arrays.toString(userCPUTime.stream().map(((dp) -> dp.value)).toArray()));
+        System.out.println(Arrays.toString(serverCPUTime.stream().map(((dp) -> dp.timestamp)).toArray()));
+        System.out.println(Arrays.toString(serverCPUTime.stream().map(((dp) -> dp.value)).toArray()));
 
         System.out.println("User activation time: ");
         System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.timestamp)).toArray()));
@@ -124,10 +124,13 @@ public class PerformanceTest {
         statPoints.add(new StatPoint("Maximum job completion time", String.valueOf(summary.getMaximumTimeFromUploadTillProcessedMillis())));
 
         ExcelWriter excelWriter = new ExcelWriter();
-        excelWriter.writeStatPoints(profile + File.separator + "overview.xlsx", statPoints);
-        excelWriter.writeDataPoints(profile + File.separator + "throughput.xlsx", summary.getThroughputOverTime(5000), "Millis since start", "100% Confidence jobs completed");
+        excelWriter.writeStatPoints(profile + File.separator + "Overview.xlsx", statPoints);
+        excelWriter.writeDataPoints(profile + File.separator + "Throughput.xlsx", summary.getThroughputOverTime(5000), "Millis since start", "100% Confidence jobs completed");
+        excelWriter.writeDataPoints(profile + File.separator + "Confidence_over_time.xlsx", summary.confidenceDataPoints(), "Time", "Confidence");
+        excelWriter.writeDataPoints(profile + File.separator + "Banked_time_Completion_time", summary.getBankedTimeAndJobTime(), "Banked Time", "Job Completion Time");
         excelWriter.writeMultiDataPoints(profile + File.separator + "Activation_time_vs_banked_time.xlsx",
-                Arrays.asList(userCPUTime, summary.getActivationOverTime("1")), new String[]{"x", "Activation Time", "Banked Time"});
+                Arrays.asList(serverCPUTime, summary.getActivationOverTime("1")), new String[]{"Time", "Banked Time", "Activation Time"});
+
 
 
 

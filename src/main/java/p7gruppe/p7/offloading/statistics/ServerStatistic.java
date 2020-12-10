@@ -1,5 +1,7 @@
 package p7gruppe.p7.offloading.statistics;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,8 +26,11 @@ public class ServerStatistic {
         userDataPoints.add(new DataPoint<>(timeStamp, newValue));
     }
 
-
     public static List<DataPoint<Long>> getCPUTimeDataPoints(String username) {
         return userToCPUTimeDataPoints.get(username);
+    }
+
+    public static Long getCPUTime(String  username, long timeStamp){
+        throw new NotImplementedException();
     }
 }

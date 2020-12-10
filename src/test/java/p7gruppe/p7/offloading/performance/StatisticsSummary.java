@@ -6,6 +6,7 @@ import p7gruppe.p7.offloading.performance.mock.MockUser;
 import p7gruppe.p7.offloading.performance.mock.MockWorker;
 import p7gruppe.p7.offloading.performance.mock.UserBase;
 import p7gruppe.p7.offloading.statistics.DataPoint;
+import p7gruppe.p7.offloading.statistics.ServerStatistic;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -168,5 +169,29 @@ public class StatisticsSummary {
             }
         }
         throw new RuntimeException("No user with name " + deviceImei);
+    }
+
+    public List<DataPoint<Long>> getBankedTimeAndJobTime() {
+        List<DataPoint<Long>> dataPoints = new ArrayList<>();
+
+        for (JobStatistic jobStatistic : allCompletedJobs()) {
+            long uploadTime = jobStatistic.getUploadTime();
+            long bankedTime = ServerStatistic.getCPUTime(jobStatistic.user.userCredentials.getUsername(), uploadTime);
+            long jobTime = jobStatistic.getProcessingTime();
+            dataPoints.add(new DataPoint<>(jobTime, bankedTime));
+        }
+
+        return dataPoints;
+    }
+
+
+    private Optional<MockEmployer> getEmployer(MockUser user){
+        for (MockEmployer employer : userBase.getEmployers()) {
+            if (employer.mockUser.userCredentials.getUsername().equals(user.userCredentials.getUsername())) {
+                return Optional.of(employer);
+            }
+        }
+
+        return Optional.empty();
     }
 }
