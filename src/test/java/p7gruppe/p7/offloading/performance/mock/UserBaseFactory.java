@@ -67,9 +67,9 @@ public class UserBaseFactory {
 
         MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
         employerGenerator.setJobSpawnerSupplier((seed) -> {
-            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(4000, 10000, seed);
+            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(4000, 5000, seed);
             jobSpawner.setMaximumComputeTimeDeviationMillis(0);
-            jobSpawner.setMaximumSpawnIntervalDeviationMillis(3500);
+            jobSpawner.setMaximumSpawnIntervalDeviationMillis(2000);
             return jobSpawner;
         });
         MockWorkerGenerator workerGenerator = new MockWorkerGenerator(apiSupplier);
@@ -93,12 +93,13 @@ public class UserBaseFactory {
             final long bankedTime = i * bankedTimeStepSizeMillis;
             employer.setOnRegistered(() -> {
                 UserEntity userEntity = userRepository.getUserByUsername(employer.userCredentials.getUsername());
-                userEntity.setCpuTimeSpentInMs(bankedTimeStepSizeMillis * bankedTime);
+                userEntity.setCpuTimeContributedInMs(bankedTimeStepSizeMillis * bankedTime);
                 userRepository.save(userEntity);
             });
         }
 
-        List<MockUser> allUsers = new ArrayList<>();
+        List<MockUser> allUsers = new ArrayList<>(employerUsers);
+        allUsers.addAll(workerUsers);
         return new UserBase(allUsers, employers, workers);
     }
 

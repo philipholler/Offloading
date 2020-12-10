@@ -7,7 +7,10 @@ import p7gruppe.p7.offloading.data.enitity.UserEntity;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.model.UserCredentials;
 import p7gruppe.p7.offloading.performance.APISupplier;
+import p7gruppe.p7.offloading.statistics.ServerStatistic;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import java.util.Arrays;
 
 public class MockUser {
 
@@ -32,8 +35,6 @@ public class MockUser {
         if (onRegistered != null) {
             onRegistered.run();
         }
-
-
     }
 
     @Override

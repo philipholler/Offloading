@@ -45,7 +45,7 @@ public class UserEntity {
 
     public void setCpuTimeContributedInMs(long cpuTimeContributed) {
         this.cpuTimeContributedInMs = cpuTimeContributed;
-        ServerStatistic.addCPUTimeDataPoint(cpuTimeContributed, userName);
+        ServerStatistic.addCPUTimeDataPoint(cpuTimeContributed - cpuTimeSpentInMs, userName);
     }
 
     public long getCpuTimeSpentInMs() {
@@ -54,6 +54,7 @@ public class UserEntity {
 
     public void setCpuTimeSpentInMs(long cpuTimeSpent) {
         this.cpuTimeSpentInMs = cpuTimeSpent;
+        ServerStatistic.addCPUTimeDataPoint(cpuTimeContributedInMs - cpuTimeSpent, userName);
     }
 
     public Long getUserId() {

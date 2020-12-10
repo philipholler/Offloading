@@ -173,7 +173,7 @@ public class StatisticsSummary {
             long uploadTime = jobStatistic.getUploadTime();
             long bankedTime = ServerStatistic.getCPUTime(jobStatistic.user.userCredentials.getUsername(), uploadTime);
             long jobTime = jobStatistic.getProcessingTime();
-            dataPoints.add(new DataPoint<>(jobTime, bankedTime));
+            dataPoints.add(new DataPoint<>(bankedTime, jobTime));
         }
 
         return dataPoints;

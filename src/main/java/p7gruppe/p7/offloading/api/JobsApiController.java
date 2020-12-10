@@ -186,6 +186,5 @@ public class JobsApiController implements JobsApi {
         }
 
         return ResponseEntity.ok(listOfJobs);
-
     }
 }

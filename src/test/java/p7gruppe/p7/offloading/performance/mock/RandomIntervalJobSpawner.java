@@ -49,7 +49,7 @@ public class RandomIntervalJobSpawner implements JobSpawner {
 
     private MockJob createNewJob() {
         int maxDev = maximumJobComputeTimeDeviationMillis;
-        int deviation = random.nextInt(maxDev * 2) - (maxDev / 2);
+        int deviation = (maxDev == 0) ? 0 : (random.nextInt(maxDev * 2) - (maxDev / 2));
         return new MockJob(averageJobComputeTimeMillis + deviation, REQUESTED_WORKERS);
     }
 }
