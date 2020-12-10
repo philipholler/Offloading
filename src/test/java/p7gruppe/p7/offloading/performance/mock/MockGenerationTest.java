@@ -13,6 +13,7 @@ import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.APISupplier;
+import p7gruppe.p7.offloading.performance.RepositorySupplier;
 import p7gruppe.p7.offloading.testutils.IteratorUtils;
 
 import java.util.HashMap;
@@ -163,7 +164,7 @@ public class MockGenerationTest {
     @Test
     void generateUserBase_allRegistered() {
         int userCount = 100, workerCount = 150, employerCount = 70;
-        UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier);
+        UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier, null);
         UserBase userBase = userBaseFactory.generateDefaultUserBase(RANDOM_SEED, userCount, workerCount, employerCount);
         userBase.initializeUserBase();
 

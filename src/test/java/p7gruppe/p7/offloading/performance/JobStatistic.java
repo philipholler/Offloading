@@ -65,13 +65,15 @@ public class JobStatistic {
     }
 
     public void registerAsFinished(long finishTime) {
+        if (hasFinished) throw new IllegalStateException("Attempted to register job stat as finished twice");
+        System.out.println(finishTime - uploadTime);
         hasFinished = true;
         this.finishTime = finishTime;
         this.statisticEndTime = finishTime;
     }
 
     public void registerAsUnCompleted(long time) {
-        if (isJobCompleted())
+        if (hasFinished)
             throw new RuntimeException("Tried to register job as incomplete after registering it as completed");
         hasFinished = false;
         statisticEndTime = time;

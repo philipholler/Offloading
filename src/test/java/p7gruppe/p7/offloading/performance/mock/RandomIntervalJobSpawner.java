@@ -5,9 +5,11 @@ import java.util.Random;
 
 public class RandomIntervalJobSpawner implements JobSpawner {
 
-    private final int averageJobComputeTime;
-    private final int averageJobIntervalMillis;
-    private final int maximumJobIntervalDeviationMillis;
+    private int averageJobComputeTimeMillis;
+    private int maximumJobComputeTimeDeviationMillis;
+
+    private int averageJobIntervalMillis;
+    private int maximumJobIntervalDeviationMillis;
 
     private long nextJobTime;
 
@@ -15,15 +17,24 @@ public class RandomIntervalJobSpawner implements JobSpawner {
 
     private Random random;
 
-    public RandomIntervalJobSpawner(int averageJobComputeTime, long randomSeed) {
-        this.averageJobComputeTime = averageJobComputeTime;
-        averageJobIntervalMillis = averageJobComputeTime;
-        maximumJobIntervalDeviationMillis = averageJobIntervalMillis / 2;
+    public RandomIntervalJobSpawner(int averageJobComputeTime, int averageJobIntervalMillis, long randomSeed) {
+        this.averageJobComputeTimeMillis = averageJobComputeTime;
+        this.averageJobIntervalMillis = averageJobIntervalMillis;
+        maximumJobComputeTimeDeviationMillis = averageJobIntervalMillis / 4;
+        maximumJobIntervalDeviationMillis = averageJobIntervalMillis / 4;
 
         random = new Random(randomSeed);
 
         long now = System.currentTimeMillis();
         nextJobTime = now + random.nextInt(averageJobIntervalMillis + maximumJobIntervalDeviationMillis);
+    }
+
+    public void setMaximumComputeTimeDeviationMillis(int maximumJobComputeTimeDeviationMillis) {
+        this.maximumJobComputeTimeDeviationMillis = maximumJobComputeTimeDeviationMillis;
+    }
+
+    public void setMaximumSpawnIntervalDeviationMillis(int maximumJobIntervalDeviationMillis) {
+        this.maximumJobIntervalDeviationMillis = maximumJobIntervalDeviationMillis;
     }
 
     @Override
@@ -37,7 +48,8 @@ public class RandomIntervalJobSpawner implements JobSpawner {
     }
 
     private MockJob createNewJob() {
-        int deviation = random.nextInt(averageJobComputeTime) - (averageJobComputeTime / 2);
-        return new MockJob(averageJobComputeTime + deviation, REQUESTED_WORKERS);
+        int maxDev = maximumJobComputeTimeDeviationMillis;
+        int deviation = random.nextInt(maxDev * 2) - (maxDev / 2);
+        return new MockJob(averageJobComputeTimeMillis + deviation, REQUESTED_WORKERS);
     }
 }

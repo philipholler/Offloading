@@ -68,6 +68,7 @@ public class MockWorker implements Simulatable {
         if (isWorkingJob) {
             if (System.currentTimeMillis() > currentJobFinishTime) {
                 this.submitResult();
+                requestNewJob();
             }
         } else {
             if (System.currentTimeMillis() - lastGetRequestTimeMillis > serverRequestIntervalMillis) {

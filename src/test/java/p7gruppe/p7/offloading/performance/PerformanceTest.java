@@ -1,5 +1,6 @@
 package p7gruppe.p7.offloading.performance;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,14 +94,15 @@ public class PerformanceTest {
         }
     }*/
 
+
     @Test
     void performanceTest_shortTermTest() {
-        int userCount = 80, deviceCount = 80, employerCount = 80;
-        UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier);
-        UserBase userBase = userBaseFactory.generateUserBaseSomeUsersWithoutWorkers(RANDOM_SEED, userCount, deviceCount, employerCount);
+        int userCount = 80, workerCount = 80, employerCount = 50;
+        UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier, repositorySupplier);
+        UserBase userBase = userBaseFactory.generateBankedTimeTestUserBase(RANDOM_SEED, workerCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 60L * 1000L;
+        long testDurationMillis = 120L * 1000L;
         long endTime = System.currentTimeMillis() + testDurationMillis;
         userBase.startSimulation();
         while (System.currentTimeMillis() < endTime) {
