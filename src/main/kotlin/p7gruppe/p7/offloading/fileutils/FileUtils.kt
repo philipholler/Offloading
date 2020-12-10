@@ -45,14 +45,14 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
     for(f in resultMap[highestNumberHash]!!){
         if(Regex(".*/result_file_([0-9]*).zip").containsMatchIn(f)){
             var matches = Regex(".*/result_file_([0-9]*).zip").find(f)!!
-            var workerId: Int = matches.groups.get(1)!!.value.toInt();
-            confidenceResultData.correctWorkers.add(workerId);
+            var workerId: Long = matches.groups.get(1)!!.value.toLong();
+            confidenceResultData.correctAssignmentIds.add(workerId);
         }
         // Still give credit to test workers
         else if(Regex(".*/result_file_([0-9]*)_testAssig.zip").containsMatchIn(f)){
             var matches = Regex(".*/result_file_([0-9]*)_testAssig.zip").find(f)!!
-            var workerId: Int = matches.groups.get(1)!!.value.toInt();
-            confidenceResultData.correctTestWorkers.add(workerId)
+            var workerId: Long = matches.groups.get(1)!!.value.toLong();
+            confidenceResultData.correctTestAssignmentIds.add(workerId)
         }
 
     }

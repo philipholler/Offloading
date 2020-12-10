@@ -19,7 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class FileUtilsTest {
 
-    String pathToStartingData = System.getProperty("user.dir") + File.separator + "test_data" + File.separator + "resultComparisonStartingData";
+    String pathToStartingData = this.getClass().getResource("/resultComparisonStartingData").getPath();
+    // String pathToStartingData = System.getProperty("user.dir") + File.separator + "test_data" + File.separator + "resultComparisonStartingData";
     String pathToWorkingDir = System.getProperty("user.dir") + File.separator + "test_data" + File.separator + "result_test";
 
     @Autowired
@@ -33,6 +34,33 @@ public class FileUtilsTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void getConfidenceLevelTest00(){
+
+
+        // Result dir to put the zipped files
+        String resultDir = pathResolver.generateNewResultFolder(pathToWorkingDir);
+
+        // Get File handle for test files
+        File folderToZip = new File(pathToStartingData + File.separator + "identical");
+
+        File zipFile1 = new File(resultDir + File.separator + "result_file_15.zip");
+
+        // Zip both files
+        FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
+
+        ArrayList<File> zipFiles = new ArrayList<>();
+        zipFiles.add(zipFile1);
+
+        ConfidenceResult result = FileUtilsKt.getConfidenceLevel(zipFiles);
+
+        double delta = 0.001;
+
+        System.out.println("PHILIP: " + result);
+
+        assertTrue(Math.abs(result.getConfidenceLevel() - 1.0) < delta);
     }
 
     @Test
@@ -143,7 +171,7 @@ public class FileUtilsTest {
         FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
         FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile2.getAbsolutePath());
 
-        assertEquals(true, FileUtilsKt.checkZipFilesEquality(zipFile1, zipFile2));
+        assertTrue(FileUtilsKt.checkZipFilesEquality(zipFile1, zipFile2));
     }
 
     @Test
