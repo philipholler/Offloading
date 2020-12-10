@@ -36,4 +36,18 @@ public class MockWorkerGenerator {
     public void setCpuDistributionSupplier(DistributionSupplier<Double> cpuDistributionSupplier) {
         this.cpuDistributionSupplier = cpuDistributionSupplier;
     }
+
+    public List<MockWorker> generateWorkersNotBelongingToUsers(int amountOfWorkers, List<MockUser> users, long randomSeed){
+        List<Double> cpuTimeFactor = cpuDistributionSupplier.getDistribution(randomSeed, amountOfWorkers);
+        List<MockWorker> mockWorkers = new ArrayList<>();
+
+        for (int i = 0; i < amountOfWorkers; i++){
+            MockUser user = users.get(i % users.size());
+            String deviceID = String.valueOf(i);
+            mockWorkers.add(new MockWorker(cpuTimeFactor.get(i), deviceID, user, apiSupplier));
+        }
+
+        Collections.shuffle(mockWorkers, new Random(randomSeed));
+        return mockWorkers;
+    }
 }

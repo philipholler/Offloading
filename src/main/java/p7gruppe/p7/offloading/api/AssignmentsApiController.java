@@ -225,8 +225,16 @@ public class AssignmentsApiController implements AssignmentsApi {
         DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
         Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
         if (!possibleAssignment.isPresent()){
-            System.err.println("Attempted result upload. But device (" + device.deviceId + ", " + deviceId.getImei() + ") does not have matching assignment");
-            return ResponseEntity.badRequest().build();
+            // Check that the assignment was actually present in the first place
+            // but has since been marked as done (maybe the user got a result from his own worker)
+            if(!assignmentRepository.getAssignmentForJobAndWorker(device.deviceId, jobId).isPresent()){
+                // if the assignment was never present, some went wrong
+                System.err.println("Attempted result upload. But device (" + device.deviceId + ", " + deviceId.getImei() + ") does not have matching assignment");
+                return ResponseEntity.badRequest().build();
+            }
+            else {
+                return ResponseEntity.ok().build();
+            }
         }
         AssignmentEntity assignment = possibleAssignment.get();
         assignment.setStatus(AssignmentEntity.Status.DONE_NOT_CHECKED);
@@ -266,7 +274,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         Iterable<AssignmentEntity> assignmentsForJob = assignmentRepository.getAssignmentForJob(jobValue.getJobId());
 
         // If the device belongs to the user, we assume the answer to be correct.
-        if(isUsersOwnDevice){
+        if(isUsersOwnDevice && !assignment.isTrustTestAssignment){
             // Set all assignments for job to done
             // This causes the scheduler to make them stop the job when pinging
             for(AssignmentEntity a : assignmentsForJob){

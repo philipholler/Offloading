@@ -141,7 +141,7 @@ public class JobsApiController implements JobsApi {
         JobEntity jobValue = job.get();
 
         // Check that the status is done, otherwise do not include
-        if (jobValue.jobStatus != JobEntity.JobStatus.DONE) {
+        if (jobValue.jobStatus != JobEntity.JobStatus.DONE && jobValue.jobStatus != JobEntity.JobStatus.DONE_CONFLICTING_RESULTS) {
             // If result file not ready yet
             System.out.println("Job status not done, could not fetch result");
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();

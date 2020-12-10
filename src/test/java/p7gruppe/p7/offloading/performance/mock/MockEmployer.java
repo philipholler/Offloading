@@ -103,7 +103,7 @@ public class MockEmployer implements Simulatable {
         ResponseEntity<JobFiles> response = apiSupplier.jobsApi.getJobResult(jobID, mockUser.userCredentials);
 
         if (response.getStatusCode() != HttpStatus.OK)
-            throw new RuntimeException("Got error when attempting to download the result files");
+            throw new RuntimeException("Got error when attempting to download the result files. Jobid: " + jobID);
 
         byte[] result = response.getBody().getData();
         if (Arrays.equals(result, MockResultData.getCorrectResultBytes())) {

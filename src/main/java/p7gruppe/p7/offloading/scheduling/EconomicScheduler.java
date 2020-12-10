@@ -25,13 +25,17 @@ public class EconomicScheduler implements JobScheduler {
 
     @Override
     public Optional<JobEntity> assignJob(DeviceEntity device) {
-        JobEntity newJob = jobRepository.getOldestAvailableJobFromSameUser(device.getOwner().getUserName());
+        /*Optional<JobEntity> jobFromSameUser = jobRepository.getOldestAvailableJobFromSameUser(device.getOwner().getUserName());
 
-        if (newJob == null)
-            newJob = jobRepository.getJobWithHighestUserPriority();
+        if(jobFromSameUser.isPresent()){
+            return jobFromSameUser;
+        }*/
 
-        if (newJob != null) return Optional.of(newJob);
-        return Optional.empty();
+        // Look for other users jobs, that have the highest possible priority
+        Optional<JobEntity> jobFromOtherUsers = jobRepository.getJobWithHighestUserPriority();
+
+        return jobFromOtherUsers;
+
     }
 
     @Override
@@ -82,9 +86,7 @@ public class EconomicScheduler implements JobScheduler {
 
         double allDevicesAvgTrustScore = deviceRepository.getAvgTrustScore();
 
-        System.out.println("AVERAGE TRUST SCORE: " + allDevicesAvgTrustScore);
-
-        if(device.trustScore > 0.3) return true;
-        return !(device.trustScore < allDevicesAvgTrustScore / 3);
+        if(device.trustScore < 0.3) return false;
+        return !(device.trustScore < allDevicesAvgTrustScore / 2);
     }
 }

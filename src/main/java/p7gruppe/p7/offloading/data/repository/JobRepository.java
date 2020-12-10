@@ -9,6 +9,7 @@ import p7gruppe.p7.offloading.model.Job;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface JobRepository extends CrudRepository<JobEntity, Long> {
@@ -30,12 +31,14 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
             "ORDER BY upload_time ASC " +
             "limit 1 ",
             nativeQuery = true)
-    JobEntity getOldestAvailableJobFromSameUser(String userName);
+    Optional<JobEntity> getOldestAvailableJobFromSameUser(String userName);
 
-    @Query(value = "SELECT job_id,answers_needed,confidence_level,job_path,job_status,name,timeout_in_minutes,upload_time,workers_assigned,employer_user_id FROM job_entity INNER JOIN user_entity ue on ue.user_id = job_entity.employer_user_id\n" +
-            "ORDER BY  cpu_time_contributed_in_ms-cpu_time_spent_in_ms DESC, upload_time ASC LIMIT 1",
+    @Query(value = "SELECT * " +
+                    "FROM job_entity INNER JOIN user_entity ue on ue.user_id = job_entity.employer_user_id " +
+                    "WHERE job_entity.workers_assigned < job_entity.answers_needed " +
+                    "ORDER BY  cpu_time_contributed_in_ms-cpu_time_spent_in_ms DESC, upload_time ASC LIMIT 1 ",
             nativeQuery = true)
-    JobEntity getJobWithHighestUserPriority();
+    Optional<JobEntity> getJobWithHighestUserPriority();
 
     @Query(value = "SELECT priority, timeout_in_minutes FROM job_entity WHERE employer_user_id = ?1",
             nativeQuery = true)

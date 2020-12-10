@@ -54,11 +54,10 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
             var workerId: Long = matches.groups.get(1)!!.value.toLong();
             confidenceResultData.correctTestAssignmentIds.add(workerId)
         }
-
     }
 
     confidenceResultData.bestFilePath = resultMap[highestNumberHash]!!.get(0)
-    confidenceResultData.confidenceLevel = highestNumberOfResults.toDouble() / fileList.size.toDouble()
+    confidenceResultData.confidenceLevel = highestNumberOfResults.toDouble() / confidenceResultData.correctAssignmentIds.size
 
     return confidenceResultData;
 }

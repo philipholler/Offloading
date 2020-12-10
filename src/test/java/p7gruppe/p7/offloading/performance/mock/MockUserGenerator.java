@@ -12,6 +12,7 @@ public class MockUserGenerator {
 
     private double proportionOfMaliciousUsers = 0.0;
     private final APISupplier apiSupplier;
+    private int nextId = 0;
 
     public MockUserGenerator(APISupplier apiSupplier) {
         this.apiSupplier = apiSupplier;
@@ -21,10 +22,12 @@ public class MockUserGenerator {
         int amountOfMaliciousUsers = (int) Math.round(amountOfUsers * proportionOfMaliciousUsers);
         List<MockUser> users = new ArrayList<>();
 
-        for (int i = 0; i < amountOfUsers; i++) {
-            UserCredentials userCredentials = new UserCredentials().username("user" + i).password("password");
+        int numberOfUsers = nextId + amountOfUsers;
+        for (int i = nextId; i < numberOfUsers; i++) {
+            UserCredentials userCredentials = new UserCredentials().username("user" + nextId).password("password");
             boolean isMalicious = i < amountOfMaliciousUsers;
             users.add(new MockUser(isMalicious, userCredentials, apiSupplier));
+            nextId++;
         }
 
         Collections.shuffle(users, new Random(randomSeed));

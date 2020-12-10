@@ -82,7 +82,7 @@ public class PerformanceTest {
         userRepository.deleteAll();
         ServerStatistic.reset();
     }
-
+    /*
     @AfterEach
     public void cleanup(){
         File resultDirFile = new File(pathToTestDataDir);
@@ -91,13 +91,13 @@ public class PerformanceTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Test
     void performanceTest_shortTermTest() {
         int userCount = 80, deviceCount = 80, employerCount = 80;
         UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier);
-        UserBase userBase = userBaseFactory.generateDefaultUserBase(RANDOM_SEED, userCount, deviceCount, employerCount);
+        UserBase userBase = userBaseFactory.generateUserBaseEmployersWithoutWorkers(RANDOM_SEED, userCount, deviceCount, employerCount);
         userBase.initializeUserBase();
 
         long testDurationMillis = 60L * 1000L;
@@ -121,8 +121,8 @@ public class PerformanceTest {
         }
         System.out.println();
 
-        //System.out.println("Server view of user cpu contribution: " + Arrays.toString(userC));
-        //System.out.println("Worker activation time: " + summary.getActivationOverTime("1"));
+        // System.out.println("Server view of user cpu contribution: " + Arrays.toString(userC));
+        // System.out.println("Worker activation time: " + summary.getActivationOverTime("1"));
         String targetUser = "-1";
         for (MockWorker mockWorker : userBase.getWorkers()) {
             if (mockWorker.deviceId.getImei().equals("1")) {
