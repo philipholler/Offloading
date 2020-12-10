@@ -98,4 +98,8 @@ public class JobEntity {
     public int getTimeoutInMinutes() {
         return timeoutInMinutes;
     }
+
+    public JobStatus getJobStatus() {
+        return jobStatus;
+    }
 }
