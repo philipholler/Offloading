@@ -310,8 +310,7 @@ public class AssignmentsApiController implements AssignmentsApi {
                     // increment assignments done
                     DeviceEntity worker = assig.worker;
                     // If the device was in the majority with results, increment the finishedAssignments correct.
-                    if(confidenceData.getCorrectWorkers().contains(worker.getDeviceId())
-                        || confidenceData.getCorrectTestWorkers().contains(worker.getDeviceId())){
+                    if(confidenceData.hasCorrectAnswerFromAssignment(assignment)){
                         worker.incrementAssignmentsFinishedCorrectResult();
                         worker.updateTrustScore(true);
                     } else {

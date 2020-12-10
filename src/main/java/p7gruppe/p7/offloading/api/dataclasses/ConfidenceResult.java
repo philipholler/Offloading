@@ -1,21 +1,23 @@
 package p7gruppe.p7.offloading.api.dataclasses;
 
+import p7gruppe.p7.offloading.data.enitity.AssignmentEntity;
+
 import java.util.ArrayList;
 
 public class ConfidenceResult{
     private double confidenceLevel;
     private String bestFilePath;
-    private ArrayList<Integer> correctWorkers = new ArrayList<>();
-    private ArrayList<Integer> correctTestWorkers = new ArrayList<>();
+    private ArrayList<Long> correctAssignmentIds = new ArrayList<>();
+    private ArrayList<Long> correctTestAssignmentIds = new ArrayList<>();
 
     public ConfidenceResult() {
     }
 
-    public ConfidenceResult(double confidenceLevel, String bestFilePath, ArrayList<Integer> correctWorkers, ArrayList<Integer> correctTestWorkers) {
+    public ConfidenceResult(double confidenceLevel, String bestFilePath, ArrayList<Long> correctAssignmentIds, ArrayList<Long> correctTestAssignmentIds) {
         this.confidenceLevel = confidenceLevel;
         this.bestFilePath = bestFilePath;
-        this.correctWorkers = correctWorkers;
-        this.correctTestWorkers = correctTestWorkers;
+        this.correctAssignmentIds = correctAssignmentIds;
+        this.correctTestAssignmentIds = correctTestAssignmentIds;
     }
 
     public double getConfidenceLevel() {
@@ -34,16 +36,12 @@ public class ConfidenceResult{
         this.bestFilePath = bestFilePath;
     }
 
-    public ArrayList<Integer> getCorrectWorkers() {
-        return correctWorkers;
+    public ArrayList<Long> getCorrectAssignmentIds() {
+        return correctAssignmentIds;
     }
 
-    public void setCorrectWorkers(ArrayList<Integer> correctWorkers) {
-        this.correctWorkers = correctWorkers;
-    }
-
-    public ArrayList<Integer> getCorrectTestWorkers() {
-        return correctTestWorkers;
+    public ArrayList<Long> getCorrectTestAssignmentIds() {
+        return correctTestAssignmentIds;
     }
 
     @Override
@@ -51,7 +49,12 @@ public class ConfidenceResult{
         return "ConfidenceResult{" +
                 "confidenceLevel=" + confidenceLevel +
                 ", bestFilePath='" + bestFilePath + '\'' +
-                ", correctDevices=" + correctWorkers +
+                ", correctDevices=" + correctAssignmentIds +
                 '}';
+    }
+
+    public boolean hasCorrectAnswerFromAssignment(AssignmentEntity assignment){
+        return this.correctAssignmentIds.contains(assignment.getAssignmentId())
+                || correctTestAssignmentIds.contains(assignment.getAssignmentId());
     }
 }

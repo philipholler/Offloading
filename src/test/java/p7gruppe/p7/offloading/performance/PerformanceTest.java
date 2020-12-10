@@ -1,8 +1,7 @@
 package p7gruppe.p7.offloading.performance;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
@@ -18,6 +17,7 @@ import p7gruppe.p7.offloading.statistics.DataPoint;
 import p7gruppe.p7.offloading.statistics.ServerStatistic;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +25,9 @@ import java.util.List;
 @Tag("performance")
 @SpringBootTest
 public class PerformanceTest {
+
+    static String pathToTestDataDir = System.getProperty("user.dir") + File.separator + "test_data" + File.separator;
+    static String pathToStatisticsFolder = System.getProperty("user.dir") + File.separator + "statistics" + File.separator;
 
     @Autowired
     UsersApiController usersApiController;
@@ -55,6 +58,22 @@ public class PerformanceTest {
         repositorySupplier = new RepositorySupplier(assignmentRepository, jobRepository, userRepository, deviceRepository);
     }
 
+    @BeforeAll
+    static void removeOldStatisticsResults(){
+        File resultDirFile = new File(pathToStatisticsFolder);
+        for(File f : resultDirFile.listFiles()){
+            try {
+                if(f.isDirectory()){
+                    FileUtils.deleteDirectory(f);
+                } else {
+                    f.delete();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @BeforeEach
     void resetRepositories() {
         deviceRepository.deleteAll();
@@ -64,6 +83,16 @@ public class PerformanceTest {
         ServerStatistic.reset();
     }
 
+    @AfterEach
+    public void cleanup(){
+        File resultDirFile = new File(pathToTestDataDir);
+        try {
+            FileUtils.deleteDirectory(resultDirFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test
     void performanceTest_shortTermTest() {
         int userCount = 80, deviceCount = 80, employerCount = 80;
@@ -71,7 +100,7 @@ public class PerformanceTest {
         UserBase userBase = userBaseFactory.generateDefaultUserBase(RANDOM_SEED, userCount, deviceCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 50L * 1000L;
+        long testDurationMillis = 2L * 1000L;
         long endTime = System.currentTimeMillis() + testDurationMillis;
         userBase.startSimulation();
         while (System.currentTimeMillis() < endTime) {
