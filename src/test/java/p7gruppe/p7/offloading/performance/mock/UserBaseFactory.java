@@ -29,7 +29,7 @@ public class UserBaseFactory {
         return new UserBase(users, employers, workers);
     }
 
-    public UserBase generateUserBaseEmployersWithoutWorkers(long randomSeed, int userCount, int workerCount, int employerCount){
+    public UserBase generateUserBaseSomeUsersWithoutWorkers(long randomSeed, int userCount, int workerCount, int employerCount){
         if (employerCount > userCount)
             throw new IllegalArgumentException("Cannot generate more employers than users");
 

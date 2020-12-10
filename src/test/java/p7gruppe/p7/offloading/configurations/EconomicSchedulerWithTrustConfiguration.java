@@ -11,13 +11,12 @@ import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.JobRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.scheduling.EconomicScheduler;
-import p7gruppe.p7.offloading.scheduling.FIFOJobScheduler;
 import p7gruppe.p7.offloading.scheduling.JobScheduler;
 
 @Configuration
-@Profile("economic-performance-test")
+@Profile("economic-trust-performance-test")
 @EnableJpaRepositories("p7gruppe.p7.offloading.data.repository")
-public class EconomicSchedulerConfiguration {
+public class EconomicSchedulerWithTrustConfiguration {
 
     @Autowired
     JobRepository jobRepository;
@@ -36,6 +35,6 @@ public class EconomicSchedulerConfiguration {
 
     @Bean
     JobScheduler getJobScheduler(){
-        return new EconomicScheduler(jobRepository, assignmentRepository, deviceRepository, false);
+        return new EconomicScheduler(jobRepository, assignmentRepository, deviceRepository, true);
     }
 }
