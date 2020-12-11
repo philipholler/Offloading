@@ -104,7 +104,13 @@ public class JobStatistic {
         return hasFinished;
     }
 
-    public long getUploadTime() {
+    public long getUploadTimeMillis() {
         return uploadTime;
+    }
+
+    public long getFinishTimeStampMillis() {
+        if (!hasFinished)
+            throw new IllegalStateException("Cannot get finished time stamp for job that is not finished");
+        return finishTime;
     }
 }

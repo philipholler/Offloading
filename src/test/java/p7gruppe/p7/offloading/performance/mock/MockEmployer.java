@@ -20,7 +20,7 @@ public class MockEmployer implements Simulatable {
 
     private JobsApi jobsApi;
 
-    private final long REQUEST_INTERVAL_MILLIS = 2L * 1000L;
+    private final long REQUEST_INTERVAL_MILLIS = 800L;
     private long nextRequestTime = 0L;
 
     private int jobsPosted = 0;

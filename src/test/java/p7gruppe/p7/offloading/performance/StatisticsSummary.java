@@ -18,10 +18,12 @@ public class StatisticsSummary {
 
     private UserBase userBase;
     private RepositorySupplier repositorySupplier;
+    private final long startTimeMillis;
 
-    public StatisticsSummary(UserBase userBase, RepositorySupplier repositorySupplier) {
+    public StatisticsSummary(UserBase userBase, RepositorySupplier repositorySupplier, long startTimeMillis) {
         this.userBase = userBase;
         this.repositorySupplier = repositorySupplier;
+        this.startTimeMillis = startTimeMillis;
     }
 
     public long getMaximumTimeFromUploadTillProcessedMillis() {
@@ -92,7 +94,7 @@ public class StatisticsSummary {
             if (!jobEntityOptional.isPresent())
                 throw new RuntimeException("Job with id " + job.jobID + " present in statistics not server database");
 
-            dataPoints.add(new DataPoint<Double>(job.getUploadTime(), jobEntityOptional.get().confidenceLevel));
+            dataPoints.add(new DataPoint<Double>((job.getFinishTimeStampMillis() - startTimeMillis) / 1000, jobEntityOptional.get().confidenceLevel));
         }
 
         return dataPoints;
@@ -122,21 +124,21 @@ public class StatisticsSummary {
             Optional<JobEntity> jobEntityOptional = repositorySupplier.jobRepository.findById(job.jobID);
             double confidence = jobEntityOptional.get().confidenceLevel;
             return confidence >= 0.99d && job.isResultCorrect();
-        }).sorted(Comparator.comparingLong(JobStatistic::getUploadTime)).collect(Collectors.toList());
+        }).sorted(Comparator.comparingLong(JobStatistic::getUploadTimeMillis)).collect(Collectors.toList());
 
         if (correctFullConfidenceJobs.size() <= 10) {
             throw new RuntimeException("Dataset too small to perform throughput analysis");
         }
 
-        long startTime = correctFullConfidenceJobs.get(0).getUploadTime();
-        long endTime = correctFullConfidenceJobs.get(correctFullConfidenceJobs.size() - 1).getUploadTime();
+        long startTime = correctFullConfidenceJobs.get(0).getUploadTimeMillis();
+        long endTime = correctFullConfidenceJobs.get(correctFullConfidenceJobs.size() - 1).getUploadTimeMillis();
 
         int length = (int) ((endTime - startTime) / timeStepMillis);
         length += ((int) ((endTime - startTime) % timeStepMillis) > 0) ? 1 : 0;
         int[] throughputValues = new int[length];
 
         for (JobStatistic jobStat : correctFullConfidenceJobs) {
-            int index = (int) ((jobStat.getUploadTime() - startTime) / timeStepMillis);
+            int index = (int) ((jobStat.getUploadTimeMillis() - startTime) / timeStepMillis);
             throughputValues[index] += 1;
         }
 
@@ -172,7 +174,7 @@ public class StatisticsSummary {
         List<DataPoint<Long>> dataPoints = new ArrayList<>();
 
         for (JobStatistic jobStatistic : allCompletedJobs()) {
-            long uploadTime = jobStatistic.getUploadTime();
+            long uploadTime = jobStatistic.getUploadTimeMillis();
             long bankedTime = ServerStatistic.getCPUTime(jobStatistic.user.userCredentials.getUsername(), uploadTime);
             long jobTime = jobStatistic.getProcessingTime();
             dataPoints.add(new DataPoint<>(bankedTime / 1000L, jobTime / 1000L));
@@ -181,14 +183,12 @@ public class StatisticsSummary {
         return dataPoints;
     }
 
-
     private Optional<MockEmployer> getEmployer(MockUser user){
         for (MockEmployer employer : userBase.getEmployers()) {
             if (employer.mockUser.userCredentials.getUsername().equals(user.userCredentials.getUsername())) {
                 return Optional.of(employer);
             }
         }
-
         return Optional.empty();
     }
 }

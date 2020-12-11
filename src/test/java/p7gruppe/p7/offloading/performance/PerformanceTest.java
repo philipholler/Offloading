@@ -97,20 +97,23 @@ public class PerformanceTest {
 
     @Test
     void performanceTest_shortTermTest() {
-        int workerCount = 80, employerCount = 50;
+        int workerCount = 80, employerCount = 60;
         UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier, repositorySupplier);
         UserBase userBase = userBaseFactory.generateBankedTimeTestUserBase(RANDOM_SEED, workerCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 30L * 1000L;
-        long endTime = System.currentTimeMillis() + testDurationMillis;
+
+        long testDurationMillis = 120L * 1000L;
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + testDurationMillis;
+
         userBase.startSimulation();
         while (System.currentTimeMillis() < endTime) {
             userBase.update();
         }
         userBase.stopSimulation();
 
-        StatisticsSummary summary = new StatisticsSummary(userBase, repositorySupplier);
+        StatisticsSummary summary = new StatisticsSummary(userBase, repositorySupplier, startTime);
 
         // System.out.println("Server view of user cpu contribution: " + Arrays.toString(userC));
         // System.out.println("Worker activation time: " + summary.getActivationOverTime("1"));

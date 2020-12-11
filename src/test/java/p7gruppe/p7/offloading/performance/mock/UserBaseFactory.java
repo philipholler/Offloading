@@ -69,7 +69,7 @@ public class UserBaseFactory {
 
         MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
         employerGenerator.setJobSpawnerSupplier((seed) -> {
-            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(3000, 3000, seed);
+            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(3000, 4000, seed);
             jobSpawner.setMaximumComputeTimeDeviationMillis(0);
             jobSpawner.setMaximumSpawnIntervalDeviationMillis(800);
             return jobSpawner;
