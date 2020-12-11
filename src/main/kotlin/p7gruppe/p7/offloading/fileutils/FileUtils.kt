@@ -58,8 +58,6 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
         }
     }
 
-    println("Result map: " + resultMap)
-
     confidenceResultData.bestFilePath = resultMap[highestNumberHash]!!.get(0)
     confidenceResultData.confidenceLevel = highestNumberOfResults.toDouble() / nonTestAssignmentsFound.toDouble()
 

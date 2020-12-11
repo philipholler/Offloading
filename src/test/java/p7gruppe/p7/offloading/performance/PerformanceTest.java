@@ -83,7 +83,7 @@ public class PerformanceTest {
         userRepository.deleteAll();
         ServerStatistic.reset();
     }
-    /*
+
     @AfterEach
     public void cleanup(){
         File resultDirFile = new File(pathToTestDataDir);
@@ -92,7 +92,7 @@ public class PerformanceTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
 
     @Test
@@ -129,6 +129,7 @@ public class PerformanceTest {
         System.out.println("User activation time: ");
         System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.timestamp)).toArray()));
         System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.value)).toArray()));
+
 
         List<StatPoint> statPoints = new ArrayList<>();
 

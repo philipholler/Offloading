@@ -16,7 +16,7 @@ public interface AssignmentRepository extends CrudRepository<AssignmentEntity, L
     Optional<AssignmentEntity> getProcessingAssignmentForDevice(long workerDeviceID);
 
     @Query(value = "SELECT * FROM assignment_entity WHERE worker_device_id = ?1 AND job_job_id = ?2", nativeQuery = true)
-    Optional<AssignmentEntity> getAssignmentForJobAndWorker(long workerDeviceID, long jobID);
+    Iterable<AssignmentEntity> getAssignmentForJobAndWorker(long workerDeviceID, long jobID);
 
     @Query(value = "SELECT avg(time_of_completion - time_of_assignment) as workertime FROM assignment_entity WHERE job_job_id = ?1 ", nativeQuery = true)
     Optional<Long> getAverageOfAssignedJobTime(long jobID);
