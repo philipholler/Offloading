@@ -37,33 +37,6 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void getConfidenceLevelTest00(){
-
-
-        // Result dir to put the zipped files
-        String resultDir = pathResolver.generateNewResultFolder(pathToWorkingDir);
-
-        // Get File handle for test files
-        File folderToZip = new File(pathToStartingData + File.separator + "identical");
-
-        File zipFile1 = new File(resultDir + File.separator + "result_file_15.zip");
-
-        // Zip both files
-        FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
-
-        ArrayList<File> zipFiles = new ArrayList<>();
-        zipFiles.add(zipFile1);
-
-        ConfidenceResult result = FileUtilsKt.getConfidenceLevel(zipFiles);
-
-        double delta = 0.001;
-
-        System.out.println("PHILIP: " + result);
-
-        assertTrue(Math.abs(result.getConfidenceLevel() - 1.0) < delta);
-    }
-
-    @Test
     public void getConfidenceLevelTest01(){
         // Result dir to put the zipped files
         String resultDir = pathResolver.generateNewResultFolder(pathToWorkingDir);
@@ -86,6 +59,8 @@ public class FileUtilsTest {
         ConfidenceResult result = FileUtilsKt.getConfidenceLevel(zipFiles);
 
         double delta = 0.001;
+
+        System.out.println("PHILIP TEST: " + result.toString());
 
         assertTrue(Math.abs(result.getConfidenceLevel() - 0.5) < delta);
     }
@@ -111,6 +86,63 @@ public class FileUtilsTest {
         zipFiles.add(zipFile2);
 
         ConfidenceResult result = FileUtilsKt.getConfidenceLevel(zipFiles);
+
+        double delta = 0.001;
+
+        assertTrue(Math.abs(result.getConfidenceLevel() - 1.0) < delta);
+    }
+
+    @Test
+    public void getConfidenceLevelTest03(){
+        // Result dir to put the zipped files
+        String resultDir = pathResolver.generateNewResultFolder(pathToWorkingDir);
+
+        // Get File handle for test files
+        File folderToZip = new File(pathToStartingData + File.separator + "identical");
+
+        File zipFile1 = new File(resultDir + File.separator + "result_file_15.zip");
+
+        // Zip both files
+        FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
+
+        ArrayList<File> zipFiles = new ArrayList<>();
+        zipFiles.add(zipFile1);
+
+        ConfidenceResult result = FileUtilsKt.getConfidenceLevel(zipFiles);
+
+        double delta = 0.001;
+
+        assertTrue(Math.abs(result.getConfidenceLevel() - 1.0) < delta);
+    }
+
+    @Test
+    public void getConfidenceLevelTest04(){
+        // Result dir to put the zipped files
+        String resultDir = pathResolver.generateNewResultFolder(pathToWorkingDir);
+
+        // Get File handle for test files
+        File folderToZip = new File(pathToStartingData + File.separator + "identical");
+
+        // Test that having a lot of test assignments, does not affect the confidence level
+        File zipFile1 = new File(resultDir + File.separator + "result_file_15.zip");
+        File zipFile2 = new File(resultDir + File.separator + "result_file_12_testAssig.zip");
+        File zipFile3 = new File(resultDir + File.separator + "result_file_8_testAssig.zip");
+        File zipFile4 = new File(resultDir + File.separator + "result_file_5_testAssig.zip");
+
+        // Zip all files
+        FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile1.getAbsolutePath());
+        FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile2.getAbsolutePath());
+        FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile3.getAbsolutePath());
+        FileUtilsKt.zipDir(folderToZip.getAbsolutePath(), zipFile4.getAbsolutePath());
+
+        ArrayList<File> zipFiles = new ArrayList<>();
+        zipFiles.add(zipFile1);
+        zipFiles.add(zipFile2);
+        zipFiles.add(zipFile3);
+        zipFiles.add(zipFile4);
+
+        ConfidenceResult result = FileUtilsKt.getConfidenceLevel(zipFiles);
+
 
         double delta = 0.001;
 
