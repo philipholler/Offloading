@@ -9,7 +9,7 @@ import java.util.function.Function;
 public class MockEmployerGenerator {
 
     private final APISupplier apiSupplier;
-    private Function<Long, JobSpawner> jobSpawnerSupplier = (randomSeed) -> new RandomIntervalJobSpawner(1000, 1000, randomSeed);
+    private Function<Long, JobSpawner> jobSpawnerSupplier = (randomSeed) -> new RandomIntervalJobSpawner(2000, 2000, randomSeed);
 
     public MockEmployerGenerator(APISupplier apiSupplier) {
         this.apiSupplier = apiSupplier;

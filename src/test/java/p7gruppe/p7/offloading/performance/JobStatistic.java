@@ -66,7 +66,6 @@ public class JobStatistic {
 
     public void registerAsFinished(long finishTime) {
         if (hasFinished) throw new IllegalStateException("Attempted to register job stat as finished twice");
-        System.out.println(finishTime - uploadTime);
         hasFinished = true;
         this.finishTime = finishTime;
         this.statisticEndTime = finishTime;

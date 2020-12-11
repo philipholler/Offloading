@@ -13,12 +13,10 @@ public class UserEntity {
 
     @Column(unique = true)
     private String userName;
-
-
     private String password;
 
-    private long cpuTimeContributedInMs;
-    private long cpuTimeSpentInMs;
+    private long cpuTimeContributedInMillis;
+    private long cpuTimeSpentInMillis;
 
     protected UserEntity() {
     }
@@ -27,8 +25,8 @@ public class UserEntity {
         this.userName = userName;
         this.password = password;
 
-        this.cpuTimeContributedInMs = 0;
-        this.cpuTimeSpentInMs = 0;
+        this.cpuTimeContributedInMillis = 0;
+        this.cpuTimeSpentInMillis = 0;
     }
 
     public String getUserName() {
@@ -39,22 +37,22 @@ public class UserEntity {
         return password;
     }
 
-    public long getCpuTimeContributedInMs() {
-        return cpuTimeContributedInMs;
+    public long getCpuTimeContributedInMillis() {
+        return cpuTimeContributedInMillis;
     }
 
-    public void setCpuTimeContributedInMs(long cpuTimeContributed) {
-        this.cpuTimeContributedInMs = cpuTimeContributed;
-        ServerStatistic.addCPUTimeDataPoint(cpuTimeContributed - cpuTimeSpentInMs, userName);
+    public void setCpuTimeContributedInMillis(long cpuTimeContributedMillis) {
+        this.cpuTimeContributedInMillis = cpuTimeContributedMillis;
+        ServerStatistic.addCPUTimeDataPoint(cpuTimeContributedMillis - cpuTimeSpentInMillis, userName);
     }
 
-    public long getCpuTimeSpentInMs() {
-        return cpuTimeSpentInMs;
+    public long getCpuTimeSpentInMillis() {
+        return cpuTimeSpentInMillis;
     }
 
-    public void setCpuTimeSpentInMs(long cpuTimeSpent) {
-        this.cpuTimeSpentInMs = cpuTimeSpent;
-        ServerStatistic.addCPUTimeDataPoint(cpuTimeContributedInMs - cpuTimeSpent, userName);
+    public void setCpuTimeSpentInMillis(long cpuTimeSpent) {
+        this.cpuTimeSpentInMillis = cpuTimeSpent;
+        ServerStatistic.addCPUTimeDataPoint(cpuTimeContributedInMillis - cpuTimeSpent, userName);
     }
 
     public Long getUserId() {

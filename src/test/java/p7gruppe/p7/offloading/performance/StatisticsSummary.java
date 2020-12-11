@@ -160,7 +160,9 @@ public class StatisticsSummary {
     public List<DataPoint<Long>> getActivationOverTime(String deviceImei) {
         for (MockWorker worker : userBase.getWorkers()) {
             if (worker.deviceId.getImei().equals(deviceImei)) {
-                return worker.statistic.getContributionOverTime();
+                return worker.statistic.getContributionOverTime()
+                        .stream().map((dp) -> new DataPoint<>(dp.timestamp / 1000, dp.value / 1000))
+                        .collect(Collectors.toList());
             }
         }
         throw new RuntimeException("No user with name " + deviceImei);
@@ -173,7 +175,7 @@ public class StatisticsSummary {
             long uploadTime = jobStatistic.getUploadTime();
             long bankedTime = ServerStatistic.getCPUTime(jobStatistic.user.userCredentials.getUsername(), uploadTime);
             long jobTime = jobStatistic.getProcessingTime();
-            dataPoints.add(new DataPoint<>(bankedTime, jobTime));
+            dataPoints.add(new DataPoint<>(bankedTime / 1000L, jobTime / 1000L));
         }
 
         return dataPoints;

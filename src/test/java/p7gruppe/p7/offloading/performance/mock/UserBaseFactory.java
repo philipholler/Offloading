@@ -7,7 +7,9 @@ import p7gruppe.p7.offloading.performance.RepositorySupplier;
 import p7gruppe.p7.offloading.performance.statistics.DistributionSupplier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class UserBaseFactory {
 
@@ -67,21 +69,22 @@ public class UserBaseFactory {
 
         MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
         employerGenerator.setJobSpawnerSupplier((seed) -> {
-            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(4000, 5000, seed);
+            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(3000, 3000, seed);
             jobSpawner.setMaximumComputeTimeDeviationMillis(0);
-            jobSpawner.setMaximumSpawnIntervalDeviationMillis(2000);
+            jobSpawner.setMaximumSpawnIntervalDeviationMillis(800);
             return jobSpawner;
         });
+
         MockWorkerGenerator workerGenerator = new MockWorkerGenerator(apiSupplier);
-        /*workerGenerator.setCpuDistributionSupplier(new DistributionSupplier<Double>() {
+        workerGenerator.setCpuDistributionSupplier(new DistributionSupplier<Double>() {
             @Override // All devices are equally fast
             public List<Double> getDistribution(long randomSeed, int points) {
                 List<Double> val = new ArrayList<>();
                 for (int i = 0; i < points; i++) val.add(1.0);
                 return val;
             }
-        }); */
-        // todo :  add this in if needed (will cause all workers to have same cpu speed)
+        });
+        // todo :  might be better to remove this?
 
         List<MockEmployer> employers = employerGenerator.generateEmployers(employerCount, employerUsers, randomSeed);
         List<MockWorker> workers = workerGenerator.generateWorkers(workerCount, workerUsers, randomSeed);
@@ -93,26 +96,43 @@ public class UserBaseFactory {
             final long bankedTime = i * bankedTimeStepSizeMillis;
             employer.setOnRegistered(() -> {
                 UserEntity userEntity = userRepository.getUserByUsername(employer.userCredentials.getUsername());
-                userEntity.setCpuTimeContributedInMs(bankedTimeStepSizeMillis * bankedTime);
+                userEntity.setCpuTimeContributedInMillis(bankedTime);
                 userRepository.save(userEntity);
             });
         }
 
         List<MockUser> allUsers = new ArrayList<>(employerUsers);
         allUsers.addAll(workerUsers);
+
+        Collections.shuffle(employers, new Random(randomSeed));
         return new UserBase(allUsers, employers, workers);
     }
 
 
-
-    /*
-    public UserBase generateBankTimeUserBase(){
+    public UserBase generateConfidenceOverTimeUserBase(long randomSeed, int workerCount, int employerCount) {
         MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
-        userGenerator.setProportionOfMaliciousUsers(0.1);
+        List<MockUser> employerUsers = userGenerator.generateUsers(employerCount, randomSeed);
+
+        userGenerator.setProportionOfMaliciousUsers(0.3);
+        List<MockUser> workerUsers = userGenerator.generateUsers(workerCount, randomSeed);
+
         MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
+        employerGenerator.setJobSpawnerSupplier((seed) -> {
+            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(4000, 4000, seed);
+            jobSpawner.setMaximumComputeTimeDeviationMillis(1000);
+            jobSpawner.setMaximumSpawnIntervalDeviationMillis(2000);
+            return jobSpawner;
+        });
+
         MockWorkerGenerator workerGenerator = new MockWorkerGenerator(apiSupplier);
+        workerGenerator.generateWorkers(workerCount, workerUsers, randomSeed);
 
-    }*/
+        List<MockEmployer> employers = employerGenerator.generateEmployers(employerCount, workerUsers, randomSeed);
+        List<MockWorker> workers = workerGenerator.generateWorkers(workerCount, workerUsers, randomSeed);
 
+        List<MockUser> allUsers = new ArrayList<>(employerUsers);
+        allUsers.addAll(workerUsers);
+        return new UserBase(allUsers, employers, workers);
+    }
 
 }

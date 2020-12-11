@@ -36,7 +36,7 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
     @Query(value = "SELECT * " +
                     "FROM job_entity INNER JOIN user_entity ue on ue.user_id = job_entity.employer_user_id " +
                     "WHERE job_entity.workers_assigned < job_entity.answers_needed " +
-                    "ORDER BY  cpu_time_contributed_in_ms-cpu_time_spent_in_ms DESC, upload_time ASC LIMIT 1 ",
+                    "ORDER BY  cpu_time_contributed_in_millis-cpu_time_spent_in_millis DESC, upload_time ASC LIMIT 1 ",
             nativeQuery = true)
     Optional<JobEntity> getJobWithHighestUserPriority();
 

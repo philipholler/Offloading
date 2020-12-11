@@ -66,7 +66,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         if(job.getEmployer().getUserId() != deviceEntity.getOwner().getUserId()){
             UserEntity workerUser = deviceEntity.getOwner();
             long cpuTimeReward = System.currentTimeMillis() - assignmentEntity.timeOfAssignmentInMs;
-            workerUser.setCpuTimeContributedInMs(workerUser.getCpuTimeContributedInMs() + cpuTimeReward);
+            workerUser.setCpuTimeContributedInMillis(workerUser.getCpuTimeContributedInMillis() + cpuTimeReward);
             userRepository.save(workerUser);
         }
 
@@ -145,7 +145,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Only if the job and device is not his own
             if(device.getOwner().getUserId() != jobValue.getEmployer().getUserId()){
                 UserEntity employer = jobValue.getEmployer();
-                employer.setCpuTimeSpentInMs(employer.getCpuTimeSpentInMs() + jobValue.timeoutInMinutes * 60 * 1000);
+                employer.setCpuTimeSpentInMillis(employer.getCpuTimeSpentInMillis() + jobValue.timeoutInMinutes * 60 * 1000);
                 userRepository.save(employer);
             }
 
@@ -187,7 +187,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Do not increase the cpu time, if the job was his own.
             UserEntity employer = jobValue.getEmployer();
             if(quittingDevice.getOwner().getUserId() != employer.getUserId()){
-                employer.setCpuTimeSpentInMs(employer.getCpuTimeSpentInMs() + jobValue.timeoutInMinutes * 60 * 1000);
+                employer.setCpuTimeSpentInMillis(employer.getCpuTimeSpentInMillis() + jobValue.timeoutInMinutes * 60 * 1000);
                 userRepository.save(employer);
             }
 
@@ -248,12 +248,12 @@ public class AssignmentsApiController implements AssignmentsApi {
         if(!isUsersOwnDevice){
             // Reward the user
             long timeSpendOnAssignment = assignment.getTimeOfCompletionInMs() - assignment.getTimeOfAssignmentInMs();
-            userContributing.setCpuTimeContributedInMs(userContributing.getCpuTimeContributedInMs() + timeSpendOnAssignment);
+            userContributing.setCpuTimeContributedInMillis(userContributing.getCpuTimeContributedInMillis() + timeSpendOnAssignment);
             userRepository.save(userContributing);
 
             // Take "payment" from the employer. Update his cpu time spent.
             long originalTimeoutInMs = jobValue.getTimeoutInMinutes() * 60 * 1000;
-            long newCpuTimeSpent = employer.getCpuTimeSpentInMs() + originalTimeoutInMs - timeSpendOnAssignment;
+            long newCpuTimeSpent = employer.getCpuTimeSpentInMillis() + originalTimeoutInMs - timeSpendOnAssignment;
             userRepository.save(employer);
 
             // Reward the device for finishing

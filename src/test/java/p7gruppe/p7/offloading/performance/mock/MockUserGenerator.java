@@ -23,9 +23,10 @@ public class MockUserGenerator {
         List<MockUser> users = new ArrayList<>();
 
         int numberOfUsers = nextId + amountOfUsers;
+        int maliciousThreshold = nextId + amountOfMaliciousUsers;
         for (int i = nextId; i < numberOfUsers; i++) {
             UserCredentials userCredentials = new UserCredentials().username("user" + nextId).password("password");
-            boolean isMalicious = i < amountOfMaliciousUsers;
+            boolean isMalicious = i < maliciousThreshold;
             users.add(new MockUser(isMalicious, userCredentials, apiSupplier));
             nextId++;
         }

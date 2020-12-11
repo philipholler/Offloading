@@ -35,7 +35,6 @@ public class EconomicScheduler implements JobScheduler {
         Optional<JobEntity> jobFromOtherUsers = jobRepository.getJobWithHighestUserPriority();
 
         return jobFromOtherUsers;
-
     }
 
     @Override

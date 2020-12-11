@@ -60,11 +60,11 @@ public class PerformanceTest {
     }
 
     @BeforeAll
-    static void removeOldStatisticsResults(){
+    static void removeOldStatisticsResults() {
         File resultDirFile = new File(pathToStatisticsFolder);
-        for(File f : resultDirFile.listFiles()){
+        for (File f : resultDirFile.listFiles()) {
             try {
-                if(f.isDirectory()){
+                if (f.isDirectory()) {
                     FileUtils.deleteDirectory(f);
                 } else {
                     f.delete();
@@ -97,12 +97,12 @@ public class PerformanceTest {
 
     @Test
     void performanceTest_shortTermTest() {
-        int userCount = 80, workerCount = 80, employerCount = 50;
+        int workerCount = 80, employerCount = 50;
         UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier, repositorySupplier);
         UserBase userBase = userBaseFactory.generateBankedTimeTestUserBase(RANDOM_SEED, workerCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 120L * 1000L;
+        long testDurationMillis = 30L * 1000L;
         long endTime = System.currentTimeMillis() + testDurationMillis;
         userBase.startSimulation();
         while (System.currentTimeMillis() < endTime) {
@@ -111,17 +111,6 @@ public class PerformanceTest {
         userBase.stopSimulation();
 
         StatisticsSummary summary = new StatisticsSummary(userBase, repositorySupplier);
-
-        System.out.println("MAX compute time : " + summary.getMaximumTimeFromUploadTillProcessedMillis() / 1000);
-        System.out.println("Average upload to processed time : " + summary.getAverageJobTimeForFinishedJobsMillis() / 1000);
-        System.out.println("Results: Malicious/Total : " + summary.getAmountOfMaliciousResults() + " / " + summary.getAmountOfCompletedJobs());
-        System.out.println("Average confidence : " + summary.averageConfidence());
-        System.out.println("Total Throughput : " + summary.getTotalThroughput());
-        System.out.println("Confidence over time: ");
-        for (DataPoint<Double> dataPoint : summary.confidenceDataPoints()) {
-            System.out.print("(" + dataPoint.timestamp / 1000 + ", " + dataPoint.value + "), ");
-        }
-        System.out.println();
 
         // System.out.println("Server view of user cpu contribution: " + Arrays.toString(userC));
         // System.out.println("Worker activation time: " + summary.getActivationOverTime("1"));
@@ -140,7 +129,6 @@ public class PerformanceTest {
         System.out.println("User activation time: ");
         System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.timestamp)).toArray()));
         System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.value)).toArray()));
-
 
         List<StatPoint> statPoints = new ArrayList<>();
 
@@ -165,7 +153,7 @@ public class PerformanceTest {
     }
 
     @Test
-    void performanceTest_jobOverload(){
+    void performanceTest_confidenceOverTime() {
 
     }
 
