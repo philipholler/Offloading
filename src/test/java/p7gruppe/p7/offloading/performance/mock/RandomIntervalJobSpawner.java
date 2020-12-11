@@ -13,7 +13,7 @@ public class RandomIntervalJobSpawner implements JobSpawner {
 
     private long nextJobTime;
 
-    private int REQUESTED_WORKERS = 3;
+    private int REQUESTED_WORKERS = 4;
 
     private Random random;
 

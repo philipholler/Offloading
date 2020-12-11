@@ -10,6 +10,7 @@ import p7gruppe.p7.offloading.performance.APISupplier;
 import p7gruppe.p7.offloading.performance.WorkerStatistic;
 import p7gruppe.p7.offloading.util.ByteUtils;
 
+import java.util.Random;
 import java.util.function.Function;
 
 public class MockWorker implements Simulatable {
@@ -32,15 +33,20 @@ public class MockWorker implements Simulatable {
 
     public final WorkerStatistic statistic;
 
+    private final long randomSeed;
+    private Random random;
+
     public void setActivationPolicy(Function<Long, Boolean> activationPolicy) {
         this.activationPolicy = activationPolicy;
     }
 
-    public MockWorker(double cpu_factor, String deviceID, MockUser mockUser, APISupplier apiSupplier) {
+    public MockWorker(double cpu_factor, String deviceID, MockUser mockUser, APISupplier apiSupplier, long randomSeed) {
         CPU_FACTOR = cpu_factor;
         this.owner = mockUser;
         this.deviceId = new DeviceId().imei(deviceID);
         this.apiSupplier = apiSupplier;
+        this.randomSeed = randomSeed;
+        random = new Random(randomSeed);
         statistic = new WorkerStatistic(mockUser);
     }
 
@@ -106,7 +112,7 @@ public class MockWorker implements Simulatable {
     private void submitResult() {
         byte[] result;
         if (isMalicious()) {
-            result = MockResultData.getMaliciousBytes();
+            result = MockResultData.getMaliciousBytes(random);
         } else {
             result = MockResultData.getCorrectResultBytes();
         }

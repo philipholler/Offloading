@@ -26,7 +26,7 @@ public class MockWorkerGenerator {
         for (int i = 0; i < amountOfWorkers; i++){
             MockUser user = users.get(i % users.size());
             String deviceID = String.valueOf(i);
-            mockWorkers.add(new MockWorker(cpuTimeFactor.get(i), deviceID, user, apiSupplier));
+            mockWorkers.add(new MockWorker(cpuTimeFactor.get(i), deviceID, user, apiSupplier, randomSeed + i));
         }
 
         Collections.shuffle(mockWorkers, new Random(randomSeed));
@@ -44,7 +44,7 @@ public class MockWorkerGenerator {
         for (int i = 0; i < amountOfWorkers; i++){
             MockUser user = users.get(i % users.size());
             String deviceID = String.valueOf(i);
-            mockWorkers.add(new MockWorker(cpuTimeFactor.get(i), deviceID, user, apiSupplier));
+            mockWorkers.add(new MockWorker(cpuTimeFactor.get(i), deviceID, user, apiSupplier, randomSeed + i));
         }
 
         Collections.shuffle(mockWorkers, new Random(randomSeed));

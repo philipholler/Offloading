@@ -108,12 +108,10 @@ public class MockEmployer implements Simulatable {
         byte[] result = response.getBody().getData();
         if (Arrays.equals(result, MockResultData.getCorrectResultBytes())) {
             jobStatistic.registerResultCorrectness(true);
-        } else if (Arrays.equals(result, MockResultData.getMaliciousBytes())) {
+        } else if (MockResultData.equalsAnyMalicious(result)) {
             jobStatistic.registerResultCorrectness(false);
         } else {
             System.out.println(Arrays.toString(result));
-            System.out.println(Arrays.toString(MockResultData.getCorrectResultBytes()));
-            System.out.println(Arrays.toString(MockResultData.getMaliciousBytes()));
             throw new RuntimeException("Job result does not match correct/malicious test format");
         }
 

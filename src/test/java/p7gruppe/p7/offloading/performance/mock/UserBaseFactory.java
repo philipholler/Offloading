@@ -64,7 +64,7 @@ public class UserBaseFactory {
     public UserBase generateBankedTimeTestUserBase(long randomSeed, int workerCount, int employerCount){
         MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
         List<MockUser> employerUsers = userGenerator.generateUsers(employerCount, randomSeed);
-        userGenerator.setProportionOfMaliciousUsers(0.1);
+        userGenerator.setProportionOfMaliciousUsers(0.05);
         List<MockUser> workerUsers = userGenerator.generateUsers(workerCount, randomSeed);
 
         MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);

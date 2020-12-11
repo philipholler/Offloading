@@ -117,37 +117,7 @@ public class StatisticsSummary {
     }
 
 
-    public List<DataPoint<Integer>> getThroughputOverTime(int timeStepMillis) {
-        List<DataPoint<Integer>> throughputOverTime = new ArrayList<>();
 
-        List<JobStatistic> correctFullConfidenceJobs = allCompletedJobs().stream().filter((job) -> {
-            Optional<JobEntity> jobEntityOptional = repositorySupplier.jobRepository.findById(job.jobID);
-            double confidence = jobEntityOptional.get().confidenceLevel;
-            return confidence >= 0.99d && job.isResultCorrect();
-        }).sorted(Comparator.comparingLong(JobStatistic::getUploadTimeMillis)).collect(Collectors.toList());
-
-        if (correctFullConfidenceJobs.size() <= 10) {
-            throw new RuntimeException("Dataset too small to perform throughput analysis");
-        }
-
-        long startTime = correctFullConfidenceJobs.get(0).getUploadTimeMillis();
-        long endTime = correctFullConfidenceJobs.get(correctFullConfidenceJobs.size() - 1).getUploadTimeMillis();
-
-        int length = (int) ((endTime - startTime) / timeStepMillis);
-        length += ((int) ((endTime - startTime) % timeStepMillis) > 0) ? 1 : 0;
-        int[] throughputValues = new int[length];
-
-        for (JobStatistic jobStat : correctFullConfidenceJobs) {
-            int index = (int) ((jobStat.getUploadTimeMillis() - startTime) / timeStepMillis);
-            throughputValues[index] += 1;
-        }
-
-        for (int i = 0; i < throughputValues.length; i++) {
-            throughputOverTime.add(new DataPoint<Integer>(i * timeStepMillis, throughputValues[i]));
-        }
-
-        return throughputOverTime;
-    }
 
     // Throughput is defined as correct 100% confidence results
     public long getTotalThroughput() {
@@ -183,12 +153,122 @@ public class StatisticsSummary {
         return dataPoints;
     }
 
-    private Optional<MockEmployer> getEmployer(MockUser user){
+    private Optional<MockEmployer> getEmployer(MockUser user) {
         for (MockEmployer employer : userBase.getEmployers()) {
             if (employer.mockUser.userCredentials.getUsername().equals(user.userCredentials.getUsername())) {
                 return Optional.of(employer);
             }
         }
         return Optional.empty();
+    }
+
+    public List<DataPoint<Integer>> getThroughputOverTime(int timeStepMillis) {
+        List<DataPoint<Integer>> throughputOverTime = new ArrayList<>();
+
+        List<JobStatistic> correctFullConfidenceJobs = allCompletedJobs().stream().filter((job) -> {
+            Optional<JobEntity> jobEntityOptional = repositorySupplier.jobRepository.findById(job.jobID);
+            double confidence = jobEntityOptional.get().confidenceLevel;
+            return confidence >= 0.99d && job.isResultCorrect();
+        }).sorted(Comparator.comparingLong(JobStatistic::getFinishTimeStampMillis)).collect(Collectors.toList());
+
+        if (correctFullConfidenceJobs.size() <= 10) {
+            throw new RuntimeException("Dataset too small to perform throughput analysis");
+        }
+
+        long startTime = correctFullConfidenceJobs.get(0).getFinishTimeStampMillis();
+        long endTime = correctFullConfidenceJobs.get(correctFullConfidenceJobs.size() - 1).getFinishTimeStampMillis();
+
+        int length = (int) ((endTime - startTime) / timeStepMillis);
+        length += ((int) ((endTime - startTime) % timeStepMillis) > 0) ? 1 : 0;
+        int[] throughputValues = new int[length];
+
+        for (JobStatistic jobStat : correctFullConfidenceJobs) {
+            int index = (int) ((jobStat.getFinishTimeStampMillis() - startTime) / timeStepMillis);
+            throughputValues[index] += 1;
+        }
+
+        for (int i = 0; i < throughputValues.length; i++) {
+            throughputOverTime.add(new DataPoint<Integer>(i * timeStepMillis, throughputValues[i]));
+        }
+
+        return throughputOverTime;
+    }
+
+    public List<DataPoint<Double>> getAverageConfidenceIntervals(int timeStepMillis) {
+        List<DataPoint<Double>> throughputOverTime = new ArrayList<>();
+
+        List<JobStatistic> completedJobs = allCompletedJobs();
+        completedJobs.sort(Comparator.comparingLong(JobStatistic::getFinishTimeStampMillis));
+
+        if (completedJobs.size() <= 10) {
+            throw new RuntimeException("Dataset too small to perform throughput analysis");
+        }
+
+        long startTime = completedJobs.get(0).getFinishTimeStampMillis();
+        long endTime = completedJobs.get(completedJobs.size() - 1).getFinishTimeStampMillis();
+
+        int length = (int) ((endTime - startTime) / timeStepMillis);
+        length += ((int) ((endTime - startTime) % timeStepMillis) > 0) ? 1 : 0;
+
+        Averager[] averagers = new Averager[length];
+        for (int i = 0; i < length; i++) averagers[i] = new Averager();
+
+        for (JobStatistic jobStat : completedJobs) {
+            int index = (int) ((jobStat.getFinishTimeStampMillis() - startTime) / timeStepMillis);
+            JobEntity jobEntity = repositorySupplier.jobRepository.findById(jobStat.jobID).get();
+            averagers[index].add(jobEntity.confidenceLevel);
+        }
+
+        for (int i = 0; i < averagers.length; i++) {
+            throughputOverTime.add(new DataPoint<>(i * timeStepMillis, averagers[i].getAverage()));
+        }
+
+        return throughputOverTime;
+    }
+
+
+    public List<DataPoint<Double>> getAverageConfidenceJobInterval(int jobsPerInterval) {
+        List<JobStatistic> completedJobs = allCompletedJobs();
+        completedJobs.sort(Comparator.comparingLong(JobStatistic::getFinishTimeStampMillis));
+
+        if (completedJobs.size() <= 10) {
+            throw new RuntimeException("Dataset too small to perform throughput analysis");
+        }
+
+        int intervals = completedJobs.size() / jobsPerInterval;
+        intervals += (completedJobs.size() % jobsPerInterval > 0) ? 1 : 0;
+
+        Averager[] averagers = new Averager[intervals];
+        for (int i = 0; i < intervals; i++) averagers[i] = new Averager();
+
+        int amountOfJobs = completedJobs.size();
+        for (int i = 0; i < amountOfJobs; i++) {
+            JobEntity jobEntity = repositorySupplier.jobRepository.findById(completedJobs.get(i).jobID).get();
+            averagers[i / jobsPerInterval].add(jobEntity.confidenceLevel);
+        }
+
+        List<DataPoint<Double>> confidenceOverTime = new ArrayList<>();
+        for (int i = 0; i < averagers.length; i++) {
+            confidenceOverTime.add(new DataPoint<>(i * jobsPerInterval, averagers[i].getAverage()));
+        }
+
+        return confidenceOverTime;
+    }
+
+    private class Averager{
+
+        private double total = 0;
+        private int count = 0;
+
+        public void add(double value){
+            count += 1;
+            total += value;
+        }
+
+        public double getAverage(){
+            if (count == 0) return 0.0;
+            return total / (double) count;
+        }
+
     }
 }

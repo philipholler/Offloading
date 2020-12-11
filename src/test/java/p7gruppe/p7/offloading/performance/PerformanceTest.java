@@ -102,8 +102,7 @@ public class PerformanceTest {
         UserBase userBase = userBaseFactory.generateBankedTimeTestUserBase(RANDOM_SEED, workerCount, employerCount);
         userBase.initializeUserBase();
 
-
-        long testDurationMillis = 120L * 1000L;
+        long testDurationMillis = 80L * 1000L;
         long startTime = System.currentTimeMillis();
         long endTime = startTime + testDurationMillis;
 
@@ -125,14 +124,13 @@ public class PerformanceTest {
         }
 
         List<DataPoint<Long>> serverCPUTime = ServerStatistic.getCPUTimeDataPoints(targetUser);
-        System.out.println("User activation time: ");
+        /*System.out.println("User activation time: ");
         System.out.println(Arrays.toString(serverCPUTime.stream().map(((dp) -> dp.timestamp)).toArray()));
         System.out.println(Arrays.toString(serverCPUTime.stream().map(((dp) -> dp.value)).toArray()));
 
         System.out.println("User activation time: ");
         System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.timestamp)).toArray()));
-        System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.value)).toArray()));
-
+        System.out.println(Arrays.toString(summary.getActivationOverTime("1").stream().map(((dp) -> dp.value)).toArray()));*/
 
         List<StatPoint> statPoints = new ArrayList<>();
 
@@ -149,8 +147,8 @@ public class PerformanceTest {
 
         ExcelWriter excelWriter = new ExcelWriter();
         excelWriter.writeStatPoints(profile + File.separator + "Overview.xlsx", statPoints);
-        excelWriter.writeDataPoints(profile + File.separator + "Throughput.xlsx", summary.getThroughputOverTime(5000), "Millis since start", "100% Confidence jobs completed");
-        excelWriter.writeDataPoints(profile + File.separator + "Confidence_over_time.xlsx", summary.confidenceDataPoints(), "Time", "Confidence");
+        //excelWriter.writeDataPoints(profile + File.separator + "Throughput.xlsx", summary.getThroughputOverTime(5000), "Millis since start", "100% Confidence jobs completed");
+        excelWriter.writeDataPoints(profile + File.separator + "Confidence_after_x_amount_of_jobs.xlsx", summary.getAverageConfidenceJobInterval(20), "Time", "Confidence");
         excelWriter.writeDataPoints(profile + File.separator + "Banked_time_Completion_time.xlsx", summary.getBankedTimeAndJobTime(), "Banked Time", "Job Completion Time");
         excelWriter.writeMultiDataPoints(profile + File.separator + "Activation_time_vs_banked_time.xlsx",
                 Arrays.asList(serverCPUTime, summary.getActivationOverTime("1")), new String[]{"Time", "Banked Time", "Activation Time"});
