@@ -253,7 +253,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
             // Take "payment" from the employer. Update his cpu time spent.
             long originalTimeoutInMs = jobValue.getTimeoutInMinutes() * 60 * 1000;
-            long newCpuTimeSpent = employer.getCpuTimeSpentInMs() + originalTimeoutInMs - timeSpendOnAssignment;
+            long newCpuTimeSpent = employer.getCpuTimeSpentInMs() - originalTimeoutInMs + timeSpendOnAssignment;
             employer.setCpuTimeSpentInMs(newCpuTimeSpent);
             userRepository.save(employer);
 

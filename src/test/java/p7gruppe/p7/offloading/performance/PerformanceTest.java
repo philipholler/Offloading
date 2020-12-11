@@ -95,7 +95,7 @@ public class PerformanceTest {
 
     @Test
     void performanceTest_shortTermTest() {
-        int userCount = 80, deviceCount = 300, employerCount = 80;
+        int userCount = 80, deviceCount = 80, employerCount = 80;
         UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier);
         UserBase userBase = userBaseFactory.generateUserBaseSomeUsersWithoutWorkers(RANDOM_SEED, userCount, deviceCount, employerCount);
         userBase.initializeUserBase();
