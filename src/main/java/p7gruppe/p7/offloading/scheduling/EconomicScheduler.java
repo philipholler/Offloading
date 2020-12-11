@@ -85,7 +85,7 @@ public class EconomicScheduler implements JobScheduler {
 
         double allDevicesAvgTrustScore = deviceRepository.getAvgTrustScore();
 
-        if(device.trustScore < 0.3) return false;
+        if(device.trustScore < 0.4) return false;
         return !(device.trustScore < allDevicesAvgTrustScore / 2);
     }
 }
