@@ -145,7 +145,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Only if the job and device is not his own
             if(device.getOwner().getUserId() != jobValue.getEmployer().getUserId()){
                 UserEntity employer = jobValue.getEmployer();
-                employer.setCpuTimeSpentInMs(employer.getCpuTimeSpentInMs() + jobValue.timeoutInMinutes * 60 * 1000);
+                employer.setCpuTimeSpentInMs(employer.getCpuTimeSpentInMs() + (jobValue.timeoutInMinutes * 60 * 1000));
                 userRepository.save(employer);
             }
 
@@ -187,7 +187,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Do not increase the cpu time, if the job was his own.
             UserEntity employer = jobValue.getEmployer();
             if(quittingDevice.getOwner().getUserId() != employer.getUserId()){
-                employer.setCpuTimeSpentInMs(employer.getCpuTimeSpentInMs() + jobValue.timeoutInMinutes * 60 * 1000);
+                employer.setCpuTimeSpentInMs(employer.getCpuTimeSpentInMs() + (jobValue.timeoutInMinutes * 60 * 1000));
                 userRepository.save(employer);
             }
 
@@ -245,7 +245,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         UserEntity userContributing = device.getOwner();
         UserEntity employer = jobValue.getEmployer();
         boolean isUsersOwnDevice = userContributing.getUserId() == employer.getUserId();
-        if(!isUsersOwnDevice){
+        if(!isUsersOwnDevice && !assignment.isTrustTestAssignment){
             // Reward the user
             long timeSpendOnAssignment = assignment.getTimeOfCompletionInMs() - assignment.getTimeOfAssignmentInMs();
             userContributing.setCpuTimeContributedInMs(userContributing.getCpuTimeContributedInMs() + timeSpendOnAssignment);
@@ -254,6 +254,7 @@ public class AssignmentsApiController implements AssignmentsApi {
             // Take "payment" from the employer. Update his cpu time spent.
             long originalTimeoutInMs = jobValue.getTimeoutInMinutes() * 60 * 1000;
             long newCpuTimeSpent = employer.getCpuTimeSpentInMs() + originalTimeoutInMs - timeSpendOnAssignment;
+            employer.setCpuTimeSpentInMs(newCpuTimeSpent);
             userRepository.save(employer);
 
             // Reward the device for finishing
@@ -319,7 +320,10 @@ public class AssignmentsApiController implements AssignmentsApi {
                     DeviceEntity worker = assig.worker;
                     // If the device was in the majority with results, increment the finishedAssignments correct.
                     if(confidenceData.hasCorrectAnswerFromAssignment(assignment)){
-                        worker.incrementAssignmentsFinishedCorrectResult();
+                        // Finished correct results are only counted for real assignments. Not test assigments
+                        if(!assig.isTrustTestAssignment){
+                            worker.incrementAssignmentsFinishedCorrectResult();
+                        }
                         worker.updateTrustScore(true);
                     } else {
                         worker.updateTrustScore(false);

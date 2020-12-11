@@ -61,7 +61,7 @@ public class MockEmployer implements Simulatable {
         String jobName = String.valueOf(jobsPosted);
         hasDownloadedResult.put(jobName, false);
 
-        ResponseEntity<Long> responseEntity = apiSupplier.jobsApi.postJob(mockUser.userCredentials, mockJob.answersNeeded, String.valueOf(jobsPosted), Integer.MAX_VALUE, mockJob.getComputationTimeAsBase64Bytes());
+        ResponseEntity<Long> responseEntity = apiSupplier.jobsApi.postJob(mockUser.userCredentials, mockJob.answersNeeded, String.valueOf(jobsPosted),  ((mockJob.computationTimeMillis / 1000) / 60) * 2, mockJob.getComputationTimeAsBase64Bytes());
         if (responseEntity.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Could not upload job from mock employer : " + mockUser.userCredentials);
         }

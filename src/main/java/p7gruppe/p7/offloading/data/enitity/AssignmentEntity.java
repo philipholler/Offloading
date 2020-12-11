@@ -78,5 +78,16 @@ public class AssignmentEntity {
         return status;
     }
 
-
+    @Override
+    public String toString() {
+        return "AssignmentEntity{" +
+                "assignmentId=" + assignmentId +
+                ", job=" + job +
+                ", worker=" + worker +
+                ", status=" + status +
+                ", timeOfAssignmentInMs=" + timeOfAssignmentInMs +
+                ", timeOfCompletionInMs=" + timeOfCompletionInMs +
+                ", isTrustTestAssignment=" + isTrustTestAssignment +
+                '}';
+    }
 }
