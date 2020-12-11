@@ -28,9 +28,11 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
     // Find biggest number of entries agreeing
     var highestNumberOfResults = 0;
     var highestNumberHash = "";
+    var nonTestAssignmentsFound: Int = 0;
     for (key in resultMap.keys){
         // Filter to remove test assignments, which have the name _testAssig.zip at the end
         var list = resultMap[key]!!.filter{ Regex(".*/result_file_([0-9]*).zip").containsMatchIn(it) };
+        nonTestAssignmentsFound += list.size;
 
         if(list!!.size > highestNumberOfResults){
             highestNumberOfResults = list.size
@@ -56,8 +58,10 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
         }
     }
 
+    println("Result map: " + resultMap)
+
     confidenceResultData.bestFilePath = resultMap[highestNumberHash]!!.get(0)
-    confidenceResultData.confidenceLevel = highestNumberOfResults.toDouble() / confidenceResultData.correctAssignmentIds.size
+    confidenceResultData.confidenceLevel = highestNumberOfResults.toDouble() / nonTestAssignmentsFound.toDouble()
 
     return confidenceResultData;
 }

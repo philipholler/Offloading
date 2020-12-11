@@ -100,7 +100,7 @@ public class PerformanceTest {
         UserBase userBase = userBaseFactory.generateUserBaseSomeUsersWithoutWorkers(RANDOM_SEED, userCount, deviceCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 60L * 1000L;
+        long testDurationMillis = 5L * 1000L;
         long endTime = System.currentTimeMillis() + testDurationMillis;
         userBase.startSimulation();
         while (System.currentTimeMillis() < endTime) {
