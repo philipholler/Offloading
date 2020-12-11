@@ -54,7 +54,7 @@ public class AssignmentsApiController implements AssignmentsApi {
 
     @Override
     public ResponseEntity<Void> pingAssignment(UserCredentials userCredentials, DeviceId deviceId, Long jobId) {
-        DeviceEntity deviceEntity = deviceRepository.getDeviceByIMEI(deviceId.getImei());
+        DeviceEntity deviceEntity = deviceRepository.getDeviceByUUID(deviceId.getUuid());
         AssignmentEntity assignmentEntity = assignmentRepository.getAssignmentForJob(jobId, deviceEntity.getDeviceId());
 
         boolean shouldContinue = jobScheduler.shouldContinue(assignmentEntity.getAssignmentId());
@@ -85,12 +85,12 @@ public class AssignmentsApiController implements AssignmentsApi {
 
         long userID = userRepository.getUserID(userCredentials.getUsername());
         // Check if device belongs to user
-        if(!deviceRepository.doesDeviceBelongToUser(deviceId.getImei(), userID)){
+        if(!deviceRepository.doesDeviceBelongToUser(deviceId.getUuid(), userID)){
             System.out.println("GET_ASSIGNMENT - Device does not belong to user: " + deviceId + " " + userCredentials.toString());
             return ResponseEntity.badRequest().build();
         }
 
-        DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
+        DeviceEntity device = deviceRepository.getDeviceByUUID(deviceId.getUuid());
 
         /**
          * Check if device is already doing a job, but crashed or something
@@ -167,7 +167,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         }
 
         // Update status for assignment to QUIT
-        DeviceEntity quittingDevice = deviceRepository.getDeviceByIMEI(deviceId.getImei());
+        DeviceEntity quittingDevice = deviceRepository.getDeviceByUUID(deviceId.getUuid());
         Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(quittingDevice.deviceId);
         if (!possibleAssignment.isPresent()){
             return ResponseEntity.badRequest().build();
@@ -222,14 +222,14 @@ public class AssignmentsApiController implements AssignmentsApi {
         /*
         Update the assignment status, if it is present in the database
          */
-        DeviceEntity device = deviceRepository.getDeviceByIMEI(deviceId.getImei());
+        DeviceEntity device = deviceRepository.getDeviceByUUID(deviceId.getUuid());
         Optional<AssignmentEntity> possibleAssignment = assignmentRepository.getProcessingAssignmentForDevice(device.deviceId);
         if (!possibleAssignment.isPresent()){
             // Check that the assignment was actually present in the first place
             // but has since been marked as done (maybe the user got a result from his own worker)
             if(!assignmentRepository.getAssignmentForJobAndWorker(device.deviceId, jobId).iterator().hasNext()){
                 // if the assignment was never present, some went wrong
-                System.err.println("Attempted result upload. But device (" + device.deviceId + ", " + deviceId.getImei() + ") does not have matching assignment");
+                System.err.println("Attempted result upload. But device (" + device.deviceId + ", " + deviceId.getUuid() + ") does not have matching assignment");
                 return ResponseEntity.badRequest().build();
             }
             else {

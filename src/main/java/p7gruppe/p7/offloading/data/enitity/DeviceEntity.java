@@ -11,7 +11,7 @@ public class DeviceEntity {
     @Id
     @GeneratedValue
     public int deviceId;
-    private String imei;
+    private String uuid;
 
     @ManyToOne
     private UserEntity owner;
@@ -19,9 +19,9 @@ public class DeviceEntity {
     private int assignmentsFinishedCorrectResult;
     public double trustScore;
 
-    public DeviceEntity(UserEntity owner, String imei) {
+    public DeviceEntity(UserEntity owner, String uuid) {
         this.owner = owner;
-        this.imei = imei;
+        this.uuid = uuid;
         this.assignmentsFinished = 0;
         this.assignmentsFinishedCorrectResult = 0;
         this.trustScore = 0.5;
@@ -37,19 +37,8 @@ public class DeviceEntity {
         return deviceId;
     }
 
-    public String getImei() {
-        return imei;
-    }
-
-    @Override
-    public String toString() {
-        return "DeviceEntity{" +
-                "deviceId=" + deviceId +
-                ", imei='" + imei + '\'' +
-                ", owner=" + owner +
-                ", assignmentsFinished=" + assignmentsFinished +
-                ", assignmentsFinishedCorrectResult=" + assignmentsFinishedCorrectResult +
-                '}';
+    public String getUuid() {
+        return uuid;
     }
 
     public void incrementAssignmentsFinished(){

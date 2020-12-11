@@ -19,7 +19,7 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
             "ORDER BY upload_time ASC " +
             "LIMIT 1 ",
             nativeQuery = true)
-    JobEntity getOldestAvailableJob();
+    Optional<JobEntity> getOldestAvailableJob();
 
     @Query(value = "SELECT * FROM job_entity INNER JOIN user_entity ue on ue.user_id = job_entity.employer_user_id WHERE user_name = ?1", nativeQuery = true)
     Iterable<JobEntity> getJobsByUsername(String username);
@@ -40,15 +40,15 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
             nativeQuery = true)
     Optional<JobEntity> getJobWithHighestUserPriority();
 
-    @Query(value = "SELECT job_id, answers_needed, confidence_level, job_path, job_status, name, priority, timeout_in_minutes, upload_time, workers_assigned, employer_user_id " +
+    @Query(value = "SELECT job_id, answers_needed, confidence_level, job_path, job_status, name, timeout_in_minutes, upload_time, workers_assigned, employer_user_id " +
             "FROM job_entity INNER JOIN user_entity ue on ue.user_id = job_entity.employer_user_id " +
             "WHERE job_entity.workers_assigned < job_entity.answers_needed " +
             "        AND ?1 != ue.user_id " +
-            "ORDER BY cpu_time_contributed_in_ms-cpu_time_spent_in_ms DESC, upload_time ASC LIMIT 1 ",
+            "ORDER BY cpu_time_contributed_in_millis-cpu_time_spent_in_millis DESC, upload_time ASC LIMIT 1 ",
             nativeQuery = true)
     Optional<JobEntity> getJobWithHighestUserPriorityFromOtherUser(long userId);
 
-    @Query(value = "SELECT priority, timeout_in_minutes FROM job_entity WHERE employer_user_id = ?1",
+    @Query(value = "SELECT timeout_in_minutes FROM job_entity WHERE employer_user_id = ?1",
             nativeQuery = true)
     Iterable<JobEntity> getJobPriorityAndTimeOutByUserID();
 

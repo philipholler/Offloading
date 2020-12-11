@@ -1,7 +1,6 @@
 package p7gruppe.p7.offloading.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,18 +65,18 @@ public class UsersApiController implements UsersApi {
         }
 
         // If logged in from an employer client
-        if(deviceId.getImei().equals("null")){
+        if(deviceId.getUuid().equals("null")){
             System.out.println("Logged in using employer client");
             return ResponseEntity.ok(userCredentials);
         }
         // If logged in from a worker
         else {
             // If worker not seen before, add it
-            if(!deviceRepository.isDevicePresent(deviceId.getImei())){
+            if(!deviceRepository.isDevicePresent(deviceId.getUuid())){
                 UserEntity deviceUser = userRepository.getUserByUsername(userCredentials.getUsername());
                 // If user does not exist or the device is already registered but with a different user.
                 if(deviceUser == null || !(deviceUser.getUserName().equals(userCredentials.getUsername()))) return ResponseEntity.status(404).build();
-                DeviceEntity newDevice = new DeviceEntity(deviceUser, deviceId.getImei());
+                DeviceEntity newDevice = new DeviceEntity(deviceUser, deviceId.getUuid());
                 deviceRepository.save(newDevice);
             }
             return ResponseEntity.ok(userCredentials);

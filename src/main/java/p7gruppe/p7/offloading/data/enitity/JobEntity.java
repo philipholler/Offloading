@@ -19,7 +19,6 @@ public class JobEntity {
     @Enumerated(EnumType.STRING)
     public JobStatus jobStatus;
     public int timeoutInMinutes;
-    public int priority;
     public double confidenceLevel;
 
 
@@ -48,7 +47,6 @@ public class JobEntity {
                 ", workersAssigned=" + workersAssigned +
                 ", jobStatus=" + jobStatus +
                 ", timeoutInMinutes=" + timeoutInMinutes +
-                ", priority=" + priority +
                 '}';
     }
 
@@ -73,14 +71,6 @@ public class JobEntity {
 
     public void setJobStatus(JobStatus jobStatus) {
         this.jobStatus = jobStatus;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
     }
 
     public double getConfidenceLevel() {

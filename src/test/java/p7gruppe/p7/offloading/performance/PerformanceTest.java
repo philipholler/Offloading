@@ -1,6 +1,5 @@
 package p7gruppe.p7.offloading.performance;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,7 +118,7 @@ public class PerformanceTest {
         // System.out.println("Worker activation time: " + summary.getActivationOverTime("1"));
         String targetUser = "-1";
         for (MockWorker mockWorker : userBase.getWorkers()) {
-            if (mockWorker.deviceId.getImei().equals("1")) {
+            if (mockWorker.deviceId.getUuid().equals("1")) {
                 targetUser = mockWorker.owner.userCredentials.getUsername();
             }
         }

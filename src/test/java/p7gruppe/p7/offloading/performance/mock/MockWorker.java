@@ -39,7 +39,7 @@ public class MockWorker implements Simulatable {
     public MockWorker(double cpu_factor, String deviceID, MockUser mockUser, APISupplier apiSupplier) {
         CPU_FACTOR = cpu_factor;
         this.owner = mockUser;
-        this.deviceId = new DeviceId().imei(deviceID);
+        this.deviceId = new DeviceId().uuid(deviceID);
         this.apiSupplier = apiSupplier;
         statistic = new WorkerStatistic(mockUser);
     }
