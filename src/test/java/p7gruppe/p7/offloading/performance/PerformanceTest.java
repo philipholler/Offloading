@@ -82,7 +82,7 @@ public class PerformanceTest {
         userRepository.deleteAll();
         ServerStatistic.reset();
     }
-    /*
+
     @AfterEach
     public void cleanup(){
         File resultDirFile = new File(pathToTestDataDir);
@@ -91,16 +91,16 @@ public class PerformanceTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
     @Test
     void performanceTest_shortTermTest() {
-        int userCount = 80, deviceCount = 80, employerCount = 80;
+        int userCount = 80, deviceCount = 300, employerCount = 80;
         UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier);
         UserBase userBase = userBaseFactory.generateUserBaseSomeUsersWithoutWorkers(RANDOM_SEED, userCount, deviceCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 5L * 1000L;
+        long testDurationMillis = 60L * 1000L;
         long endTime = System.currentTimeMillis() + testDurationMillis;
         userBase.startSimulation();
         while (System.currentTimeMillis() < endTime) {

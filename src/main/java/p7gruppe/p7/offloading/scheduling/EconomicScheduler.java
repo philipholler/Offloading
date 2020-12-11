@@ -25,14 +25,14 @@ public class EconomicScheduler implements JobScheduler {
 
     @Override
     public Optional<JobEntity> assignJob(DeviceEntity device) {
-        /*Optional<JobEntity> jobFromSameUser = jobRepository.getOldestAvailableJobFromSameUser(device.getOwner().getUserName());
+        Optional<JobEntity> jobFromSameUser = jobRepository.getOldestAvailableJobFromSameUser(device.getOwner().getUserName());
 
         if(jobFromSameUser.isPresent()){
             return jobFromSameUser;
-        }*/
+        }
 
         // Look for other users jobs, that have the highest possible priority
-        Optional<JobEntity> jobFromOtherUsers = jobRepository.getJobWithHighestUserPriority();
+        Optional<JobEntity> jobFromOtherUsers = jobRepository.getJobWithHighestUserPriorityFromOtherUser(device.getOwner().getUserId());
 
         return jobFromOtherUsers;
 

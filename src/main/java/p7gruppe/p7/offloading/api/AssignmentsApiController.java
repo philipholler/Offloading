@@ -227,7 +227,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         if (!possibleAssignment.isPresent()){
             // Check that the assignment was actually present in the first place
             // but has since been marked as done (maybe the user got a result from his own worker)
-            if(!assignmentRepository.getAssignmentForJobAndWorker(device.deviceId, jobId).isPresent()){
+            if(!assignmentRepository.getAssignmentForJobAndWorker(device.deviceId, jobId).iterator().hasNext()){
                 // if the assignment was never present, some went wrong
                 System.err.println("Attempted result upload. But device (" + device.deviceId + ", " + deviceId.getImei() + ") does not have matching assignment");
                 return ResponseEntity.badRequest().build();
