@@ -64,6 +64,45 @@ public class UserBaseFactory {
     public UserBase generateBankedTimeTestUserBase(long randomSeed, int workerCount, int employerCount){
         MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
         List<MockUser> employerUsers = userGenerator.generateUsers(employerCount, randomSeed);
+        userGenerator.setProportionOfMaliciousUsers(0.10);
+        List<MockUser> workerUsers = userGenerator.generateUsers(workerCount, randomSeed);
+
+        MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
+        employerGenerator.setJobSpawnerSupplier((seed) -> {
+            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(3000, 3000, seed);
+            jobSpawner.setMaximumComputeTimeDeviationMillis(1000);
+            jobSpawner.setMaximumSpawnIntervalDeviationMillis(800);
+            return jobSpawner;
+        });
+
+        MockWorkerGenerator workerGenerator = new MockWorkerGenerator(apiSupplier);
+        List<MockEmployer> employers = employerGenerator.generateEmployers(employerCount, employerUsers, randomSeed);
+        List<MockWorker> workers = workerGenerator.generateWorkers(workerCount, workerUsers, randomSeed);
+
+        final int bankedTimeStepSizeMillis = 10 * 1000;
+        Random random = new Random();
+        UserRepository userRepository = repositorySupplier.userRepository;
+        for (int i = 0;  i < employerCount; i++ ) {
+            MockUser employer = employerUsers.get(i);
+            final long bankedTime = i * bankedTimeStepSizeMillis + random.nextInt(bankedTimeStepSizeMillis * 2) - (bankedTimeStepSizeMillis * 2);
+            employer.setOnRegistered(() -> {
+                UserEntity userEntity = userRepository.getUserByUsername(employer.userCredentials.getUsername());
+                userEntity.setCpuTimeContributedInMillis(bankedTime);
+                userRepository.save(userEntity);
+            });
+        }
+
+        List<MockUser> allUsers = new ArrayList<>(employerUsers);
+        allUsers.addAll(workerUsers);
+
+        Collections.shuffle(employers, new Random(randomSeed));
+        Collections.shuffle(workers, new Random(randomSeed));
+        return new UserBase(allUsers, employers, workers);
+    }
+
+    public UserBase generateConfidenceUserBase(long randomSeed, int workerCount, int employerCount){
+        MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
+        List<MockUser> employerUsers = userGenerator.generateUsers(employerCount, randomSeed);
         userGenerator.setProportionOfMaliciousUsers(0.05);
         List<MockUser> workerUsers = userGenerator.generateUsers(workerCount, randomSeed);
 

@@ -116,9 +116,6 @@ public class StatisticsSummary {
         return total / (double) dataPoints;
     }
 
-
-
-
     // Throughput is defined as correct 100% confidence results
     public long getTotalThroughput() {
         return allCompletedJobs().stream().filter((job) -> {
@@ -271,4 +268,40 @@ public class StatisticsSummary {
         }
 
     }
+
+
+    public List<DataPoint<Double>> percentageUncompletedJobsByBankedTime(int bankInterval){
+        List<Integer> incompleteJobsByBankedTime = new ArrayList<>();
+        List<Integer> totalJobCounts = new ArrayList<>();
+        for (JobStatistic jobStatistic : allJobs()) {
+            long uploadTime = jobStatistic.getUploadTimeMillis();
+            long bankedTime = ServerStatistic.getCPUTime(jobStatistic.user.userCredentials.getUsername(), uploadTime);
+            if (bankedTime < 0) continue;
+
+            int index = (int) bankedTime / bankInterval;
+            while (index >= incompleteJobsByBankedTime.size()) {
+                incompleteJobsByBankedTime.add(0);
+                totalJobCounts.add(0);
+            }
+
+            totalJobCounts.set(index, totalJobCounts.get(index) + 1);
+            if (!jobStatistic.isJobCompleted()) {
+                incompleteJobsByBankedTime.set(index, incompleteJobsByBankedTime.get(index) + 1);
+            }
+        }
+
+        List<DataPoint<Double>> dataPoints = new ArrayList<>();
+        for (int i = 0; i < incompleteJobsByBankedTime.size(); i++) {
+            double percentageIncomplete;
+            if (totalJobCounts.get(i) == 0) percentageIncomplete = 0;
+            else percentageIncomplete = ((double) incompleteJobsByBankedTime.get(i)) / (double) totalJobCounts.get(i);
+            percentageIncomplete *= 100;
+            percentageIncomplete = Math.round(percentageIncomplete);
+            dataPoints.add(new DataPoint<>(i * bankInterval, percentageIncomplete));
+        }
+
+        return dataPoints;
+    }
+
+
 }

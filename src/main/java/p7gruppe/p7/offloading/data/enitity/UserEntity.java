@@ -51,6 +51,7 @@ public class UserEntity {
     }
 
     public void setCpuTimeSpentInMillis(long cpuTimeSpent) {
+        cpuTimeSpent =
         this.cpuTimeSpentInMillis = cpuTimeSpent;
         ServerStatistic.addCPUTimeDataPoint(cpuTimeContributedInMillis - cpuTimeSpent, userName);
     }

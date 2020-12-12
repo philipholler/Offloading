@@ -97,12 +97,12 @@ public class PerformanceTest {
 
     @Test
     void performanceTest_shortTermTest() {
-        int workerCount = 80, employerCount = 60;
+        int workerCount = 70, employerCount = 50;
         UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier, repositorySupplier);
         UserBase userBase = userBaseFactory.generateBankedTimeTestUserBase(RANDOM_SEED, workerCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 80L * 1000L;
+        long testDurationMillis = 60L * 60L * 1000L;
         long startTime = System.currentTimeMillis();
         long endTime = startTime + testDurationMillis;
 
@@ -147,7 +147,8 @@ public class PerformanceTest {
 
         ExcelWriter excelWriter = new ExcelWriter();
         excelWriter.writeStatPoints(profile + File.separator + "Overview.xlsx", statPoints);
-        //excelWriter.writeDataPoints(profile + File.separator + "Throughput.xlsx", summary.getThroughputOverTime(5000), "Millis since start", "100% Confidence jobs completed");
+        excelWriter.writeDataPoints(profile + File.separator + "Incomplete_Jobs.xlsx", summary.percentageUncompletedJobsByBankedTime(50 * 1000), "Banked time", "Percentage incomplete");
+        excelWriter.writeDataPoints(profile + File.separator + "Throughput.xlsx", summary.getThroughputOverTime(30000), "Millis since start", "100% Confidence jobs completed");
         excelWriter.writeDataPoints(profile + File.separator + "Confidence_after_x_amount_of_jobs.xlsx", summary.getAverageConfidenceJobInterval(20), "Time", "Confidence");
         excelWriter.writeDataPoints(profile + File.separator + "Banked_time_Completion_time.xlsx", summary.getBankedTimeAndJobTime(), "Banked Time", "Job Completion Time");
         excelWriter.writeMultiDataPoints(profile + File.separator + "Activation_time_vs_banked_time.xlsx",
