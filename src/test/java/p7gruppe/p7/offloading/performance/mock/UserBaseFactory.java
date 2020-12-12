@@ -64,12 +64,12 @@ public class UserBaseFactory {
     public UserBase generateBankedTimeTestUserBase(long randomSeed, int workerCount, int employerCount){
         MockUserGenerator userGenerator = new MockUserGenerator(apiSupplier);
         List<MockUser> employerUsers = userGenerator.generateUsers(employerCount, randomSeed);
-        userGenerator.setProportionOfMaliciousUsers(0.10);
+        userGenerator.setProportionOfMaliciousUsers(0.4);
         List<MockUser> workerUsers = userGenerator.generateUsers(workerCount, randomSeed);
 
         MockEmployerGenerator employerGenerator = new MockEmployerGenerator(apiSupplier);
         employerGenerator.setJobSpawnerSupplier((seed) -> {
-            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(3000, 3000, seed);
+            RandomIntervalJobSpawner jobSpawner= new RandomIntervalJobSpawner(3000, 4000, seed);
             jobSpawner.setMaximumComputeTimeDeviationMillis(1000);
             jobSpawner.setMaximumSpawnIntervalDeviationMillis(800);
             return jobSpawner;

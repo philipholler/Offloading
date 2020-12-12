@@ -1,10 +1,7 @@
 package p7gruppe.p7.offloading.performance;
 
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
-import p7gruppe.p7.offloading.performance.mock.MockEmployer;
-import p7gruppe.p7.offloading.performance.mock.MockUser;
-import p7gruppe.p7.offloading.performance.mock.MockWorker;
-import p7gruppe.p7.offloading.performance.mock.UserBase;
+import p7gruppe.p7.offloading.performance.mock.*;
 import p7gruppe.p7.offloading.statistics.DataPoint;
 import p7gruppe.p7.offloading.statistics.ServerStatistic;
 
@@ -137,6 +134,38 @@ public class StatisticsSummary {
         throw new RuntimeException("No user with name " + uuid);
     }
 
+    public int getWrongAnswersOutOfFirstNJobs(int N){
+        List<JobStatistic> jobs = getFirstNJobsFinishedJobs(N);
+
+        int wrongResults = 0;
+        for(JobStatistic job : jobs){
+            wrongResults = job.isResultCorrect() ? wrongResults : wrongResults + 1;
+        }
+
+        return wrongResults;
+    }
+
+    public int getCorrectAnswersOutOfFirstNJobs(int N){
+        List<JobStatistic> jobs = getFirstNJobsFinishedJobs(N);
+
+        int correctResults = 0;
+        for(JobStatistic job : jobs){
+            correctResults = job.isResultCorrect() ? correctResults + 1 : correctResults;
+        }
+
+        return correctResults;
+    }
+
+    private List<JobStatistic> getFirstNJobsFinishedJobs(int N){
+        List<JobStatistic> jobs = userBase.getJobStatistics();
+
+        List<JobStatistic> finishedJobs = new ArrayList<>();
+
+        finishedJobs.addAll(jobs.stream().filter((j) -> j.isJobCompleted()).collect(Collectors.toList()));
+
+        return finishedJobs.subList(0, Math.min(finishedJobs.size() - 1, 200));
+    }
+
     public List<DataPoint<Long>> getBankedTimeAndJobTime() {
         List<DataPoint<Long>> dataPoints = new ArrayList<>();
 
@@ -223,6 +252,37 @@ public class StatisticsSummary {
         return throughputOverTime;
     }
 
+    public List<DataPoint<Double>> getAverageCorrectnessRatioJobInterval(int jobsPerInterval){
+        List<JobStatistic> completedJobs = allCompletedJobs();
+
+        completedJobs.sort(Comparator.comparingLong(JobStatistic::getFinishTimeStampMillis));
+
+        if (completedJobs.size() <= 10) {
+            throw new RuntimeException("Dataset too small to perform throughput analysis");
+        }
+
+        int intervals = completedJobs.size() / jobsPerInterval;
+        intervals += (completedJobs.size() % jobsPerInterval > 0) ? 1 : 0;
+
+        Averager[] averagers = new Averager[intervals];
+        for (int i = 0; i < intervals; i++) averagers[i] = new Averager();
+
+        for(int i = 0; i < completedJobs.size(); i++){
+            if(completedJobs.get(i).isResultCorrect() && completedJobs.get(i).isJobCompleted()){
+                averagers[i / jobsPerInterval].add(1);
+            }
+            else {
+                averagers[i / jobsPerInterval].add(0);
+            }
+        }
+
+        List<DataPoint<Double>> correctnessRatioOverTime = new ArrayList<>();
+        for (int i = 0; i < averagers.length; i++) {
+            correctnessRatioOverTime.add(new DataPoint<>(i * jobsPerInterval, averagers[i].getAverage()));
+        }
+
+        return correctnessRatioOverTime;
+    }
 
     public List<DataPoint<Double>> getAverageConfidenceJobInterval(int jobsPerInterval) {
         List<JobStatistic> completedJobs = allCompletedJobs();

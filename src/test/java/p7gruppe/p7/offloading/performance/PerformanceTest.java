@@ -96,12 +96,12 @@ public class PerformanceTest {
 
     @Test
     void performanceTest_shortTermTest() {
-        int workerCount = 70, employerCount = 50;
+        int workerCount = 80, employerCount = 60;
         UserBaseFactory userBaseFactory = new UserBaseFactory(apiSupplier, repositorySupplier);
         UserBase userBase = userBaseFactory.generateBankedTimeTestUserBase(RANDOM_SEED, workerCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 20L * 60L * 1000L;
+        long testDurationMillis = 2L * 60L * 1000L;
         long startTime = System.currentTimeMillis();
         long endTime = startTime + testDurationMillis;
 
@@ -135,6 +135,7 @@ public class PerformanceTest {
 
         String profile = environment.getActiveProfiles()[0];
 
+
         statPoints.add(new StatPoint("Amount of posted jobs", String.valueOf(summary.getAmountOfPostedJobs())));
         statPoints.add(new StatPoint("Amount of completed jobs", String.valueOf(summary.getAmountOfCompletedJobs())));
         statPoints.add(new StatPoint("Amount of incorrect results", String.valueOf(summary.getAmountOfMaliciousResults())));
@@ -143,12 +144,15 @@ public class PerformanceTest {
         statPoints.add(new StatPoint("Average confidence", String.valueOf(summary.averageConfidence())));
         statPoints.add(new StatPoint("Average job completion time", String.valueOf(summary.getAverageJobTimeForFinishedJobsMillis())));
         statPoints.add(new StatPoint("Maximum job completion time", String.valueOf(summary.getMaximumTimeFromUploadTillProcessedMillis())));
+        statPoints.add(new StatPoint("Correct Jobs of first 200", String.valueOf(summary.getCorrectAnswersOutOfFirstNJobs(200))));
+        statPoints.add(new StatPoint("Wrong Jobs of first 200", String.valueOf(summary.getWrongAnswersOutOfFirstNJobs(200))));
 
         ExcelWriter excelWriter = new ExcelWriter();
         excelWriter.writeStatPoints(profile + File.separator + "Overview.xlsx", statPoints);
         excelWriter.writeDataPoints(profile + File.separator + "Incomplete_Jobs.xlsx", summary.percentageUncompletedJobsByBankedTime(50 * 1000), "Banked time", "Percentage incomplete");
         excelWriter.writeDataPoints(profile + File.separator + "Throughput.xlsx", summary.getThroughputOverTime(30000), "Millis since start", "100% Confidence jobs completed");
-        excelWriter.writeDataPoints(profile + File.separator + "Confidence_after_x_amount_of_jobs.xlsx", summary.getAverageConfidenceJobInterval(20), "Time", "Confidence");
+        excelWriter.writeDataPoints(profile + File.separator + "Confidence_after_x_amount_of_jobs.xlsx", summary.getAverageConfidenceJobInterval(20), "Job Interval", "Confidence");
+        excelWriter.writeDataPoints(profile + File.separator + "Correctness_ratio_after_x_amount_of_jobs.xlsx", summary.getAverageCorrectnessRatioJobInterval(20), "Job Interval", "Correctness ratio");
         excelWriter.writeDataPoints(profile + File.separator + "Banked_time_Completion_time.xlsx", summary.getBankedTimeAndJobTime(), "Banked Time", "Job Completion Time");
         excelWriter.writeMultiDataPoints(profile + File.separator + "Activation_time_vs_banked_time.xlsx",
                 Arrays.asList(serverCPUTime, summary.getActivationOverTime("1")), new String[]{"Time", "Banked Time", "Activation Time"});
@@ -158,6 +162,4 @@ public class PerformanceTest {
     void performanceTest_confidenceOverTime() {
 
     }
-
-
 }
