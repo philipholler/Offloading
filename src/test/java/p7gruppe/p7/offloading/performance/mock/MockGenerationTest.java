@@ -13,7 +13,6 @@ import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.repository.DeviceRepository;
 import p7gruppe.p7.offloading.data.repository.UserRepository;
 import p7gruppe.p7.offloading.performance.APISupplier;
-import p7gruppe.p7.offloading.performance.RepositorySupplier;
 import p7gruppe.p7.offloading.testutils.IteratorUtils;
 
 import java.util.HashMap;
@@ -121,12 +120,12 @@ public class MockGenerationTest {
         HashSet<String> mockWorkerIDs = new HashSet<>();
         for (MockWorker worker : workers) {
             worker.login();
-            mockWorkerIDs.add(worker.deviceId.getImei());
+            mockWorkerIDs.add(worker.deviceId.getUuid());
         }
 
         HashSet<String> serverWorkerIDs = new HashSet<>();
         for (DeviceEntity device : deviceRepository.findAll()) {
-            serverWorkerIDs.add(device.getImei());
+            serverWorkerIDs.add(device.getUuid());
         }
 
         assertEquals(mockWorkerIDs, serverWorkerIDs);

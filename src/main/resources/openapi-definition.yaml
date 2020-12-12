@@ -85,7 +85,7 @@ components:
     DeviceId:
       type: object
       properties:
-        imei:
+        uuid:
           type: string
 
     JobId:

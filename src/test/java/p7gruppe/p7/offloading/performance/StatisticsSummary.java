@@ -126,15 +126,15 @@ public class StatisticsSummary {
     }
 
     // Sum activation of all devices for a given user over time
-    public List<DataPoint<Long>> getActivationOverTime(String deviceImei) {
+    public List<DataPoint<Long>> getActivationOverTime(String uuid) {
         for (MockWorker worker : userBase.getWorkers()) {
-            if (worker.deviceId.getImei().equals(deviceImei)) {
+            if (worker.deviceId.getUuid().equals(uuid)) {
                 return worker.statistic.getContributionOverTime()
                         .stream().map((dp) -> new DataPoint<>(dp.timestamp / 1000, dp.value / 1000))
                         .collect(Collectors.toList());
             }
         }
-        throw new RuntimeException("No user with name " + deviceImei);
+        throw new RuntimeException("No user with name " + uuid);
     }
 
     public List<DataPoint<Long>> getBankedTimeAndJobTime() {

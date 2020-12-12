@@ -4,7 +4,6 @@ package p7gruppe.p7.offloading.converters;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 import p7gruppe.p7.offloading.model.DeviceId;
-import p7gruppe.p7.offloading.model.UserCredentials;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,21 +14,21 @@ class DeviceIDConverter implements Converter<String, DeviceId> {
     @Override
     public DeviceId convert(String source) {
         DeviceId deviceId = new DeviceId();
-        if (source.contains("imei=")){
-            // Arrives as: DeviceId(imei=*val*)
+        if (source.contains("uuid=")){
+            // Arrives as: DeviceId(uuid=*val*)
             String value = source.substring(source.indexOf("=") + 1, source.length() - 1);
             if(!value.isEmpty()){
-                deviceId.setImei(value);
+                deviceId.setUuid(value);
             }
             return deviceId;
 
         }else {
-            // If arrived as: imei,*val*
-            Pattern pattern = Pattern.compile(".*imei,([^,]*)");
+            // If arrived as: uuid,*val*
+            Pattern pattern = Pattern.compile(".*uuid,([^,]*)");
             Matcher matcher = pattern.matcher(source);
             boolean found = matcher.find();
             if (found) {
-                deviceId.setImei(matcher.group(1));
+                deviceId.setUuid(matcher.group(1));
                 return deviceId;
             }
             else {
