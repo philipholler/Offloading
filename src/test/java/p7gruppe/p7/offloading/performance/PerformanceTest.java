@@ -101,7 +101,7 @@ public class PerformanceTest {
         UserBase userBase = userBaseFactory.generateBankedTimeTestUserBase(RANDOM_SEED, workerCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 60L * 60L * 1000L;
+        long testDurationMillis = 20L * 60L * 1000L;
         long startTime = System.currentTimeMillis();
         long endTime = startTime + testDurationMillis;
 
