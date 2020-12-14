@@ -265,7 +265,7 @@ public class AssignmentsApiController implements AssignmentsApi {
         // If present upload file
         try {
             jobFileManager.saveResult(jobValue.jobPath,
-                    jobFileManager.decodeFromBase64(jobresult.getResult().getData()),
+                    (jobresult.getResult().getData()),
                     assignment.getAssignmentId(),
                     assignment.isTrustTestAssignment);
         } catch (IOException e) {

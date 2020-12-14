@@ -209,7 +209,7 @@ paths:
         '200':
           description: Computed job
           content:
-            text/plain:
+            application/json:
               schema:
                 type: integer
                 format: int64
