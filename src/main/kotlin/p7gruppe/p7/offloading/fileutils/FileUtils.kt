@@ -13,38 +13,38 @@ val hasher: Hasher = Hasher()
 fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
     var confidenceResultData: ConfidenceResult = ConfidenceResult();
     // Map from hash of contents to files having this hash
-    var resultMap: MutableMap<String, MutableList<String>> = mutableMapOf();
+    var hashToFilesMap: MutableMap<String, MutableList<String>> = mutableMapOf();
 
 
     for(file: File in fileList){
-        var fileMap = getFileToHashMap(file)
-        if(hasher.hash(fileMap.toString()) !in resultMap.keys){
-            resultMap[hasher.hash(fileMap.toString())] = mutableListOf()
+        var fileToContentMap = getFileContentHashMap(file)
+        if(hasher.hash(fileToContentMap.toString()) !in hashToFilesMap.keys){
+            hashToFilesMap[hasher.hash(fileToContentMap.toString())] = mutableListOf()
         }
 
-        resultMap[hasher.hash(fileMap.toString())]!!.add(file.absolutePath);
+        hashToFilesMap[hasher.hash(fileToContentMap.toString())]!!.add(file.absolutePath);
     }
 
     // Find biggest number of entries agreeing
-    var highestNumberOfResults = 0;
+    var highestNumberOfResultsAgreeing = 0;
     var highestNumberHash = "";
     var nonTestAssignmentsFound: Int = 0;
-    for (key in resultMap.keys){
+    for (key in hashToFilesMap.keys){
         // Filter to remove test assignments, which have the name _testAssig.zip at the end
-        var list = resultMap[key]!!.filter{ Regex(".*/result_file_([0-9]*).zip").containsMatchIn(it) };
+        var list = hashToFilesMap[key]!!.filter{ Regex(".*/result_file_([0-9]*).zip").containsMatchIn(it) };
         nonTestAssignmentsFound += list.size;
 
-        if(list!!.size > highestNumberOfResults){
-            highestNumberOfResults = list.size
+        if(list!!.size > highestNumberOfResultsAgreeing){
+            highestNumberOfResultsAgreeing = list.size
             highestNumberHash = key
         }
     }
 
-    // Add devices, that were in the majority result group
-    // Paths looke like this
-    // /Users/philipholler/IdeaProjects/Offloading/test_data/result_test/results/result_file_15.zip
-    // Where 15 is the deviceid of the worker that completede the job
-    for(f in resultMap[highestNumberHash]!!){
+    // Add assignment ids, that were in the majority result group
+    // Paths look like this: /Users/philipholler/IdeaProjects/Offloading/test_data/result_test/results/result_file_15.zip
+    // Where 15 is the assignment id of the result file
+    // testAssig.zip are results from test assignments
+    for(f in hashToFilesMap[highestNumberHash]!!){
         if(Regex(".*/result_file_([0-9]*).zip").containsMatchIn(f)){
             var matches = Regex(".*/result_file_([0-9]*).zip").find(f)!!
             var workerId: Long = matches.groups.get(1)!!.value.toLong();
@@ -58,15 +58,15 @@ fun getConfidenceLevel(fileList: List<File>) : ConfidenceResult {
         }
     }
 
-    confidenceResultData.bestFilePath = resultMap[highestNumberHash]!!.get(0)
-    confidenceResultData.confidenceLevel = highestNumberOfResults.toDouble() / nonTestAssignmentsFound.toDouble()
+    confidenceResultData.bestFilePath = hashToFilesMap[highestNumberHash]!!.get(0)
+    confidenceResultData.confidenceLevel = highestNumberOfResultsAgreeing.toDouble() / nonTestAssignmentsFound.toDouble()
 
     return confidenceResultData;
 }
 
 fun checkZipFilesEquality(file1: File, file2: File): Boolean{
-    var file1Map = getFileToHashMap(file1)
-    var file2Map = getFileToHashMap(file2)
+    var file1Map = getFileContentHashMap(file1)
+    var file2Map = getFileContentHashMap(file2)
 
     // Check that all keys are contained in both
     if(!file1Map.keys.equals(file2Map.keys)){
@@ -84,7 +84,7 @@ fun checkZipFilesEquality(file1: File, file2: File): Boolean{
     return true
 }
 
-public fun getFileToHashMap(file: File): MutableMap<String, String> {
+public fun getFileContentHashMap(file: File): MutableMap<String, String> {
     // Result map from file path to hash value
     var resultMap: MutableMap<String, String> = mutableMapOf();
 

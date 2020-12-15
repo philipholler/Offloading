@@ -101,7 +101,7 @@ public class PerformanceTest {
         UserBase userBase = userBaseFactory.generateBankedTimeTestUserBase(RANDOM_SEED, workerCount, employerCount);
         userBase.initializeUserBase();
 
-        long testDurationMillis = 2L * 60L * 1000L;
+        long testDurationMillis = 3L * 60L * 1000L;
         long startTime = System.currentTimeMillis();
         long endTime = startTime + testDurationMillis;
 
@@ -151,15 +151,10 @@ public class PerformanceTest {
         excelWriter.writeStatPoints(profile + File.separator + "Overview.xlsx", statPoints);
         excelWriter.writeDataPoints(profile + File.separator + "Incomplete_Jobs.xlsx", summary.percentageUncompletedJobsByBankedTime(50 * 1000), "Banked time", "Percentage incomplete");
         excelWriter.writeDataPoints(profile + File.separator + "Throughput.xlsx", summary.getThroughputOverTime(30000), "Millis since start", "100% Confidence jobs completed");
-        excelWriter.writeDataPoints(profile + File.separator + "Confidence_after_x_amount_of_jobs.xlsx", summary.getAverageConfidenceJobInterval(20), "Job Interval", "Confidence");
-        excelWriter.writeDataPoints(profile + File.separator + "Correctness_ratio_after_x_amount_of_jobs.xlsx", summary.getAverageCorrectnessRatioJobInterval(20), "Job Interval", "Correctness ratio");
+        excelWriter.writeDataPoints(profile + File.separator + "Confidence_after_x_amount_of_jobs.xlsx", summary.getAverageConfidenceJobInterval(75), "Job Interval", "Confidence");
+        excelWriter.writeDataPoints(profile + File.separator + "Correctness_ratio_after_x_amount_of_jobs.xlsx", summary.getAverageCorrectnessRatioJobInterval(75), "Job Interval", "Correctness ratio");
         excelWriter.writeDataPoints(profile + File.separator + "Banked_time_Completion_time.xlsx", summary.getBankedTimeAndJobTime(), "Banked Time", "Job Completion Time");
         excelWriter.writeMultiDataPoints(profile + File.separator + "Activation_time_vs_banked_time.xlsx",
                 Arrays.asList(serverCPUTime, summary.getActivationOverTime("1")), new String[]{"Time", "Banked Time", "Activation Time"});
-    }
-
-    @Test
-    void performanceTest_confidenceOverTime() {
-
     }
 }

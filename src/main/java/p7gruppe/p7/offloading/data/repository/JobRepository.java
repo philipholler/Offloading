@@ -62,6 +62,4 @@ public interface JobRepository extends CrudRepository<JobEntity, Long> {
             "WHERE user_name = ?1 ORDER BY  upload_time LIMIT 1",
             nativeQuery = true)
     JobEntity getOldestJobByUserName(String userName);
-
-
 }

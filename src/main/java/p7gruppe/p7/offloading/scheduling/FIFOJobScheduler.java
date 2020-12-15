@@ -1,5 +1,6 @@
 package p7gruppe.p7.offloading.scheduling;
 
+import p7gruppe.p7.offloading.data.enitity.AssignmentEntity;
 import p7gruppe.p7.offloading.data.enitity.DeviceEntity;
 import p7gruppe.p7.offloading.data.enitity.JobEntity;
 import p7gruppe.p7.offloading.data.repository.AssignmentRepository;
@@ -29,7 +30,31 @@ public class FIFOJobScheduler implements JobScheduler{
 
     @Override
     public boolean shouldContinue(long assignmentID) {
-        return true;
+        boolean shouldContinue = true;
+
+        Optional<AssignmentEntity> assignmentOpt = assignmentRepository.findById(assignmentID);
+        // If the assignment is not present, it should not continue
+        // This should not possibly happen, but this is a precaution
+        if(assignmentOpt.isPresent()){
+            AssignmentEntity assignment = assignmentOpt.get();
+            JobEntity job = assignment.job;
+
+            // If the job is done, also quit
+            if(job.getJobStatus() == JobEntity.JobStatus.DONE
+                    || job.getJobStatus() == JobEntity.JobStatus.DONE_CONFLICTING_RESULTS){
+                shouldContinue = false;
+            }
+
+            // If should not continue, just mark as done
+            if(!shouldContinue){
+                assignment.setStatus(AssignmentEntity.Status.DONE);
+                assignmentRepository.save(assignment);
+            }
+        } else {
+            shouldContinue = false;
+        }
+
+        return shouldContinue;
     }
 
     @Override
